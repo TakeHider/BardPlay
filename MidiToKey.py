@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# Midi Event to PC-Keyboard-Event for FF14
 
 import pyautogui   as pauto
 import pygame.midi as pmidi
