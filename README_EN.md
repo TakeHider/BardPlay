@@ -2,8 +2,6 @@
 
 Midi Event to PC-Keyboard Event for FF14
 
-
-
 ## Python Version
 
 python 3.x
