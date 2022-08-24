@@ -10,7 +10,7 @@ import pygame.midi as pygame
 
 NOTE_ON     = 0x90
 NOTE_OFF    = 0x80
-INI_FILE    = 'MidiTokey.ini'
+INI_FILE    = 'BardPlay.ini'
 
 # デバイス情報を表示する
 def getDeviceInfo():
