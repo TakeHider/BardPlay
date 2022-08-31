@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-# Midi Event to PC-Keyboard-Event for FF14
+# Midi Event to PC-Keyboard-Event
+
+# SendMessageを使ってみる
+# ターゲットウインドウメカ気て飛ばす処理を入れてみる
 
 import os 
 import sys
@@ -119,14 +122,19 @@ if __name__=='__main__':
 
                     if key_min <= data1 <= key_max:
                         # マッピング範囲内の時
-                        if status == NOTE_ON:           # ノート ON
+                        if status == NOTE_ON and data2 != 0x00:      # ノート ON
                             # 前に音が鳴っていたら消す
-                            if pre_event != '':
+                            if pre_event != '' and pre_event! = key_map[data1]:
                                 send_off(pre_event)
-                            # 指定されたキーを押す
-                            send_on(key_map[data1])
-                            pre_event = key_map[data1]
-                        elif status == NOTE_OFF:        # ノート OFF
+                              
+                            # 今と異なる状態だったら、指定されたキーを押す
+                            if pre_event != key_map[data1]:
+                                send_on(key_map[data1])
+                                pre_event = key_map[data1]
+                        elif status == NOTE_OFF or (status == NOTE_ON and data2 = 0x00):        # ノート OFF
+                            # もし他のノートが押されていたら、放しておく
+                            if pre_event != key_map[data1] && pre_event !='':
+                                send_off(pre_event)
                             # 指定されたキーを離す
                             send_off(key_map[data1])
                             pre_event = ''
@@ -136,5 +144,11 @@ if __name__=='__main__':
                             # 範囲外の音が出たときに止める指定がされていたら、ループを抜ける
                             if  (data1 - exit_outrange ) < key_min or (data1 + exit_outrange ) > key_max:
                                 loop = False
+    
+    # もし何か鳴っていたら止める
+    if pre_event != '':
+        send_off(pre_event)
+        pre_event = ''
+    # 諸々閉じる    
     pygame.quit()
     sys.exit()
