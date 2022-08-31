@@ -3,6 +3,8 @@ package main
 // 以下を実行すること
 // > go mod tidy
 
+// ※ターゲットウインドウめがけて飛ばす処理を入れる
+
 import (
 	"fmt"
 	"log"
