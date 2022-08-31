@@ -6,7 +6,6 @@ package main
 // ※ターゲットウインドウめがけて飛ばす処理を入れる
 
 import (
-	"fmt"
 	"log"
 	"path/filepath"
 	"runtime"
@@ -134,33 +133,33 @@ func InputMIDI() {
 				// 取り扱うイベントは ノートオンとノートオフのみ
 				if byStatus == NOTE_ON || byStatus == NOTE_OFF {
 					// マッピング範囲内の時
-					if KEY_MIN <= byData1 && byData1 <= KEY_MAX {
+					if int(KEY_MIN) <= int(byData1) && int(byData1) <= int(KEY_MAX) {
 						// ノートオン
-						if (byMessage[0] == NOTE_ON) && (byMessage[2] != 0x00) { 
-							if byPreNote != byMessage[1] && byPreNote != 0 {
+						if (byMessage[0] == NOTE_ON) && (byMessage[2] != 0x00) {
+							if byPreNote != byData1 && byPreNote != 0 {
 								// もし他のノートが押されていたら、放しておく
 								sendKeyUp(byPreNote)
 							}
-							if byPreNote != byMessage[1] {
+							if byPreNote != byData1 {
 								// 今と異なる状態だったら、指定されたノートを押す
-								sendKeyDown(byMessage[1])
-								byPreNote = byMessage[1]
+								sendKeyDown(byData1)
+								byPreNote = byData1
 							}
 
-						// ノートオフ
-						} else if (byMessage[0] == NOTE_OFF) || (byMessage[0] == NOTE_ON && byMessage[2] == 0x00) { 
+							// ノートオフ
+						} else if (byStatus == NOTE_OFF) || (byStatus == NOTE_ON && byData2 == 0x00) {
 							// もし他のノートが押されていたら、放しておく
-							if byPreNote != byMessage[1] && byPreNote != 0 {
+							if byPreNote != byData1 && byPreNote != 0 {
 								sendKeyUp(byPreNote)
 							}
 							// 指定されたノートを離す
-							sendKeyUp(byMessage[1])
+							sendKeyUp(byData1)
 							byPreNote = 0
 						}
 					} else {
 						// 範囲外の時
 						if EXIT_OUTRANGE > 0 {
-							# 範囲外の音が出たときに止める指定がされていたら、ループを抜ける
+							// 範囲外の音が出たときに止める指定がされていたら、ループを抜ける
 							if (int(byData1)-EXIT_OUTRANGE) < KEY_MIN || (int(byData1)+EXIT_OUTRANGE) > KEY_MAX {
 								blnProcRunning = false
 							}
@@ -191,7 +190,7 @@ func sendKeyDown(byNote uint8) {
 			// 指定された順番にキーイベントを送信
 			for n := 0; n < len(aryKey); n++ {
 				SendMessage.Call(0, uintptr(WM_KEYDOWN), uintptr(KEY_CODE[aryKey[n]]), 0)
-				sleep(1)	// イベント送信
+				time.Sleep(1) // イベント送信
 			}
 		}
 	}
@@ -207,7 +206,7 @@ func sendKeyUp(byNote uint8) {
 			// 指定された逆順にキーイベントを送信
 			for n := len(aryKey) - 1; n >= 0; n-- {
 				SendMessage.Call(0, uintptr(WM_KEYUP), uintptr(KEY_CODE[aryKey[n]]), 0)
-				sleep(1)	// イベント送信
+				time.Sleep(1) // イベント送信
 			}
 		}
 	}
@@ -226,7 +225,7 @@ func initIni() int {
 		log.Printf("Fail to read file: %v", err)
 		return 0
 	}
-	PORT_IN = cfg.Section("CONFIG").Key("port_in").MustInt(1) -1	// .iniを共通化するため、値-1にする
+	PORT_IN = cfg.Section("CONFIG").Key("port_in").MustInt(1) - 1 // .iniを共通化するため、値-1にする
 	EXIT_OUTRANGE = cfg.Section("CONFIG").Key("exit_outrange").MustInt(1)
 	for n := 0; n < 127; n++ {
 		s := cfg.Section("MAPPING").Key(strconv.Itoa(n)).String()
