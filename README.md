@@ -1,7 +1,6 @@
 # BardPlayGo
 
 Single Note MIDI Event to PC-Keyboard Event  
-
 FF14 compatible  
 
 **日本語の説明は下の方にあります**
