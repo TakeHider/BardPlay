@@ -124,14 +124,15 @@ func main() {
 	wndWindow.SetContent(
 		widget.NewHBox(lblDeviceName, btnStart, btnStop, btnQuit),
 	)
-	// 画面の表示
-	wndWindow.ShowAndRun()
-
 	// もし「起動と同時に開始」の設定がされていたら、受信処理を開始する
 	// 開発時は余計だけと、実際の運用時はあった方が便利
 	if (START_ON_RUN == 1) && (intMIDIReady != 0) && (!blnProcRunning) {
 		go InputMIDI(chProc)
 	}
+
+	// 画面の表示
+	wndWindow.ShowAndRun()
+
 }
 
 // MIDIイベント入力処理
@@ -182,13 +183,12 @@ func InputMIDI(blnCh chan bool) {
 						} else if (byStatus == NOTE_OFF) || (byStatus == NOTE_ON && byData2 == 0x00) {
 							// ノートOffの処理
 
-							// もし他のノートが押されていたら、放しておく
-							if byPreNote != byData1 && byPreNote != 0 {
-								sendKeyMessage(WM_KEYUP, byPreNote)
+							// 今押されているノートと同じだった時に放す
+							if byPreNote == byData1 {
+								// 指定されたノートを離す
+								sendKeyMessage(WM_KEYUP, byData1)
+								byPreNote = 0
 							}
-							// 指定されたノートを離す
-							sendKeyMessage(WM_KEYUP, byData1)
-							byPreNote = 0
 						}
 					} else {
 						// 範囲外の時
@@ -238,7 +238,7 @@ func sendKeyMessage(wmEvent uint32, byNote uint8) {
 				} else {
 					intIndex = n // なんかよくわからんイベントのとき…
 				}
-				log.Printf(" window: handle=0x%x : Note=%d : Key=%s\n", hwnd, byNote, aryKey[intIndex])
+				log.Printf(" winHandle = 0x%x : Note = %d : Key = %s : Event = %d\n", hwnd, byNote, aryKey[intIndex], wmEvent)
 				// User32.SendMessage をコール
 				SendMessage.Call(uintptr(hwnd), uintptr(wmEvent), uintptr(KEY_CODE[aryKey[intIndex]]), 0)
 				// 次のイベントのためにちょっとプロセスを開けておく
