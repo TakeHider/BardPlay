@@ -1,6 +1,7 @@
 # BardPlayGo
 
 Single Note MIDI Event to PC-Keyboard Event 
+FF14 compatible  
 
 **日本語の説明は下の方にあります**
 
@@ -80,7 +81,8 @@ or
 
 ## 『吟遊詩人の演奏 GO言語版』
 
-単音のMIDI入力情報を、パソコンのキーボードイベントに変えます。
+単音のMIDI入力情報を、パソコンのキーボードイベントに変えます。  
+FF14対応  
 
 ## GO言語で必要なライブラリ
 
