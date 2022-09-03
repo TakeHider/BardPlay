@@ -6,6 +6,7 @@ package main
 // ※ターゲットウインドウめがけて飛ばす処理を入れる
 
 import (
+	"fmt"
 	"log"
 	"path/filepath"
 	"runtime"
@@ -35,11 +36,14 @@ var (
 	GetMIDIMessage = dll.NewProc("MIDIIn_GetMIDIMessage")
 	CloseMIDIIn    = dll.NewProc("MIDIIn_Close")
 
-	dllWin32    = syscall.NewLazyDLL("user32.dll")
-	SendMessage = dllWin32.NewProc("PostMessage")
-	//SendMessage = dllWin32.NewProc("SendMessage")
+	dllWin32 = syscall.NewLazyDLL("user32.dll")
+	//SendMessage = dllWin32.NewProc("PostMessageW")
+	procSendMessage    = dllWin32.NewProc("SendMessageW")
+	procEnumWindows    = dllWin32.NewProc("EnumWindows")
+	procGetWindowTextW = dllWin32.NewProc("GetWindowTextW")
 
 	szDeviceName [32]uint8
+	hwnd         syscall.Handle
 
 	NOTE_ON  uint8 = 0x90
 	NOTE_OFF uint8 = 0x80
@@ -51,14 +55,17 @@ var (
 
 	aryKeyMap [127]string
 
-	EXIT_OUTRANGE = 0 // 範囲外の鍵盤が押されたら抜けるか？
-	PORT_IN       = 0 // ポート番号
-	KEY_MIN       = 0 // キーマッピングの最低値
-	KEY_MAX       = 0 // キーマッピングの最高値
+	TARGET_WINDOW = "" // ターゲットウインドウ名
+	EXIT_OUTRANGE = 0  // 範囲外の鍵盤が押されたら抜けるか？
+	PORT_IN       = 0  // ポート番号
+	KEY_MIN       = 0  // キーマッピングの最低値
+	KEY_MAX       = 0  // キーマッピングの最高値
+
 )
 
 // メイン関数
 func main() {
+	var err error
 	var strDeviceName string // MIDIデバイス名（ウインドウに表示する）
 	// キーマッピングの初期化
 	initKeyMap()
@@ -76,6 +83,18 @@ func main() {
 		// 戻り値が0の時はデバイス無し
 		strDeviceName = "*** NO MIDI DEVICE ***"
 	}
+
+	// ターゲットウインドウ
+	if TARGET_WINDOW == "" {
+		hwnd = 0
+	} else {
+		hwnd, err = FindWindow(TARGET_WINDOW)
+		if err != nil {
+			log.Fatal(err)
+			strDeviceName = "*** NO TARGET WINDOW ***"
+		}
+	}
+
 	// デバイス名(兼メッセージ)
 	lblDeviceName := widget.NewLabel(strDeviceName)
 
@@ -96,6 +115,8 @@ func main() {
 	})
 	// 終了ボタン
 	btnQuit := widget.NewButtonWithIcon("Quit", theme.CancelIcon(), func() {
+		blnProcRunning = false
+		time.Sleep(10) // 出来ればスレッド終了を待ちたい※※※※※
 		wndApp.Quit()
 	})
 
@@ -104,6 +125,7 @@ func main() {
 		btnStart.Disable() // MIDIデバイスが無いときはボタンを非活性にする
 		btnStop.Disable()  // MIDIデバイスが無いときはボタンを非活性にする
 	}
+
 	// 画面の部品を乗せる
 	wndWindow.SetContent(
 		widget.NewHBox(lblDeviceName, btnStart, btnStop, btnQuit),
@@ -121,8 +143,8 @@ func InputMIDI() {
 	pMIDIIn, _, _ := OpenMIDIIn.Call(uintptr(unsafe.Pointer(&szDeviceName)))
 	defer CloseMIDIIn.Call(pMIDIIn)
 	if pMIDIIn != 0 {
-		// 安全のため 10秒だけ動かす
-		for now := time.Now(); blnProcRunning && time.Since(now).Seconds() < 10; {
+		// 実行指示が出ている間だけループ
+		for blnProcRunning {
 			// メッセージの受信
 			iRet, _, _ := GetMIDIMessage.Call(pMIDIIn, uintptr(unsafe.Pointer(&byMessage)), 256)
 			if iRet >= 3 {
@@ -180,8 +202,9 @@ func InputMIDI() {
 	blnProcRunning = false
 }
 
-// キーが押されたとき
+// 「キーを押す」を送信
 func sendKeyDown(byNote uint8) {
+
 	var strKey string = aryKeyMap[int(byNote)]
 	if strKey != "" {
 		// アサインされたキーを配列に格納
@@ -189,15 +212,18 @@ func sendKeyDown(byNote uint8) {
 		if len(aryKey) > 0 {
 			// 指定された順番にキーイベントを送信
 			for n := 0; n < len(aryKey); n++ {
-				SendMessage.Call(0, uintptr(WM_KEYDOWN), uintptr(KEY_CODE[aryKey[n]]), 0)
+				log.Printf("Found '%s' window: handle=0x%x : Note=%d : Key=%s\n", TARGET_WINDOW, hwnd, byNote, aryKey[n])
+
+				procSendMessage.Call(uintptr(hwnd), uintptr(WM_KEYDOWN), uintptr(KEY_CODE[aryKey[n]]), 0)
 				time.Sleep(1) // イベント送信
 			}
 		}
 	}
 }
 
-// キーが離されたとき
+// 「キーを離す」を送信
 func sendKeyUp(byNote uint8) {
+	log.Println(strconv.Itoa(int(byNote)))
 	var strKey string = aryKeyMap[int(byNote)]
 	if strKey != "" {
 		// アサインされたキーを配列に格納
@@ -205,7 +231,7 @@ func sendKeyUp(byNote uint8) {
 		if len(aryKey) > 0 {
 			// 指定された逆順にキーイベントを送信
 			for n := len(aryKey) - 1; n >= 0; n-- {
-				SendMessage.Call(0, uintptr(WM_KEYUP), uintptr(KEY_CODE[aryKey[n]]), 0)
+				log.Printf("Found '%s' window: handle=0x%x : Note=%d : Key=%s\n", TARGET_WINDOW, hwnd, byNote, aryKey[n])
 				time.Sleep(1) // イベント送信
 			}
 		}
@@ -225,8 +251,10 @@ func initIni() int {
 		log.Printf("Fail to read file: %v", err)
 		return 0
 	}
+	TARGET_WINDOW = cfg.Section("CONFIG").Key("target_window").MustString("")
 	PORT_IN = cfg.Section("CONFIG").Key("port_in").MustInt(1) - 1 // .iniを共通化するため、値-1にする
 	EXIT_OUTRANGE = cfg.Section("CONFIG").Key("exit_outrange").MustInt(1)
+
 	for n := 0; n < 127; n++ {
 		s := cfg.Section("MAPPING").Key(strconv.Itoa(n)).String()
 		if len(s) != 0 {
@@ -252,6 +280,60 @@ func IntPtr(n int) uintptr {
 // ポインタ処理(文字列)
 func StrPtr(s string) uintptr {
 	return uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(s)))
+}
+
+func getFileNameWithoutExt(path string) string {
+	// Fixed with a nice method given by mattn-san
+	return filepath.Base(path[:len(path)-len(filepath.Ext(path))])
+}
+
+// ウインドウハンドルの取得
+// https://gist.github.com/EliCDavis/5374fa4947897b16a81f6550d142ab28
+func EnumWindows(enumFunc uintptr, lparam uintptr) (err error) {
+	r1, _, err := procEnumWindows.Call(uintptr(enumFunc), uintptr(lparam), 0)
+	if r1 == 0 {
+		if err != nil {
+			err = error(err)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
+	return
+}
+func GetWindowText(hwnd syscall.Handle, str *uint16, maxCount int32) (len int32, err error) {
+	r0, _, err := procGetWindowTextW.Call(uintptr(hwnd), uintptr(unsafe.Pointer(str)), uintptr(maxCount))
+	len = int32(r0)
+	if len == 0 {
+		if err != nil {
+			err = error(err)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
+	return
+}
+
+func FindWindow(title string) (syscall.Handle, error) {
+	var hwnd syscall.Handle
+	cb := syscall.NewCallback(func(h syscall.Handle, p uintptr) uintptr {
+		b := make([]uint16, 200)
+		_, err := GetWindowText(h, &b[0], int32(len(b)))
+		if err != nil {
+			// ignore the error
+			return 1 // continue enumeration
+		}
+		if syscall.UTF16ToString(b) == title {
+			// note the window
+			hwnd = h
+			return 0 // stop enumeration
+		}
+		return 1 // continue enumeration
+	})
+	EnumWindows(cb, 0)
+	if hwnd == 0 {
+		return 0, fmt.Errorf("No window with title '%s' found", title)
+	}
+	return hwnd, nil
 }
 
 // キーマッピングの初期化
@@ -328,8 +410,4 @@ func initKeyMap() {
 	KEY_CODE["f11"] = 0x7A
 	KEY_CODE["f12"] = 0x7B
 
-}
-func getFileNameWithoutExt(path string) string {
-	// Fixed with a nice method given by mattn-san
-	return filepath.Base(path[:len(path)-len(filepath.Ext(path))])
 }
