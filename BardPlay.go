@@ -1,12 +1,13 @@
 package main
 
-// 以下を実行すること
-// > go mod tidy
+// -------------------------------------
+//    BardPlay.go  rev.1.0
+// -------------------------------------
+//  MIDI Event to PC-Key Event
 
-// ※ターゲットウインドウめがけて飛ばす処理を入れる
+// A python programmer tried writing in go language for the first time
 
 import (
-	"fmt"
 	"log"
 	"path/filepath"
 	"runtime"
@@ -27,8 +28,6 @@ var (
 	// ウインドウオブジェクト
 	wndApp    = app.New()
 	wndWindow = wndApp.NewWindow(appTitle)
-	// スレッド処理用
-	blnProcRunning = false
 	// DLL
 	dll            = syscall.NewLazyDLL("MIDIIO.dll")
 	GetDeviceName  = dll.NewProc("MIDIIn_GetDeviceNameW")
@@ -36,36 +35,33 @@ var (
 	GetMIDIMessage = dll.NewProc("MIDIIn_GetMIDIMessage")
 	CloseMIDIIn    = dll.NewProc("MIDIIn_Close")
 
-	dllWin32 = syscall.NewLazyDLL("user32.dll")
-	//SendMessage = dllWin32.NewProc("PostMessageW")
-	procSendMessage    = dllWin32.NewProc("SendMessageW")
-	procEnumWindows    = dllWin32.NewProc("EnumWindows")
-	procGetWindowTextW = dllWin32.NewProc("GetWindowTextW")
+	dllWin32            = syscall.NewLazyDLL("user32.dll")
+	SendMessage         = dllWin32.NewProc("SendMessageW") // PostMessageW ??
+	GetForegroundWindow = dllWin32.NewProc("GetForegroundWindow")
 
-	szDeviceName [32]uint8
-	hwnd         syscall.Handle
+	// 共通変数
+	szDeviceName   [32]uint8           // デバイス名
+	blnProcRunning bool        = false // スレッド処理用
+	aryKeyMap      [127]string         // キーのマッピング
 
-	NOTE_ON  uint8 = 0x90
-	NOTE_OFF uint8 = 0x80
+	// 共通定数
+	NOTE_ON    uint8  = 0x90                  // ノートOnの信号
+	NOTE_OFF   uint8  = 0x80                  // ノートOffの信号
+	WM_KEYUP   uint32 = 0x101                 // メッセージイベント KeyUp
+	WM_KEYDOWN uint32 = 0x100                 // メッセージイベント KeyDown
+	KEY_CODE          = map[string]int{"": 0} // キーとコードの対応表
 
-	WM_KEYUP   uint32 = 0x101
-	WM_KEYDOWN uint32 = 0x100
-
-	KEY_CODE = map[string]int{"": 0}
-
-	aryKeyMap [127]string
-
-	TARGET_WINDOW = "" // ターゲットウインドウ名
-	EXIT_OUTRANGE = 0  // 範囲外の鍵盤が押されたら抜けるか？
-	PORT_IN       = 0  // ポート番号
-	KEY_MIN       = 0  // キーマッピングの最低値
-	KEY_MAX       = 0  // キーマッピングの最高値
+	// 共通定数(とは名ばかりのiniから取得するもの)
+	EXIT_OUTRANGE = 0 // 範囲外の鍵盤が押されたら抜けるか？ (0:抜けない、1:抜ける)
+	START_ON_RUN  = 0 // 実行と同時に開始	(0:開始しない、1:開始する)
+	PORT_IN       = 0 // ポート番号
+	KEY_MIN       = 0 // キーマッピングの最低値
+	KEY_MAX       = 0 // キーマッピングの最高値
 
 )
 
 // メイン関数
 func main() {
-	var err error
 	var strDeviceName string // MIDIデバイス名（ウインドウに表示する）
 	// キーマッピングの初期化
 	initKeyMap()
@@ -73,9 +69,12 @@ func main() {
 	if initIni() == 0 {
 		strDeviceName = "*** INI FILE READ ERROR ***"
 	}
+	// MIDI受信プロセスと同期用のチャネルを作成
+	chProc := make(chan bool)
+	defer close(chProc)
 
 	// デバイス名の取得
-	intMIDIReady, _, _ := GetDeviceName.Call(IntPtr(PORT_IN), uintptr(unsafe.Pointer(&szDeviceName)), 32)
+	intMIDIReady, _, _ := GetDeviceName.Call(uintptr(PORT_IN), uintptr(unsafe.Pointer(&szDeviceName)), 32)
 	if intMIDIReady != 0 {
 		// MIDIデバイス名をセット
 		strDeviceName = strings.TrimSpace(string(szDeviceName[:]))
@@ -84,39 +83,34 @@ func main() {
 		strDeviceName = "*** NO MIDI DEVICE ***"
 	}
 
-	// ターゲットウインドウ
-	if TARGET_WINDOW == "" {
-		hwnd = 0
-	} else {
-		hwnd, err = FindWindow(TARGET_WINDOW)
-		if err != nil {
-			log.Fatal(err)
-			strDeviceName = "*** NO TARGET WINDOW ***"
-		}
-	}
-
 	// デバイス名(兼メッセージ)
 	lblDeviceName := widget.NewLabel(strDeviceName)
 
 	// スタートボタン
 	btnStart := widget.NewButtonWithIcon("Start", theme.MediaPlayIcon(), func() {
-		wndWindow.SetTitle(appTitle + " -- PLAY")
-
 		// プロセスが動いていなかったら、実行させる
 		if !blnProcRunning {
-			go InputMIDI()
+			go InputMIDI(chProc)
 		}
 	})
 
 	// 止めるボタン
 	btnStop := widget.NewButtonWithIcon("Stop", theme.MediaPauseIcon(), func() {
-		wndWindow.SetTitle(appTitle + " -- STOP")
-		blnProcRunning = false
+		// もしプロセスが動いていたら、止める
+		if blnProcRunning {
+			blnProcRunning = false  // 停止命令を出す
+			blnRet := <-chProc      // 停止の応答があるまで待つ
+			blnProcRunning = blnRet // 特に意味なし(警告対策)
+		}
 	})
 	// 終了ボタン
 	btnQuit := widget.NewButtonWithIcon("Quit", theme.CancelIcon(), func() {
-		blnProcRunning = false
-		time.Sleep(10) // 出来ればスレッド終了を待ちたい※※※※※
+		// もしプロセスが動いていたら、止める
+		if blnProcRunning {
+			blnProcRunning = false  // 停止命令を出す
+			blnRet := <-chProc      // 停止の応答があるまで待つ
+			blnProcRunning = blnRet // 特に意味なし(警告対策)
+		}
 		wndApp.Quit()
 	})
 
@@ -132,56 +126,74 @@ func main() {
 	)
 	// 画面の表示
 	wndWindow.ShowAndRun()
+
+	// もし「起動と同時に開始」の設定がされていたら、受信処理を開始する
+	// 開発時は余計だけと、実際の運用時はあった方が便利
+	if (START_ON_RUN == 1) && (intMIDIReady != 0) && (!blnProcRunning) {
+		go InputMIDI(chProc)
+	}
 }
 
 // MIDIイベント入力処理
-func InputMIDI() {
+func InputMIDI(blnCh chan bool) {
 	var byMessage [256]uint8
 	var byPreNote uint8 = 0
+
+	// スレッドを実行中にする
 	blnProcRunning = true
 
+	// MIDIデバイスを開く
 	pMIDIIn, _, _ := OpenMIDIIn.Call(uintptr(unsafe.Pointer(&szDeviceName)))
+	// 「どんなことがあっても最後は閉じる」宣言をしておく
 	defer CloseMIDIIn.Call(pMIDIIn)
+
+	// MIDIデバイスが無事に開けたら処理開始
 	if pMIDIIn != 0 {
+		// ウインドウタイトルを「実行中」に更新
+		wndWindow.SetTitle(appTitle + " -- PLAY")
 		// 実行指示が出ている間だけループ
 		for blnProcRunning {
-			// メッセージの受信
+			// MIDIメッセージの受信
 			iRet, _, _ := GetMIDIMessage.Call(pMIDIIn, uintptr(unsafe.Pointer(&byMessage)), 256)
+			// ノートOnとノートOffは3バイトずつ信号が来る
 			if iRet >= 3 {
-
-				byStatus := byMessage[0]
-				byData1 := byMessage[1]
-				byData2 := byMessage[2]
-				// 取り扱うイベントは ノートオンとノートオフのみ
+				byStatus := byMessage[0] // 最初のバイトはステータス
+				byData1 := byMessage[1]  // 次のバイトは音階
+				byData2 := byMessage[2]  // 最後のバイトは強さ
+				// 取り扱うイベントは ノートOnとノートOffのみ
 				if byStatus == NOTE_ON || byStatus == NOTE_OFF {
-					// マッピング範囲内の時
+					// 音階がマッピング範囲内の時
 					if int(KEY_MIN) <= int(byData1) && int(byData1) <= int(KEY_MAX) {
-						// ノートオン
+
 						if (byMessage[0] == NOTE_ON) && (byMessage[2] != 0x00) {
+							// ノートOnの処理
+
+							// もし他のノートが押されていたら、放しておく
 							if byPreNote != byData1 && byPreNote != 0 {
-								// もし他のノートが押されていたら、放しておく
-								sendKeyUp(byPreNote)
+								sendKeyMessage(WM_KEYUP, byPreNote)
 							}
+
+							// 今と異なるノートだったら、指定されたノートを押す
 							if byPreNote != byData1 {
-								// 今と異なる状態だったら、指定されたノートを押す
-								sendKeyDown(byData1)
+								sendKeyMessage(WM_KEYDOWN, byData1)
 								byPreNote = byData1
 							}
 
-							// ノートオフ
 						} else if (byStatus == NOTE_OFF) || (byStatus == NOTE_ON && byData2 == 0x00) {
+							// ノートOffの処理
+
 							// もし他のノートが押されていたら、放しておく
 							if byPreNote != byData1 && byPreNote != 0 {
-								sendKeyUp(byPreNote)
+								sendKeyMessage(WM_KEYUP, byPreNote)
 							}
 							// 指定されたノートを離す
-							sendKeyUp(byData1)
+							sendKeyMessage(WM_KEYUP, byData1)
 							byPreNote = 0
 						}
 					} else {
 						// 範囲外の時
 						if EXIT_OUTRANGE > 0 {
-							// 範囲外の音が出たときに止める指定がされていたら、ループを抜ける
+							// 「範囲外の音が出たときは止める」指定がされていたら、ループを抜ける
 							if (int(byData1)-EXIT_OUTRANGE) < KEY_MIN || (int(byData1)+EXIT_OUTRANGE) > KEY_MAX {
 								blnProcRunning = false
 							}
@@ -192,18 +204,24 @@ func InputMIDI() {
 				time.Sleep(1)
 			}
 		}
-		// もし何か押された状態だったら、放しておく
+		// ループを抜けたとき、もし何か押された状態のままだったら、放しておく
 		if byPreNote != 0 {
-			sendKeyUp(byPreNote)
+			sendKeyMessage(WM_KEYUP, byPreNote)
 			byPreNote = 0
 		}
+		// ウインドウタイトルを「演奏停止」に変える
+		wndWindow.SetTitle(appTitle + " -- STOP")
+		blnProcRunning = false
+		blnCh <- false
 	}
-	wndWindow.SetTitle(appTitle + " -- STOP")
-	blnProcRunning = false
 }
 
-// 「キーを押す」を送信
-func sendKeyDown(byNote uint8) {
+// キー情報の送信
+func sendKeyMessage(wmEvent uint32, byNote uint8) {
+	var intIndex int
+
+	// 飛ばし先は最前面のウインドウ
+	hwnd, _, _ := GetForegroundWindow.Call()
 
 	var strKey string = aryKeyMap[int(byNote)]
 	if strKey != "" {
@@ -212,27 +230,19 @@ func sendKeyDown(byNote uint8) {
 		if len(aryKey) > 0 {
 			// 指定された順番にキーイベントを送信
 			for n := 0; n < len(aryKey); n++ {
-				log.Printf("Found '%s' window: handle=0x%x : Note=%d : Key=%s\n", TARGET_WINDOW, hwnd, byNote, aryKey[n])
 
-				procSendMessage.Call(uintptr(hwnd), uintptr(WM_KEYDOWN), uintptr(KEY_CODE[aryKey[n]]), 0)
-				time.Sleep(1) // イベント送信
-			}
-		}
-	}
-}
-
-// 「キーを離す」を送信
-func sendKeyUp(byNote uint8) {
-	log.Println(strconv.Itoa(int(byNote)))
-	var strKey string = aryKeyMap[int(byNote)]
-	if strKey != "" {
-		// アサインされたキーを配列に格納
-		aryKey := strings.Split(strKey, " ")
-		if len(aryKey) > 0 {
-			// 指定された逆順にキーイベントを送信
-			for n := len(aryKey) - 1; n >= 0; n-- {
-				log.Printf("Found '%s' window: handle=0x%x : Note=%d : Key=%s\n", TARGET_WINDOW, hwnd, byNote, aryKey[n])
-				time.Sleep(1) // イベント送信
+				if wmEvent == WM_KEYDOWN {
+					intIndex = n // ノートOnのときは、指定されたキーの順番で押す
+				} else if wmEvent == WM_KEYUP {
+					intIndex = len(aryKey) - n - 1 // ノートOffのときは、逆の順番で押す
+				} else {
+					intIndex = n // なんかよくわからんイベントのとき…
+				}
+				log.Printf(" window: handle=0x%x : Note=%d : Key=%s\n", hwnd, byNote, aryKey[intIndex])
+				// User32.SendMessage をコール
+				SendMessage.Call(uintptr(hwnd), uintptr(wmEvent), uintptr(KEY_CODE[aryKey[intIndex]]), 0)
+				// 次のイベントのためにちょっとプロセスを開けておく
+				// time.Sleep(1)
 			}
 		}
 	}
@@ -244,16 +254,16 @@ func initIni() int {
 	// iniファイル名の取得
 	_, file, _, ok := runtime.Caller(0)
 	if ok {
-		strIniFile = getFileNameWithoutExt(file) + ".ini"
+		strIniFile = getBaseName(file) + ".ini"
 	}
 	cfg, err := ini.Load(strIniFile)
 	if err != nil {
 		log.Printf("Fail to read file: %v", err)
 		return 0
 	}
-	TARGET_WINDOW = cfg.Section("CONFIG").Key("target_window").MustString("")
 	PORT_IN = cfg.Section("CONFIG").Key("port_in").MustInt(1) - 1 // .iniを共通化するため、値-1にする
 	EXIT_OUTRANGE = cfg.Section("CONFIG").Key("exit_outrange").MustInt(1)
+	START_ON_RUN = cfg.Section("CONFIG").Key("start_on_run").MustInt(0)
 
 	for n := 0; n < 127; n++ {
 		s := cfg.Section("MAPPING").Key(strconv.Itoa(n)).String()
@@ -272,73 +282,15 @@ func initIni() int {
 	return KEY_MAX - KEY_MIN
 }
 
-// ポインタ処理(数値)
-func IntPtr(n int) uintptr {
-	return uintptr(n)
-}
-
-// ポインタ処理(文字列)
-func StrPtr(s string) uintptr {
-	return uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(s)))
-}
-
-func getFileNameWithoutExt(path string) string {
-	// Fixed with a nice method given by mattn-san
-	return filepath.Base(path[:len(path)-len(filepath.Ext(path))])
-}
-
-// ウインドウハンドルの取得
-// https://gist.github.com/EliCDavis/5374fa4947897b16a81f6550d142ab28
-func EnumWindows(enumFunc uintptr, lparam uintptr) (err error) {
-	r1, _, err := procEnumWindows.Call(uintptr(enumFunc), uintptr(lparam), 0)
-	if r1 == 0 {
-		if err != nil {
-			err = error(err)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-func GetWindowText(hwnd syscall.Handle, str *uint16, maxCount int32) (len int32, err error) {
-	r0, _, err := procGetWindowTextW.Call(uintptr(hwnd), uintptr(unsafe.Pointer(str)), uintptr(maxCount))
-	len = int32(r0)
-	if len == 0 {
-		if err != nil {
-			err = error(err)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func FindWindow(title string) (syscall.Handle, error) {
-	var hwnd syscall.Handle
-	cb := syscall.NewCallback(func(h syscall.Handle, p uintptr) uintptr {
-		b := make([]uint16, 200)
-		_, err := GetWindowText(h, &b[0], int32(len(b)))
-		if err != nil {
-			// ignore the error
-			return 1 // continue enumeration
-		}
-		if syscall.UTF16ToString(b) == title {
-			// note the window
-			hwnd = h
-			return 0 // stop enumeration
-		}
-		return 1 // continue enumeration
-	})
-	EnumWindows(cb, 0)
-	if hwnd == 0 {
-		return 0, fmt.Errorf("No window with title '%s' found", title)
-	}
-	return hwnd, nil
+// ファイル名のみ取得
+func getBaseName(strPath string) string {
+	// ベース名から、後ろ拡張子分をカット
+	return filepath.Base(strPath[:len(strPath)-len(filepath.Ext(strPath))])
 }
 
 // キーマッピングの初期化
 // pythonの pyautoguiに合わせたいけど、とりあえず使うものだけ
-// 全量の確認方法: print(pyautogui.KEYBOARD_KEYS)
+// 全量の確認方法: pythonで print(pyautogui.KEYBOARD_KEYS) を実行する
 func initKeyMap() {
 	KEY_CODE["backspace"] = 0x08
 	KEY_CODE["tab"] = 0x09
@@ -409,5 +361,4 @@ func initKeyMap() {
 	KEY_CODE["f10"] = 0x79
 	KEY_CODE["f11"] = 0x7A
 	KEY_CODE["f12"] = 0x7B
-
 }
