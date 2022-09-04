@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 
-# Midi Event to PC-Keyboard-Event
+# -------------
+# BardPlay 0.9
+# -------------
 
-# SendMessageを使ってみる
-# ターゲットウインドウメカ気て飛ばす処理を入れてみる
+# FileDescription   Midi Event to PC-Keyboard-Event (BardPlay Python)
+# InternalName      BardPlay.py
+# FileVersion       0.9.0.1
+
+# LegalCopyright    (C) 2022 TakeHide-Soft.
+# ContactUs         takehidest@gmail.com
 
 import os 
 import sys
@@ -50,7 +56,11 @@ if __name__=='__main__':
         if args[1]=='-d' or args[1]=='--device_info':
             getDeviceInfo()
             exit()
-        elif args[1]=='/?' or args[1]=='-?':
+        elif args[1]=='/?' or args[1]=='-?':          
+            print('BardPlay.py Copyright (C) 2022 TakeHide Soft.')
+            print('This program comes with ABSOLUTELY NO WARRANTY. ')
+            print('This is free software, and you are welcome to redistribute it under certain conditions.')
+            print('-----------------')            
             print('USASE')
             print('\t>python '+ args[0] + ' -d     ... Show Device Information.')   
         else:
@@ -124,20 +134,18 @@ if __name__=='__main__':
                         # マッピング範囲内の時
                         if status == NOTE_ON and data2 != 0x00:      # ノート ON
                             # 前に音が鳴っていたら消す
-                            if pre_event != '' and pre_event! = key_map[data1]:
+                            if pre_event != '' and pre_event != key_map[data1]:
                                 send_off(pre_event)
                               
                             # 今と異なる状態だったら、指定されたキーを押す
                             if pre_event != key_map[data1]:
                                 send_on(key_map[data1])
                                 pre_event = key_map[data1]
-                        elif status == NOTE_OFF or (status == NOTE_ON and data2 = 0x00):        # ノート OFF
-                            # もし他のノートが押されていたら、放しておく
-                            if pre_event != key_map[data1] && pre_event !='':
-                                send_off(pre_event)
-                            # 指定されたキーを離す
-                            send_off(key_map[data1])
-                            pre_event = ''
+                        elif status == NOTE_OFF or (status == NOTE_ON and data2 == 0x00):        # ノート OFF
+                            # 今押されているノートと同じだった時に放す
+                            if pre_event == key_map[data1]:
+                                send_off(key_map[data1])
+                                pre_event = ''
                     else:
                         # 範囲外のとき
                         if exit_outrange > 0: 
