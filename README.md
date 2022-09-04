@@ -4,6 +4,7 @@
 
 Windowsで動作確認をしていますが、おそらくMacでも動くと思います。
 
+
 キーボードイベントのメッセージ送信にPyAutoGUIを使っているのですが、PyAutoGUIはパフォーマンスより確実性重視で作られているためか、動作がもっさりしています。
 
 ゆったりとした曲なら対応できますが、通常の演奏には耐えられません。
@@ -164,3 +165,4 @@ It's too much because it only receives signals, but with `mido`, you need `rtmid
 When I actually used it, the performance of sending messages using `PyAutoGUI` was bad and the operation was very slow. 
 
 Python has its limits, so I will give up on Windows only and make the next version in another language.
+
