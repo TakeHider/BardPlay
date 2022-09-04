@@ -1,22 +1,45 @@
 # BardPlay 1.0 (BardPlay GO)
 
+<<<<<<< HEAD
 BardPlay (C) 2022 TakeHide Soft.
 TakeHideSoft@outlook.com
+=======
+Single Note MIDI Event to PC-Keyboard Event  
+FF14 compatible  
+>>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
 
 ## 概要
 
 【FF14対応】 MIDIデバイスからの情報を、PCキーボードのイベントに変換して送信します。
 
+<<<<<<< HEAD
 Python版を作成したものの、必要なパフォーマンスが出なかったので、新たにGO言語で焼き直しました。
 GO言語で作たため、実行ファイルのファイルサイズは大きくなります。
 
 ## ライセンス
 
 このソフトウェアは GNU 劣等一般公衆利用許諾書(GNU LGPL)に基づいて配布されています。
+=======
+* fyne.io  
+* path/filepath  
+* gopkg.in/ini.v1
+  
+  ```cmd
+  > CD <ProjectFolder>
+  > go get fyne.io/fyne
+  > go get gopkg.in/ini.v1
+  ```
+>>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
 
 * あなたはこのソフトウェアを、GNU LGPLに基づき、複製・転載・配布することができます。
 
+<<<<<<< HEAD
 * あなたはこのソフトウェアを改変することができ、それをGNU LGPLに基づき配布することができます。
+=======
+* MIDIIO.dll  
+[https://openmidiproject.osdn.jp/MIDIIOLibrary.html](https://openmidiproject.osdn.jp/MIDIIOLibrary.html)  
+[Downloading File /77139/MIDIIOLib7.1.zip - OpenMIDIProject - OSDN](https://osdn.net/projects/openmidiproject/downloads/77139/MIDIIOLib7.1.zip/)  
+>>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
 
 * あなたはこのソフトウェアを利用して、あなた独自のライセンスのアプリケーションを製作・配布することができます。
 
@@ -28,6 +51,7 @@ GO言語で作たため、実行ファイルのファイルサイズは大きく
 
 詳しくはGNU LGPL[ライセンス - GNUプロジェクト - フリーソフトウェアファウンデーション](http://www.gnu.org/licenses/) もしくはその[日本語訳](https://licenses.opensource.jp/LGPL-3.0/LGPL-3.0.html) をご参照ください。
 
+<<<<<<< HEAD
 ### 本ソフトウェアはMIDIIOライブラリ(MIDIIO.dll)を使用します。
 
 MIDIIOライブラリの著作権は"(C)2002-2012 くず / おーぷんMIDIぷろじぇくと"様が保有しています。
@@ -35,16 +59,59 @@ MIDIIOライブラリの著作権は"(C)2002-2012 くず / おーぷんMIDIぷ�
 LGPLライセンスで配布されています
 
 ## 
+=======
+* port_in (default=1)  
+MIDI-Port number to use.  
+If you have multiple MIDI devices, try different numbers.  
 
-## GO言語で必要なライブラリ
+* exit_outrange (default=1)  
+  If you make a sound outside the range, the process will stop.  
+  Enter a number greater than or equal to 1 to enable.  
+  The numbers indicate how far away from the boundary values.  
+* start_on_run (default=1)  
+  Processing begins when the application is run.  
 
-標準のGO言語開発環境に加え、下記のライブラリが別途必要です。
+### [MAPPING]
 
-* fyne.io
+A MIDI note that corresponds to a key.  
+If you want to press the SHIFT key, CTRL key, etc. at the same time, put a space between them in the order you press them.  
+Notes not specified here will be the range of exit_outrange.  
 
-* path/filepath
+### other
 
-* gopkg.in/ini.v1
+* If change exe-file name , need change ini-file name   
+  ex: BardPlay.exe -> bardplay.ini  ,  BardPlay2.exe -> bardplay2.ini  
+* BardPlay.py compatible  
+
+## Packaging
+
+```cmd
+> go build -ldflags "-H=windowsgui -s -w" BardPlay.go 
+```
+
+or
+
+```cmd
+> go install fyne.io/fyne/cmd/fyne
+> fyne package -os windows -icon icon.png
+```
+
+---
+
+日本語で解説しよう
+
+## 『吟遊詩人の演奏 GO言語版』  
+単音のMIDI入力情報を、パソコンのキーボードイベントに変えます。  
+FF14対応  
+
+## GO言語で必要なライブラリ  
+>>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
+
+標準のGO言語開発環境に加え、下記のライブラリが別途必要です。  
+
+* fyne.io  
+* path/filepath  
+* gopkg.in/ini.v1  
 
 インストール方法
 
@@ -58,10 +125,16 @@ LGPLライセンスで配布されています
 
 ## その他必要なライブラリ
 
+<<<<<<< HEAD
 * MIDIIO.dll - MIDIIOライブラリ  (C)2002-2022 くず
   [おーぷんMIDIぷろじぇくと](https://openmidiproject.osdn.jp/MIDIIOLibrary.html) (https://openmidiproject.osdn.jp/MIDIIOLibrary.html)
 
 MIDIIO.dllを、プロジェクトと同じフォルダか、パスの通っているフォルダに格納してください。
+=======
+* MIDIIO.dll  
+  [https://openmidiproject.osdn.jp/MIDIIOLibrary.html](https://openmidiproject.osdn.jp/MIDIIOLibrary.html)  
+  [Downloading File /77139/MIDIIOLib7.1.zip - OpenMIDIProject - OSDN](https://osdn.net/projects/openmidiproject/downloads/77139/MIDIIOLib7.1.zip/)  
+>>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
 
 ## 実行方法
 
@@ -90,29 +163,34 @@ MIDIIO.dllを、プロジェクトと同じフォルダか、パスの通って�
 
 ### [CONFIG]
 
-* port_in (default=1)
-  使用するMIDIのポート番号。
-  もし複数のMIDIデバイスを持っていたら、番号を変更してみてください。
+* port_in (default=1)  
+  使用するMIDIのポート番号。  
+  もし複数のMIDIデバイスを持っていたら、番号を変更してみてください。  
 
-* exit_outrange (default=1)
-  キーマッピングされた範囲外の音が出されたら、処理を停止します。
-  0を指定するとこのオプションは機能しません。
-  1以上の数字を指定すると、指定された数だけ範囲から外れた音が出されたときに、処理を停止します。
-  1だと、範囲のすぐ外側の音から有効になります。
-  鍵盤楽器など、誤って押してしまいそうなときは、少し範囲を広げてください。
+* exit_outrange (default=1)  
+  キーマッピングされた範囲外の音が出されたら、処理を停止します。  
+  0を指定するとこのオプションは機能しません。  
+  1以上の数字を指定すると、指定された数だけ範囲から外れた音が出されたときに、処理を停止します。  
+  1だと、範囲のすぐ外側の音から有効になります。  
+  鍵盤楽器など、誤って押してしまいそうなときは、少し範囲を広げてください。  
 
 * start_on_run (default=1)
-  アプリケーション実行時に処理を開始します。
+  アプリケーション実行時に処理を開始します。  
 
 ### [MAPPING]
 
 MIDIのノートをキーに対応させたもの。  
+<<<<<<< HEAD
 SHIFTキーや、CTRLキーなど、同時に押したいときは、押す順番にスペースで挟んでください。
+=======
+SHIFTキーや、CTRLキーなど、同時に押したいときは、押す順番にスペースで挟んでください。    
+>>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
 
 ### その他
 
 * 実行ファイル名を変更した時は、iniファイルの名前も変えてください。  
   例）  
+<<<<<<< HEAD
   　BardPlay.exe の時は bardplay.ini  
   　BardPlay2.exe の時は bardplay2.ini
 
@@ -121,13 +199,27 @@ SHIFTキーや、CTRLキーなど、同時に押したいときは、押す順�
 ## EXEファイルの作り方
 
 ファイルサイズを小さくするため、下記のコマンドで作成しています。
+=======
+　BardPlay.exe の時は bardplay.ini   
+　BardPlay2.exe の時は bardplay2.ini  
+* iniファイルは、Python版 BardPlay (BardPlay.py)と互換性があります。  
+
+## EXEファイルの作り方
+
+普通に作る際はこんな感じ。  
+>>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
 
 ```cmd
 > go build -ldflags "-H=windowsgui -s -w" BardPlay.go 
 ```
 
+<<<<<<< HEAD
 fyneのツールを入れることで、アイコン付実行ファイルを作ることもできます。
 ただし、ファイルサイズはさらに大きくなります。
+=======
+fyneのツールを入れることで、アイコン付実行ファイルを作ることもできます。  
+(ただし、ファイルサイズはかなり大きくなります。)    
+>>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
 
 ```cmd
 > go install fyne.io/fyne/cmd/fyne
@@ -135,6 +227,7 @@ fyneのツールを入れることで、アイコン付実行ファイルを作�
 ```
 
 今回のアイコンは`StabilityAI`で作りました。  
+<<<<<<< HEAD
 アイコンの呪文は `A bard girl with a violin in Japanese girl anime style white background` です。
 
 
@@ -445,3 +538,6 @@ The next version will probably be written in Delphi.
 | F      | 125         | ×:None    |
 | F#     | 126         | ×:None    |
 | G      | 127         | ×:None    |
+=======
+アイコンの呪文は「A bard girl with a violin in Japanese girl anime style white background」です。  
+>>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
