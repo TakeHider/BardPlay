@@ -1,111 +1,36 @@
 # BardPlay 1.0 (BardPlay GO)
 
-<<<<<<< HEAD
 BardPlay (C) 2022 TakeHide Soft.
 TakeHideSoft@outlook.com
-=======
-Single Note MIDI Event to PC-Keyboard Event  
-FF14 compatible  
->>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
 
 ## 概要
 
 【FF14対応】 MIDIデバイスからの情報を、PCキーボードのイベントに変換して送信します。
 
-<<<<<<< HEAD
 Python版を作成したものの、必要なパフォーマンスが出なかったので、新たにGO言語で焼き直しました。
 GO言語で作たため、実行ファイルのファイルサイズは大きくなります。
 
 ## ライセンス
 
 このソフトウェアは GNU 劣等一般公衆利用許諾書(GNU LGPL)に基づいて配布されています。
-=======
-* fyne.io  
-* path/filepath  
-* gopkg.in/ini.v1
-  
-  ```cmd
-  > CD <ProjectFolder>
-  > go get fyne.io/fyne
-  > go get gopkg.in/ini.v1
-  ```
->>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
 
 * あなたはこのソフトウェアを、GNU LGPLに基づき、複製・転載・配布することができます。
-
-<<<<<<< HEAD
 * あなたはこのソフトウェアを改変することができ、それをGNU LGPLに基づき配布することができます。
-=======
-* MIDIIO.dll  
-[https://openmidiproject.osdn.jp/MIDIIOLibrary.html](https://openmidiproject.osdn.jp/MIDIIOLibrary.html)  
-[Downloading File /77139/MIDIIOLib7.1.zip - OpenMIDIProject - OSDN](https://osdn.net/projects/openmidiproject/downloads/77139/MIDIIOLib7.1.zip/)  
->>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
-
 * あなたはこのソフトウェアを利用して、あなた独自のライセンスのアプリケーションを製作・配布することができます。
-
 * いずれの場合も作者に許可を得る必要はありません。
-
 * このソフトウェアは全くの無保証です。
   このライブラリを使用した結果生じた損害につきまして作者は一切責任を負いません。
   あらかじめご了承ください。
 
 詳しくはGNU LGPL[ライセンス - GNUプロジェクト - フリーソフトウェアファウンデーション](http://www.gnu.org/licenses/) もしくはその[日本語訳](https://licenses.opensource.jp/LGPL-3.0/LGPL-3.0.html) をご参照ください。
 
-<<<<<<< HEAD
 ### 本ソフトウェアはMIDIIOライブラリ(MIDIIO.dll)を使用します。
 
 MIDIIOライブラリの著作権は"(C)2002-2012 くず / おーぷんMIDIぷろじぇくと"様が保有しています。
  https://openmidiproject.osdn.jp/MIDIIOLibrary.html
 LGPLライセンスで配布されています
 
-## 
-=======
-* port_in (default=1)  
-MIDI-Port number to use.  
-If you have multiple MIDI devices, try different numbers.  
-
-* exit_outrange (default=1)  
-  If you make a sound outside the range, the process will stop.  
-  Enter a number greater than or equal to 1 to enable.  
-  The numbers indicate how far away from the boundary values.  
-* start_on_run (default=1)  
-  Processing begins when the application is run.  
-
-### [MAPPING]
-
-A MIDI note that corresponds to a key.  
-If you want to press the SHIFT key, CTRL key, etc. at the same time, put a space between them in the order you press them.  
-Notes not specified here will be the range of exit_outrange.  
-
-### other
-
-* If change exe-file name , need change ini-file name   
-  ex: BardPlay.exe -> bardplay.ini  ,  BardPlay2.exe -> bardplay2.ini  
-* BardPlay.py compatible  
-
-## Packaging
-
-```cmd
-> go build -ldflags "-H=windowsgui -s -w" BardPlay.go 
-```
-
-or
-
-```cmd
-> go install fyne.io/fyne/cmd/fyne
-> fyne package -os windows -icon icon.png
-```
-
----
-
-日本語で解説しよう
-
-## 『吟遊詩人の演奏 GO言語版』  
-単音のMIDI入力情報を、パソコンのキーボードイベントに変えます。  
-FF14対応  
-
-## GO言語で必要なライブラリ  
->>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
+## GO言語で必要なライブラリ
 
 標準のGO言語開発環境に加え、下記のライブラリが別途必要です。  
 
@@ -113,7 +38,7 @@ FF14対応
 * path/filepath  
 * gopkg.in/ini.v1  
 
-インストール方法
+インストール方法  
 
 ```cmd
 > CD ≪プロジェクトフォルダ≫
@@ -121,20 +46,12 @@ FF14対応
 > go get gopkg.in/ini.v1
 ```
 
-## 
-
 ## その他必要なライブラリ
 
-<<<<<<< HEAD
 * MIDIIO.dll - MIDIIOライブラリ  (C)2002-2022 くず
   [おーぷんMIDIぷろじぇくと](https://openmidiproject.osdn.jp/MIDIIOLibrary.html) (https://openmidiproject.osdn.jp/MIDIIOLibrary.html)
 
 MIDIIO.dllを、プロジェクトと同じフォルダか、パスの通っているフォルダに格納してください。
-=======
-* MIDIIO.dll  
-  [https://openmidiproject.osdn.jp/MIDIIOLibrary.html](https://openmidiproject.osdn.jp/MIDIIOLibrary.html)  
-  [Downloading File /77139/MIDIIOLib7.1.zip - OpenMIDIProject - OSDN](https://osdn.net/projects/openmidiproject/downloads/77139/MIDIIOLib7.1.zip/)  
->>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
 
 ## 実行方法
 
@@ -180,17 +97,12 @@ MIDIIO.dllを、プロジェクトと同じフォルダか、パスの通って�
 ### [MAPPING]
 
 MIDIのノートをキーに対応させたもの。  
-<<<<<<< HEAD
 SHIFTキーや、CTRLキーなど、同時に押したいときは、押す順番にスペースで挟んでください。
-=======
-SHIFTキーや、CTRLキーなど、同時に押したいときは、押す順番にスペースで挟んでください。    
->>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
 
 ### その他
 
 * 実行ファイル名を変更した時は、iniファイルの名前も変えてください。  
   例）  
-<<<<<<< HEAD
   　BardPlay.exe の時は bardplay.ini  
   　BardPlay2.exe の時は bardplay2.ini
 
@@ -199,27 +111,13 @@ SHIFTキーや、CTRLキーなど、同時に押したいときは、押す順�
 ## EXEファイルの作り方
 
 ファイルサイズを小さくするため、下記のコマンドで作成しています。
-=======
-　BardPlay.exe の時は bardplay.ini   
-　BardPlay2.exe の時は bardplay2.ini  
-* iniファイルは、Python版 BardPlay (BardPlay.py)と互換性があります。  
-
-## EXEファイルの作り方
-
-普通に作る際はこんな感じ。  
->>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
 
 ```cmd
 > go build -ldflags "-H=windowsgui -s -w" BardPlay.go 
 ```
 
-<<<<<<< HEAD
 fyneのツールを入れることで、アイコン付実行ファイルを作ることもできます。
 ただし、ファイルサイズはさらに大きくなります。
-=======
-fyneのツールを入れることで、アイコン付実行ファイルを作ることもできます。  
-(ただし、ファイルサイズはかなり大きくなります。)    
->>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
 
 ```cmd
 > go install fyne.io/fyne/cmd/fyne
@@ -227,10 +125,7 @@ fyneのツールを入れることで、アイコン付実行ファイルを作�
 ```
 
 今回のアイコンは`StabilityAI`で作りました。  
-<<<<<<< HEAD
 アイコンの呪文は `A bard girl with a violin in Japanese girl anime style white background` です。
-
-
 
 ## その他
 
@@ -250,8 +145,6 @@ GO言語で作ったものは、実行ファイル(exe)のサイズがどうし�
 
 次のバージョンは、きっとDelphiで書かれていると思います。
 
-
-
 ----
 
 # BardPlay 1.0 (BardPlay GO)
@@ -259,7 +152,6 @@ GO言語で作ったものは、実行ファイル(exe)のサイズがどうし�
 BardPlay (C) 2022 TakeHide Soft. [TakeHideSoft@outlook.com](mailto:TakeHideSoft@outlook.com)
 
 ## Overview
-
 
 [FF14 compatible] Converts information from MIDI devices into PC keyboard events and transmits them.
 
@@ -271,17 +163,12 @@ Since it was created in GO language, the file size of the executable file will b
 This software is distributed under the GNU Lesser General Public License (GNU LGPL).
 
 * You may copy, reprint, and distribute this software under the GNU LGPL.
-
 * You may modify this software and distribute it under the GNU LGPL.
-
 * You can use this software to create and distribute your own licensed applications.
-
 * In either case, you don't need to get permission from the author.
-
 * This software comes with absolutely no warranty.
    The author is not responsible for any damages resulting from using this library.
    Please note.
-  
 
 For details, see GNU LGPL [License - GNU Project - Free Software Foundation](http://www.gnu.org/licenses/).
 
@@ -296,9 +183,7 @@ Distributed under LGPL license
  In addition to the standard GO language development environment, the following libraries are required separately.
 
 * fyne.io
-
 * path/filepath
-
 * gopkg.in/ini.v1
 
 Installation 
@@ -364,8 +249,8 @@ If you want to press the SHIFT key, CTRL key, etc. at the same time, put a space
 
 * When you change the name of the executable file, change the name of the ini file as well.
   ex.)  
-  　BardPlay.exe  --> bardplay.ini  
-  　BardPlay2.exe --> bardplay2.ini
+    BardPlay.exe  --> bardplay.ini  
+    BardPlay2.exe --> bardplay2.ini
 
 * The ini file is compatible with the Python version of BardPlay.py ([BardPlay 0.9x](https://github.com/TakeHider/BardPlayPy)).
 
@@ -402,142 +287,137 @@ I knew it, but I never thought it would get this big. Memory usage is too high.
 If this were the case, I should have made it in Delphi from the beginning.
 The next version will probably be written in Delphi.
 
-
-
 ---
 
-## 
+## MIDI Note Infomation (.ini File [MAPPING] Section )
 
-| Tone   | Note Number | .ini File |
-|:------:| -----------:| --------- |
-| C-1    | 0           | ×:None    |
-| C#     | 1           | ×:None    |
-| D      | 2           | ×:None    |
-| D#     | 3           | ×:None    |
-| E      | 4           | ×:None    |
-| F      | 5           | ×:None    |
-| F#     | 6           | ×:None    |
-| G      | 7           | ×:None    |
-| G#     | 8           | ×:None    |
-| A      | 9           | ×:None    |
-| A#     | 10          | ×:None    |
-| B      | 11          | ×:None    |
-| C0     | 12          | ×:None    |
-| C#     | 13          | ×:None    |
-| D      | 14          | ×:None    |
-| D#     | 15          | ×:None    |
-| E      | 16          | ×:None    |
-| F      | 17          | ×:None    |
-| F#     | 18          | ×:None    |
-| G      | 19          | ×:None    |
-| G#     | 20          | ×:None    |
-| A      | 21          | ×:None    |
-| A#     | 22          | ×:None    |
-| B      | 23          | ×:None    |
-| C1     | 24          | ×:None    |
-| C#     | 25          | ×:None    |
-| D      | 26          | ×:None    |
-| D#     | 27          | ×:None    |
-| E      | 28          | ×:None    |
-| F      | 29          | ×:None    |
-| F#     | 30          | ×:None    |
-| G      | 31          | ×:None    |
-| G#     | 32          | ×:None    |
-| A      | 33          | ×:None    |
-| A#     | 34          | ×:None    |
-| B      | 35          | ×:None    |
-| C2     | 36          | ×:None    |
-| C#     | 37          | ×:None    |
-| D      | 38          | ×:None    |
-| D#     | 39          | ×:None    |
-| E      | 40          | ×:None    |
-| F      | 41          | ×:None    |
-| F#     | 42          | ×:None    |
-| G      | 43          | ×:None    |
-| G#     | 44          | ×:None    |
-| A      | 45          | ×:None    |
-| A#     | 46          | ×:None    |
-| B      | 47          | ×:None    |
-| **C3** | **48**      | ○:Set     |
-| C#     | 49          | ○:Set     |
-| D      | 50          | ○:Set     |
-| D#     | 51          | ○:Set     |
-| E      | 52          | ○:Set     |
-| F      | 53          | ○:Set     |
-| F#     | 54          | ○:Set     |
-| G      | 55          | ○:Set     |
-| G#     | 56          | ○:Set     |
-| A      | 57          | ○:Set     |
-| A#     | 58          | ○:Set     |
-| B      | 59          | ○:Set     |
-| **C4** | **60**      | ○:Set     |
-| C#     | 61          | ○:Set     |
-| D      | 62          | ○:Set     |
-| D#     | 63          | ○:Set     |
-| E      | 64          | ○:Set     |
-| F      | 65          | ○:Set     |
-| F#     | 66          | ○:Set     |
-| G      | 67          | ○:Set     |
-| G#     | 68          | ○:Set     |
-| A      | 69          | ○:Set     |
-| A#     | 70          | ○:Set     |
-| B      | 71          | ○:Set     |
-| **C5** | **72**      | ○:Set     |
-| C#     | 73          | ○:Set     |
-| D      | 74          | ○:Set     |
-| D#     | 75          | ○:Set     |
-| E      | 76          | ○:Set     |
-| F      | 77          | ○:Set     |
-| F#     | 78          | ○:Set     |
-| G      | 79          | ○:Set     |
-| G#     | 80          | ○:Set     |
-| A      | 81          | ○:Set     |
-| A#     | 82          | ○:Set     |
-| B      | 83          | ○:Set     |
-| **C6** | **84**      | ○:Set     |
-| C#     | 85          | ×:None    |
-| D      | 86          | ×:None    |
-| D#     | 87          | ×:None    |
-| E      | 88          | ×:None    |
-| F      | 89          | ×:None    |
-| F#     | 90          | ×:None    |
-| G      | 91          | ×:None    |
-| G#     | 92          | ×:None    |
-| A      | 93          | ×:None    |
-| A#     | 94          | ×:None    |
-| B      | 95          | ×:None    |
-| C7     | 96          | ×:None    |
-| C#     | 97          | ×:None    |
-| D      | 98          | ×:None    |
-| D#     | 99          | ×:None    |
-| E      | 100         | ×:None    |
-| F      | 101         | ×:None    |
-| F#     | 102         | ×:None    |
-| G      | 103         | ×:None    |
-| G#     | 104         | ×:None    |
-| A      | 105         | ×:None    |
-| A#     | 106         | ×:None    |
-| B      | 107         | ×:None    |
-| C8     | 108         | ×:None    |
-| C#     | 109         | ×:None    |
-| D      | 110         | ×:None    |
-| D#     | 111         | ×:None    |
-| E      | 112         | ×:None    |
-| F      | 113         | ×:None    |
-| F#     | 114         | ×:None    |
-| G      | 115         | ×:None    |
-| G#     | 116         | ×:None    |
-| A      | 117         | ×:None    |
-| A#     | 118         | ×:None    |
-| B      | 119         | ×:None    |
-| C9     | 120         | ×:None    |
-| C#     | 121         | ×:None    |
-| D      | 122         | ×:None    |
-| D#     | 123         | ×:None    |
-| E      | 124         | ×:None    |
-| F      | 125         | ×:None    |
-| F#     | 126         | ×:None    |
-| G      | 127         | ×:None    |
-=======
-アイコンの呪文は「A bard girl with a violin in Japanese girl anime style white background」です。  
->>>>>>> d27a9a2680e3d63df56a6ba9a831175bd90aaa12
+| Tone    | Note Number | .ini File |
+|:-------:| -----------:| --------- |
+| C-1     | 0           | ×:None    |
+| C#      | 1           | ×:None    |
+| D       | 2           | ×:None    |
+| D#      | 3           | ×:None    |
+| E       | 4           | ×:None    |
+| F       | 5           | ×:None    |
+| F#      | 6           | ×:None    |
+| G       | 7           | ×:None    |
+| G#      | 8           | ×:None    |
+| A       | 9           | ×:None    |
+| A#      | 10          | ×:None    |
+| B       | 11          | ×:None    |
+| C0      | 12          | ×:None    |
+| C#      | 13          | ×:None    |
+| D       | 14          | ×:None    |
+| D#      | 15          | ×:None    |
+| E       | 16          | ×:None    |
+| F       | 17          | ×:None    |
+| F#      | 18          | ×:None    |
+| G       | 19          | ×:None    |
+| G#      | 20          | ×:None    |
+| A       | 21          | ×:None    |
+| A#      | 22          | ×:None    |
+| B       | 23          | ×:None    |
+| C1      | 24          | ×:None    |
+| C#      | 25          | ×:None    |
+| D       | 26          | ×:None    |
+| D#      | 27          | ×:None    |
+| E       | 28          | ×:None    |
+| F       | 29          | ×:None    |
+| F#      | 30          | ×:None    |
+| G       | 31          | ×:None    |
+| G#      | 32          | ×:None    |
+| A       | 33          | ×:None    |
+| A#      | 34          | ×:None    |
+| B       | 35          | ×:None    |
+| C2      | 36          | ×:None    |
+| C#      | 37          | ×:None    |
+| D       | 38          | ×:None    |
+| D#      | 39          | ×:None    |
+| E       | 40          | ×:None    |
+| F       | 41          | ×:None    |
+| F#      | 42          | ×:None    |
+| G       | 43          | ×:None    |
+| G#      | 44          | ×:None    |
+| A       | 45          | ×:None    |
+| A#      | 46          | ×:None    |
+| B       | 47          | ×:None    |
+| **C3**  | **48**      | ○:Set     |
+| C#      | 49          | ○:Set     |
+| D       | 50          | ○:Set     |
+| D#      | 51          | ○:Set     |
+| E       | 52          | ○:Set     |
+| F       | 53          | ○:Set     |
+| F#      | 54          | ○:Set     |
+| G       | 55          | ○:Set     |
+| G#      | 56          | ○:Set     |
+| A       | 57          | ○:Set     |
+| A#      | 58          | ○:Set     |
+| B       | 59          | ○:Set     |
+| **C4**  | **60**      | ○:Set     |
+| C#      | 61          | ○:Set     |
+| D       | 62          | ○:Set     |
+| D#      | 63          | ○:Set     |
+| E       | 64          | ○:Set     |
+| F       | 65          | ○:Set     |
+| F#      | 66          | ○:Set     |
+| G       | 67          | ○:Set     |
+| G#      | 68          | ○:Set     |
+| A       | 69          | ○:Set     |
+| A#      | 70          | ○:Set     |
+| B       | 71          | ○:Set     |
+| **C5**  | **72**      | ○:Set     |
+| C#      | 73          | ○:Set     |
+| D       | 74          | ○:Set     |
+| D#      | 75          | ○:Set     |
+| E       | 76          | ○:Set     |
+| F       | 77          | ○:Set     |
+| F#      | 78          | ○:Set     |
+| G       | 79          | ○:Set     |
+| G#      | 80          | ○:Set     |
+| A       | 81          | ○:Set     |
+| A#      | 82          | ○:Set     |
+| B       | 83          | ○:Set     |
+| **C6**  | **84**      | ○:Set     |
+| C#      | 85          | ×:None    |
+| D       | 86          | ×:None    |
+| D#      | 87          | ×:None    |
+| E       | 88          | ×:None    |
+| F       | 89          | ×:None    |
+| F#      | 90          | ×:None    |
+| G       | 91          | ×:None    |
+| G#      | 92          | ×:None    |
+| A       | 93          | ×:None    |
+| A#      | 94          | ×:None    |
+| B       | 95          | ×:None    |
+| C7      | 96          | ×:None    |
+| C#      | 97          | ×:None    |
+| D       | 98          | ×:None    |
+| D#      | 99          | ×:None    |
+| E       | 100         | ×:None    |
+| F       | 101         | ×:None    |
+| F#      | 102         | ×:None    |
+| G       | 103         | ×:None    |
+| G#      | 104         | ×:None    |
+| A       | 105         | ×:None    |
+| A#      | 106         | ×:None    |
+| B       | 107         | ×:None    |
+| C8      | 108         | ×:None    |
+| C#      | 109         | ×:None    |
+| D       | 110         | ×:None    |
+| D#      | 111         | ×:None    |
+| E       | 112         | ×:None    |
+| F       | 113         | ×:None    |
+| F#      | 114         | ×:None    |
+| G       | 115         | ×:None    |
+| G#      | 116         | ×:None    |
+| A       | 117         | ×:None    |
+| A#      | 118         | ×:None    |
+| B       | 119         | ×:None    |
+| C9      | 120         | ×:None    |
+| C#      | 121         | ×:None    |
+| D       | 122         | ×:None    |
+| D#      | 123         | ×:None    |
+| E       | 124         | ×:None    |
+| F       | 125         | ×:None    |
+| F#      | 126         | ×:None    |
+| G       | 127         | ×:None    |
