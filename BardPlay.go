@@ -1,11 +1,15 @@
 package main
 
 // -------------------------------------
-//    BardPlay.go  rev.1.0
+//    BardPlay GO 1.0 ( BardPlay 1.0 )
 // -------------------------------------
-//  MIDI Event to PC-Key Event
-
+// Midi Event to PC-Keyboard-Event (BardPlay Python)
 // A python programmer tried writing in go language for the first time
+//
+// (C) 2022 TakeHide-Soft.
+// TakeHideSoft@outlook.com
+
+
 
 import (
 	"log"
