@@ -4,7 +4,6 @@
 
 Windowsで動作確認をしていますが、おそらくMacでも動くと思います。
 
-
 キーボードイベントのメッセージ送信にPyAutoGUIを使っているのですが、PyAutoGUIはパフォーマンスより確実性重視で作られているためか、動作がもっさりしています。
 
 ゆったりとした曲なら対応できますが、通常の演奏には耐えられません。
@@ -13,6 +12,8 @@ Windowsユーザであれば、GO言語で焼き直した [BardPlay 1.0](https:/
 ## 
 
 ## ライセンス
+
+BardPlay.py (C) 2022 TakeHide Soft.
 
 このソフトウェアは GNU 劣等一般公衆利用許諾書(GNU LGPL)に基づいて配布されています。
 
@@ -32,14 +33,12 @@ Windowsユーザであれば、GO言語で焼き直した [BardPlay 1.0](https:/
 
 
 
-BardPlay.py (C) 2022 TakeHide Soft.
-
-
-
 ## Pythonバージョン
 
 このソフトウェアはPython 3.10 で書かれています。
 Ptyhon 3.10独自のコードは使われていないので、Python 3.xであれば動かすことができます。
+
+
 
 ## Pythonライブラリ
 
@@ -95,6 +94,8 @@ If it's a slow song, it can handle it, but it won't hold up to normal playing. I
 
 ## Licence
 
+BardPlay.py (C) 2022 TakeHide Soft.
+
 This software is distributed under the GNU Lesser General Public License (GNU LGPL).
 
 * You may copy, reprint, and distribute this software under the GNU LGPL.
@@ -110,10 +111,6 @@ This software is distributed under the GNU Lesser General Public License (GNU LG
   Please note.
 
 For details, see GNU LGPL [License - GNU Project - Free Software Foundation](http://www.gnu.org/licenses/) .
-
-
-
-BardPlay.py (C) 2022 TakeHide Soft.
 
 
 
@@ -165,4 +162,3 @@ It's too much because it only receives signals, but with `mido`, you need `rtmid
 When I actually used it, the performance of sending messages using `PyAutoGUI` was bad and the operation was very slow. 
 
 Python has its limits, so I will give up on Windows only and make the next version in another language.
-
