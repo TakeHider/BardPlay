@@ -1,25 +1,55 @@
 #!/usr/bin/env python3
 
 # -------------
-# BardPlay 0.9
+# BardPlay 0.9.1
 # -------------
 
 # FileDescription   Midi Event to PC-Keyboard-Event (BardPlay Python)
 # InternalName      BardPlay.py
-# FileVersion       0.9.0.1
+# FileVersion       0.9.1
 
 # LegalCopyright    (C) 2022 TakeHide Soft.
 # ContactUs         TakeHideSoft@outlook.com
 
+import platform
 import os 
 import sys
 import configparser
+from ctypes import *
 import pyautogui   as pauto
 import pygame.midi as pygame
+
 
 NOTE_ON     = 0x90
 NOTE_OFF    = 0x80
 INI_FILE    = 'BardPlay.ini'
+
+OS_WINDOWS  = 'WIN'
+OS_MAC      = 'MAC'
+OS_LINUX    = 'LINUX'
+OS_UNKNOWN  = 'UNKNOWN'
+
+
+# OSの判定
+def getOS():
+    pf = platform.system()
+    if pf == 'Windows':
+        return OS_WINDOWS
+    elif pf == 'Darwin':
+        return OS_MAC
+    elif pf == 'Linux':
+        return OS_LINUX
+    else:
+        return OS_UNKNOWN
+        
+# Windowsの場合はWin32APIを使う
+if getOS() == OS_WINDOWS:
+    SendMessage         = windll.user32.SendMessageW
+    GetForegroundWindow = windll.user32.GetForegroundWindow
+
+    WM_KEYUP   = 0x101  # メッセージイベント KeyUp
+    WM_KEYDOWN = 0x100  # メッセージイベント KeyDown
+
 
 # デバイス情報を表示する
 def getDeviceInfo():
@@ -38,14 +68,101 @@ def getDeviceInfo():
 
 # 音を出す(キーを押す)
 def send_on(sendkeys):
+    OS = getOS()
+    if OS == OS_WINDOWS:
+        hwnd = GetForegroundWindow()
+        
     # 指定された順番に押す
     for key in sendkeys.split(' '):
-        pauto.keyDown(key)
+        if OS == OS_WINDOWS:
+            SendMessage( hwnd, WM_KEYDOWN, KEY_CODE[key],0)
+        else:
+            pauto.keyDown(key)
 
 def send_off(sendkeys):
+    OS = getOS()
+    if OS == OS_WINDOWS:
+        hwnd = GetForegroundWindow()
+
     # 指定された順番の逆から離す
     for key in reversed(sendkeys.split(' ')):
-        pauto.keyUp(key)
+        if OS == OS_WINDOWS:
+            SendMessage( hwnd, WM_KEYUP, KEY_CODE[key],0)
+        else:
+            pauto.keyUp(key)
+
+# SendMessageで送信するキーコード
+KEY_CODE = {
+    "backspace" : 0x08,
+    "tab"       : 0x09,
+    "enter"     : 0x0D,
+    "shift"     : 0x10,
+    "ctrl"      : 0x11,
+    "alt"       : 0x12,
+    "pause"     : 0x13,
+    "capslock"  : 0x14,
+    "esc"       : 0x1B,
+    "space"     : 0x20,
+    "pageup"    : 0x21,
+    "pagedown"  : 0x22,
+    "end"       : 0x23,
+    "home"      : 0x24,
+    "left"      : 0x25,
+    "up"        : 0x26,
+    "right"     : 0x27,
+    "down"      : 0x28,
+    "printscrn" : 0x2C,
+    "insert"    : 0x2D,
+    "delete"    : 0x2E,
+    "0"         : 0x30,
+    "1"         : 0x31,
+    "2"         : 0x32,
+    "3"         : 0x33,
+    "4"         : 0x34,
+    "5"         : 0x35,
+    "6"         : 0x36,
+    "7"         : 0x37,
+    "8"         : 0x38,
+    "9"         : 0x39,
+    "a"         : 0x41,
+    "b"         : 0x42,
+    "c"         : 0x43,
+    "d"         : 0x44,
+    "e"         : 0x45,
+    "f"         : 0x46,
+    "g"         : 0x47,
+    "h"         : 0x48,
+    "i"         : 0x49,
+    "j"         : 0x4A,
+    "k"         : 0x4B,
+    "l"         : 0x4C,
+    "m"         : 0x4D,
+    "n"         : 0x4E,
+    "o"         : 0x4F,
+    "p"         : 0x50,
+    "q"         : 0x51,
+    "r"         : 0x52,
+    "s"         : 0x53,
+    "t"         : 0x54,
+    "u"         : 0x55,
+    "v"         : 0x56,
+    "w"         : 0x57,
+    "x"         : 0x58,
+    "y"         : 0x59,
+    "z"         : 0x5A,
+    "f1"        : 0x70,
+    "f2"        : 0x71,
+    "f3"        : 0x72,
+    "f4"        : 0x73,
+    "f5"        : 0x74,
+    "f6"        : 0x75,
+    "f7"        : 0x76,
+    "f8"        : 0x77,
+    "f9"        : 0x78,
+    "f10"       : 0x79,
+    "f11"       : 0x7A,
+    "f12"       : 0x7B
+}
 
 # メイン関数
 if __name__=='__main__':

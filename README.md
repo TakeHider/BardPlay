@@ -1,4 +1,4 @@
-# BardPlay 0.9
+# BardPlay 0.9.1
 
 BardPlay.py (C) 2022 TakeHide Soft.
 TakeHideSoft@outlook.com
@@ -9,10 +9,14 @@ TakeHideSoft@outlook.com
 
 Windowsで動作確認をしていますが、おそらくMacでも動くと思います。
 
-キーボードイベントのメッセージ送信にPyAutoGUIを使っているのですが、PyAutoGUIはパフォーマンスより確実性重視で作られているためか、動作がもっさりしています。  
-ゆったりとした曲なら対応できますが、通常の演奏には耐えられません。  
+Windows環境下ではキーボードイベントのメッセージ送信にSendMessageを利用しているためレスポンスは良好ですが、他のOSではPyAutoGUIを使っているので動作がもっさりしています。  
+  
 
-## 
+## 更新履歴
+|バージョン|日付|更新内容|
+|:--|:--|:--|
+|0.9.1|2022/09/xx|WindowsではSendMessageで送信に変更|
+|0.9.0|2022/09/04|初回リリース|
 
 ## ライセンス
 
@@ -95,13 +99,13 @@ MIDI信号の受信用に`pygame`を使っています。
 信号の受信だけなのでToo Muchなのですが、`mido`だと、他に`rtmidi` や `Microsoft Visual C++ 14.0` が必要になるため断念。  
 
 実際に使ってみると、`PyAutoGUI`を使ったメッセージ送信のパフォーマンスが悪く、動作がとてももっさりしてしまいました。  
-Python＋ライブラリを使ったプログラムでは限界があるので、Windows限定で見切って、メッセージ送信処理を user32.dllのSendMessageに替えてみようかと思います。  
+Windows限定の機能として、メッセージ送信処理に user32.dllのSendMessageを使い、パフォーマンスを上げています。  
 
 
 
 ----
 
-# BardPlay 0.9
+# BardPlay 0.9.1
 
 BardPlay.py (C) 2022 TakeHide Soft.  
 TakeHideSoft@outlook.com  
@@ -112,9 +116,14 @@ TakeHideSoft@outlook.com
 
 I've tested it on Windows, but I'm sure it will work on Mac as well.   
 
-I'm using PyAutoGUI to send keyboard event messages, but PyAutoGUI's behavior is sluggish, probably because it's made with more emphasis on certainty than performance.   
+On Windows, SendMessage is used to send keyboard event messages, so the response is good, but on other OSs, PyAutoGUI is used, so the operation is slow.
 
-If it's a slow song, it can handle it, but it won't hold up to normal playing.   
+## Change Log
+|Version|Date|Update details|
+|:--|:--|:--|
+|0.9.1|2022/09/xx|Changed to sending with SendMessage on Windows|
+|0.9.0|2022/09/04|Initial release|
+
 
 ## Licence
 
@@ -200,7 +209,7 @@ It's too much because it only receives signals, but with `mido`, you need `rtmid
 
 When I actually used it, the performance of sending messages using `PyAutoGUI` was bad and the operation was very slow.   
 
-Programs using Python + libraries have limitations, so I'm thinking of changing the message sending process to SendMessage in user32.dll instead of using Windows only.  
+As a function limited to Windows, SendMessage of user32.dll is used for message transmission processing to improve performance.  
 
 
 
