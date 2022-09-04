@@ -1,5 +1,9 @@
 # BardPlay 0.9
 
+BardPlay.py (C) 2022 TakeHide Soft.
+
+## 概要
+
 【FF14対応】 MIDIデバイスからの情報を、PCキーボードのイベントに変換して送信します。
 
 Windowsで動作確認をしていますが、おそらくMacでも動くと思います。
@@ -12,8 +16,6 @@ Windowsユーザであれば、GO言語で焼き直した [BardPlay 1.0](https:/
 ## 
 
 ## ライセンス
-
-BardPlay.py (C) 2022 TakeHide Soft.
 
 このソフトウェアは GNU 劣等一般公衆利用許諾書(GNU LGPL)に基づいて配布されています。
 
@@ -31,14 +33,10 @@ BardPlay.py (C) 2022 TakeHide Soft.
 
 詳しくはGNU LGPL[ライセンス - GNUプロジェクト - フリーソフトウェアファウンデーション](http://www.gnu.org/licenses/) もしくはその[日本語訳](https://licenses.opensource.jp/LGPL-3.0/LGPL-3.0.html) をご参照ください。
 
-
-
 ## Pythonバージョン
 
 このソフトウェアはPython 3.10 で書かれています。
 Ptyhon 3.10独自のコードは使われていないので、Python 3.xであれば動かすことができます。
-
-
 
 ## Pythonライブラリ
 
@@ -82,6 +80,10 @@ Pythonでは限界があるので、Windows限定で見切って、次バージ�
 
 # BardPlay 0.9
 
+BardPlay.py (C) 2022 TakeHide Soft.
+
+## Overview
+
 [FF14 compatible] Converts information from MIDI devices into PC keyboard events and transmits them. 
 
 I've tested it on Windows, but I'm sure it will work on Mac as well. 
@@ -90,11 +92,7 @@ I'm using PyAutoGUI to send keyboard event messages, but PyAutoGUI's behavior is
 
 If it's a slow song, it can handle it, but it won't hold up to normal playing. If you are a Windows user, we recommend [BardPlay 1.0](https://github.com/TakeHider/BardPlayGo) rewritten in GO language.
 
-
-
 ## Licence
-
-BardPlay.py (C) 2022 TakeHide Soft.
 
 This software is distributed under the GNU Lesser General Public License (GNU LGPL).
 
@@ -112,15 +110,11 @@ This software is distributed under the GNU Lesser General Public License (GNU LG
 
 For details, see GNU LGPL [License - GNU Project - Free Software Foundation](http://www.gnu.org/licenses/) .
 
-
-
 ## Python version
 
 This software is written in Python 3.10. 
 
 Ptyhon 3.10 specific code is not used, so you can run it with Python 3.x. 
-
-
 
 ## Python library
 
