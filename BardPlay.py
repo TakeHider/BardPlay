@@ -8,8 +8,8 @@
 # InternalName      BardPlay.py
 # FileVersion       0.9.0.1
 
-# LegalCopyright    (C) 2022 TakeHide-Soft.
-# ContactUs         takehidest@gmail.com
+# LegalCopyright    (C) 2022 TakeHide Soft.
+# ContactUs         TakeHideSoft@outlook.com
 
 import os 
 import sys
