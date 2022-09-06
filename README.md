@@ -149,7 +149,8 @@ GO言語で作ったものは、実行ファイル(exe)のサイズがどうし�
 
 # BardPlay 1.0 (BardPlay GO)
 
-BardPlay (C) 2022 TakeHide Soft. [TakeHideSoft@outlook.com](mailto:TakeHideSoft@outlook.com)
+BardPlay (C) 2022 TakeHide Soft.  
+TakeHider@outlook.com
 
 ## Overview
 
