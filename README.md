@@ -1,7 +1,7 @@
 # BardPlay 1.0 (BardPlay GO)
 
 BardPlay (C) 2022 TakeHide Soft.  
-TakeHideSoft@outlook.com
+TakeHider@outlook.com
 
 ## 概要
 
