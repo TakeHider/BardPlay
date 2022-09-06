@@ -9,7 +9,7 @@
 # FileVersion       0.9.1
 
 # LegalCopyright    (C) 2022 TakeHide Soft.
-# ContactUs         TakeHideSoft@outlook.com
+# ContactUs         TakeHider@outlook.com
 
 import platform
 import os 
