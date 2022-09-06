@@ -1,7 +1,7 @@
 # BardPlay 0.9.1
 
-BardPlay.py (C) 2022 TakeHide Soft.
-TakeHideSoft@outlook.com
+BardPlay.py (C) 2022 TakeHide Soft.  
+TakeHider@outlook.com
 
 ## 概要
 
@@ -107,8 +107,8 @@ Windows限定の機能として、メッセージ送信処理に user32.dllのSe
 
 # BardPlay 0.9.1
 
-BardPlay.py (C) 2022 TakeHide Soft.  
-TakeHideSoft@outlook.com  
+BardPlay.py (C) 2022 TakeHide Soft.    
+TakeHider@outlook.com  
 
 ## Overview
 
