@@ -4,7 +4,7 @@ object BardPlay: TBardPlay
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'BardPlay'
   ClientHeight = 68
-  ClientWidth = 329
+  ClientWidth = 277
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,14 +18,14 @@ object BardPlay: TBardPlay
   object cbDeviceList: TComboBox
     Left = 8
     Top = 8
-    Width = 315
+    Width = 259
     Height = 21
     Style = csDropDownList
     TabOrder = 0
   end
   object btnStart: TBitBtn
-    Left = 167
-    Top = 37
+    Left = 111
+    Top = 35
     Width = 75
     Height = 25
     Caption = 'Start'
@@ -35,8 +35,8 @@ object BardPlay: TBardPlay
     TabOrder = 1
   end
   object btnExit: TBitBtn
-    Left = 248
-    Top = 38
+    Left = 192
+    Top = 35
     Width = 75
     Height = 25
     Caption = 'Exit'
@@ -58,8 +58,7 @@ object BardPlay: TBardPlay
     OnClick = btnRefreshClick
   end
   object ilImageList: TImageList
-    Left = 120
-    Top = 32
+    Left = 64
     Bitmap = {
       494C010104000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020

@@ -36,11 +36,19 @@ implementation
 ResourceString
 ERR_NODEVICE = '*** MIDI Devicve Not Found ***';
 
+{$IFDEF DEBUG}
+{$APPTYPE CONSOLE}
+{$ENDIF}
+
 
 // フォーム作成時
 procedure TBardPlay.FormCreate(Sender: TObject);
-
 begin
+
+{$IFDEF DEBUG}
+WriteLn('デバグ情報');
+{$ENDIF}
+
   // MIDIデバイス情報の更新
   getMIDIDeviceList();
 end;
@@ -66,11 +74,12 @@ var
   n             : Integer;
   iDeviceCount  : integer;
   strDeviceName : String;
-  iMIDIReady    : Integer;
+  iRetLength    : Integer;
 
 begin
   // MIDIのデバイス数を数える
   iDeviceCount := procMIDIIn_GetDeviceNum();
+
   // MIDIデバイスが見つかったら、コンボボックスに登録する
   if iDeviceCount >0 then
   begin
@@ -80,8 +89,8 @@ begin
     for n := 1 to iDeviceCount do
     begin
       // デバイス番号ごとに名前を取得
-      iMIDIReady := procMIDIIn_GetDeviceName(n-1,strDeviceName,32);
-      if iMIDIReady = 0 then
+      iRetLength := procMIDIIn_GetDeviceName(n-1,strDeviceName,32);
+      if iRetLength <> 0 then
       begin
         // コンボボックスに登録
         cbDeviceList.Items.Add(strDeviceName);
@@ -89,20 +98,17 @@ begin
     end;
   end;
 
-
   if cbDeviceList.Items.Count > 0 then
   begin
     // もしコンボボックスに何か登録されていたら、アプリとして有効にする
-
     cbDeviceList.style    := csDropDownList;  // ドロップダウンリストにする
     cbDeviceList.Enabled  := True;            // コントロールを有効にする
-    cbDeviceList.Text     := '';              // テキストを消しておく
+    cbDeviceList.ItemIndex:= 0;
     btnStart.Enabled      := True;            // 実行ボタンも有効にする
   end
   else
   begin
     // MIDIデバイスが見つからなかったときは、アプリとして無効にする
-
     cbDeviceList.style    := csDropDownList;
     cbDeviceList.Style    := csSimple;
     cbDeviceList.Enabled  := False;
