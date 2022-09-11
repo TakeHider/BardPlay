@@ -1,11 +1,13 @@
-﻿program BardPlayDelphi;
+﻿program BardPlay;
 
 uses
   Windows,
   Vcl.Forms,
-  formMain in 'source\formMain.pas' {BardPlay},
+  formMain in 'source\formMain.pas' {BardPlayDelphi},
   threadEventProc in 'source\threadEventProc.pas',
-  unitMIDIIO in 'source\unitMIDIIO.pas';
+  unitMIDIIO in 'source\unitMIDIIO.pas',
+  formVersion in 'source\formVersion.pas' {BardPlayVersionInfo},
+  Version in 'source\Version.pas';
 
 {$R *.res}
 resourcestring
@@ -34,7 +36,7 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.Title := 'Bard Play';
-    Application.CreateForm(TBardPlay, BardPlay);
+    Application.CreateForm(TBardPlayDelphi, BardPlayDelphi);
   Application.Run;
     // ミューテックスを開放
     ReleaseMutex(hMutex);

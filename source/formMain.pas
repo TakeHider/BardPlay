@@ -5,10 +5,10 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.ImageList, Vcl.ImgList,
-  Vcl.StdCtrls, Vcl.Buttons,threadEventProc,unitMIDIIO;
+  Vcl.StdCtrls, Vcl.Buttons,threadEventProc,unitMIDIIO,FormVersion;
 
 type
-  TBardPlay = class(TForm)
+  TBardPlayDelphi = class(TForm)
     cbDeviceList: TComboBox;
     btnStart: TBitBtn;
     btnExit: TBitBtn;
@@ -20,6 +20,7 @@ type
   private
     { Private 宣言 }
     procedure getMIDIDeviceList();
+    procedure WMCommand(var Msg: TWMSysCommand);message WM_SYSCOMMAND;
   public
     { Public 宣言 }
     FThreadRunning  : Boolean;
@@ -27,14 +28,22 @@ type
 
   end;
 
+
+ const
+  MENUCMD_VERSIONINFO  = 10;  // バージョン情報
+
 var
-  BardPlay: TBardPlay;
+  BardPlayDelphi: TBardPlayDelphi;
 
 implementation
+
+
+
 
 {$R *.dfm}
 ResourceString
 ERR_NODEVICE = '*** MIDI Devicve Not Found ***';
+MNU_VERSIONINFO = 'Version Info';
 
 {$IFDEF DEBUG}
 {$APPTYPE CONSOLE}
@@ -42,12 +51,21 @@ ERR_NODEVICE = '*** MIDI Devicve Not Found ***';
 
 
 // フォーム作成時
-procedure TBardPlay.FormCreate(Sender: TObject);
+procedure TBardPlayDelphi.FormCreate(Sender: TObject);
+var
+  hSysMenu: Integer;
+
 begin
 
 {$IFDEF DEBUG}
 WriteLn('デバグ情報');
 {$ENDIF}
+  // システムメニューの追加
+  hSysMenu := GetSystemMenu(Handle,False);
+
+  // セパレータの下にバージョン情報を追加
+  AppendMenu(hSysMenu, MF_SEPARATOR,0,nil);
+  AppendMenu(hSysMenu, MF_STRING, MENUCMD_VERSIONINFO, PWChar(MNU_VERSIONINFO));
 
   // MIDIデバイス情報の更新
   getMIDIDeviceList();
@@ -55,21 +73,43 @@ end;
 
 
 // 更新ボタンが押されたとき
-procedure TBardPlay.btnRefreshClick(Sender: TObject);
+procedure TBardPlayDelphi.btnRefreshClick(Sender: TObject);
 begin
   // MIDIデバイス情報の更新
   getMIDIDeviceList();
 end;
 
 // 閉じるボタン
-procedure TBardPlay.btnExitClick(Sender: TObject);
+procedure TBardPlayDelphi.btnExitClick(Sender: TObject);
 begin
   Close;
 end;
 
+// システムメニューのイベント
+procedure TBardPlayDelphi.WMCommand(var Msg: TWMSysCommand);
+var
+  BardPlayVersionInfo:   TBardPlayVersionInfo;
+begin
+    case Msg.CmdType of
+        MENUCMD_VERSIONINFO:
+        begin
+          // バージョン情報画面を動的に作る
+          Application.CreateForm(TBardPlayVersionInfo, BardPlayVersionInfo);
+          try
+            // バージョン情報の表示
+            BardPlayVersionInfo.ShowModal;
+          finally
+            // 動的にフォームを作ったので、最後は閉じておく
+            BardPlayVersionInfo.Free;
+          end;
+        end;
+    end;
+    inherited;
+end;
+
 
 // MIDIデバイス情報の取得
-procedure TBardPlay.getMIDIDeviceList();
+procedure TBardPlayDelphi.getMIDIDeviceList();
 var
   n             : Integer;
   iDeviceCount  : integer;
@@ -109,7 +149,6 @@ begin
   else
   begin
     // MIDIデバイスが見つからなかったときは、アプリとして無効にする
-    cbDeviceList.style    := csDropDownList;
     cbDeviceList.Style    := csSimple;
     cbDeviceList.Enabled  := False;
     cbDeviceList.Text     := ERR_NODEVICE;
