@@ -108,10 +108,10 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Special>true</VerInfo_Special>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=TakeHide Soft.;FileDescription=MIDI Event to PC-Key Event;FileVersion=1.0.0.3;InternalName=BardPlayDelphi;LegalCopyright=(C) 2022 TakeHide Soft.;LegalTrademarks=;OriginalFilename=BardPlay.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;SpecialBuild=Lera Irara Edition</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=TakeHide Soft.;FileDescription=MIDI Event to PC-Key Event;FileVersion=1.0.0.4;InternalName=BardPlayDelphi;LegalCopyright=(C) 2022 TakeHide Soft.;LegalTrademarks=;OriginalFilename=BardPlay.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;SpecialBuild=Lera Irara Edition</VerInfo_Keys>
         <VerInfo_Debug>true</VerInfo_Debug>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Build>3</VerInfo_Build>
+        <VerInfo_Build>4</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -141,7 +141,6 @@
             <Form>BardPlayVersionInfo</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="source\Version.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

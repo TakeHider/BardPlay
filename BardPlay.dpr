@@ -6,8 +6,7 @@ uses
   formMain in 'source\formMain.pas' {BardPlayDelphi},
   threadMIDIEvent in 'source\threadMIDIEvent.pas',
   unitMIDIIO in 'source\unitMIDIIO.pas',
-  formVersion in 'source\formVersion.pas' {BardPlayVersionInfo},
-  Version in 'source\Version.pas';
+  formVersion in 'source\formVersion.pas' {BardPlayVersionInfo};
 
 {$R *.res}
 resourcestring

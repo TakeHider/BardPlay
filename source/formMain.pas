@@ -91,7 +91,7 @@ begin
     btnStart.Caption    := 'Stop';      // ボタンのキャプションを変更
     cbDeviceList.Enabled:= False;       // コンボボックスの選択を抑止
     // プロセスの実行
-    if MIDIEventThread = nil then
+    if not Assigned(MIDIEventThread) then
     begin
       MIDIEventThread := TMIDIEventThread.Create(True);         // 一時停止状態でスレッドを作成
       MIDIEventThread.FreeOnTerminate := True;                  // スレッドが終わったらメモリを開放する
@@ -106,7 +106,7 @@ begin
     btnStart.Caption    := 'Start';     // ボタンのキャプションを変更
     cbDeviceList.Enabled:= True;        // コンボボックスの選択を有効にする
     // プロセスの停止
-    if MIDIEventThread <> nil then
+    if Assigned(MIDIEventThread) then
     begin
       // 停止命令を出す
       MIDIEventThread.Terminate;
@@ -121,11 +121,10 @@ end;
 procedure TBardPlayDelphi.btnExitClick(Sender: TObject);
 begin
   // もしスレッドが実行してたら、中止命令を出す
- if MIDIEventThread <> nil then
+ if Assigned(MIDIEventThread) then
   begin
     MIDIEventThread.Terminate;
     Application.ProcessMessages;
-    sleep(100);
   end;
   Close;
 end;
@@ -157,8 +156,7 @@ end;
 // MIDIイベントスレッドが止まった時の処理
 procedure TBardPlayDelphi.MIDIEventThreadTerminate(Sender: TObject);
 begin
-  TMIDIEventThread(Sender)  := nil; // なぜかこっちは効かない
-  MIDIEventThread           := nil; // しっくりこないけど、こちらで対応
+  MIDIEventThread := nil;
 end;
 
 {----------------------------------------------------------------------------}
