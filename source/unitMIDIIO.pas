@@ -5,7 +5,8 @@
 interface
 uses
   Winapi.Windows, System.SysUtils;
-
+  
+{----------------------------------------------------------------------------}
 // Delphi側関数 Delphi側はこの関数で呼び出す
 function procMIDIIn_GetDeviceNum(): Integer;
 function procMIDIIn_GetDeviceName(iID: Integer; var strDeviceName: String; iLen: Integer): Integer;
@@ -17,10 +18,9 @@ implementation
 Const procMIDIIn_DLL = 'MIDIIO.dll';
 
 
-
-
-
+{----------------------------------------------------------------------------}
 // MIDIIO.DLL 側関数
+{----------------------------------------------------------------------------}
 // MIDI出力デバイスの数を調べる
 function MIDIIn_GetDeviceNum(): DWORD; stdcall; external procMIDIIn_DLL;
 
@@ -40,6 +40,7 @@ function MIDIIn_Reset(pMIDIDevice: DWORD): DWORD;  stdcall; external procMIDIIn_
 function MIDIIn_GetMIDIMessage(pMIDIIn: DWORD; pMessage: PByte; lLen: DWORD): DWORD; stdcall; external procMIDIIn_DLL;
 
 
+{----------------------------------------------------------------------------}
 // MIDI出力デバイスの数を調べる
 function procMIDIIn_GetDeviceNum(): integer;
 begin
@@ -47,6 +48,7 @@ begin
   result := MIDIIn_GetDeviceNum();
 end;
 
+{----------------------------------------------------------------------------}
 // MIDI入力デバイスの名前を調べる
 function procMIDIIn_GetDeviceName(iID: Integer; var strDeviceName: String; iLen: Integer): Integer;
 var
@@ -65,6 +67,7 @@ begin
   end;
 end;
 
+{----------------------------------------------------------------------------}
 // MIDI入力デバイスを開く
 function procMIDIIn_Open(strDeviceName: String):Integer;
 var
@@ -88,20 +91,21 @@ begin
   end;
 end;
 
+{----------------------------------------------------------------------------}
 // MIDI入力デバイスを閉じる
 function procMIDIIn_Close(iMIDIDevice: Integer): Integer;
 begin
   result := MIDIIn_Close(iMIDIDevice);
 end;
 
-
+{----------------------------------------------------------------------------}
 // MIDI入力デバイスをリセットする
 function procMIDIIn_Reset(iMIDIDevice: Integer): Integer;
 begin
   result := MIDIIn_Reset(iMIDIDevice);
 end;
 
-
+{----------------------------------------------------------------------------}
 // MIDI入力デバイスから1メッセージ入力する
 function procMIDIIn_GetMIDIMessage(iMIDIIn: Integer; var ucMessage: Array of byte; iLen: Integer): Integer;
 var

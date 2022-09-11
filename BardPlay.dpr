@@ -4,7 +4,7 @@ uses
   Windows,
   Vcl.Forms,
   formMain in 'source\formMain.pas' {BardPlayDelphi},
-  threadEventProc in 'source\threadEventProc.pas',
+  threadMIDIEvent in 'source\threadMIDIEvent.pas',
   unitMIDIIO in 'source\unitMIDIIO.pas',
   formVersion in 'source\formVersion.pas' {BardPlayVersionInfo},
   Version in 'source\Version.pas';

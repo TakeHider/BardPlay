@@ -33,6 +33,7 @@ object BardPlayDelphi: TBardPlayDelphi
     ImageIndex = 0
     Images = ilImageList
     TabOrder = 1
+    OnClick = btnStartClick
   end
   object btnExit: TBitBtn
     Left = 220

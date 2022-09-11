@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.ImageList, Vcl.ImgList,
-  Vcl.StdCtrls, Vcl.Buttons,threadEventProc,unitMIDIIO,FormVersion;
+  Vcl.StdCtrls, Vcl.Buttons,threadMIDIEvent,unitMIDIIO,FormVersion;
 
 type
   TBardPlayDelphi = class(TForm)
@@ -17,17 +17,16 @@ type
     procedure FormCreate(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
+    procedure btnStartClick(Sender: TObject);
   private
     { Private 宣言 }
+    MIDIEventThread : TMIDIEventThread;
     procedure getMIDIDeviceList();
     procedure WMCommand(var Msg: TWMSysCommand);message WM_SYSCOMMAND;
+    procedure MIDIEventThreadTerminate(Sender: TObject);
   public
     { Public 宣言 }
-    FThreadRunning  : Boolean;
-
-
   end;
-
 
  const
   MENUCMD_VERSIONINFO  = 10;  // バージョン情報
@@ -37,19 +36,16 @@ var
 
 implementation
 
-
-
-
 {$R *.dfm}
 ResourceString
-ERR_NODEVICE = '*** MIDI Devicve Not Found ***';
-MNU_VERSIONINFO = 'Version Info';
+NSG_DEVUCE_NOTFOUND = '*** MIDI Devicve Not Found ***';
+MNU_VERSIONINFO = 'About..';
 
 {$IFDEF DEBUG}
 {$APPTYPE CONSOLE}
 {$ENDIF}
 
-
+{----------------------------------------------------------------------------}
 // フォーム作成時
 procedure TBardPlayDelphi.FormCreate(Sender: TObject);
 var
@@ -60,6 +56,7 @@ begin
 {$IFDEF DEBUG}
 WriteLn('デバグ情報');
 {$ENDIF}
+
   // システムメニューの追加
   hSysMenu := GetSystemMenu(Handle,False);
 
@@ -69,9 +66,12 @@ WriteLn('デバグ情報');
 
   // MIDIデバイス情報の更新
   getMIDIDeviceList();
+
+  MIDIEventThread := nil;
+
 end;
 
-
+{----------------------------------------------------------------------------}
 // 更新ボタンが押されたとき
 procedure TBardPlayDelphi.btnRefreshClick(Sender: TObject);
 begin
@@ -79,12 +79,58 @@ begin
   getMIDIDeviceList();
 end;
 
+{----------------------------------------------------------------------------}
+// 開始/終了ボタン
+procedure TBardPlayDelphi.btnStartClick(Sender: TObject);
+begin
+  // StartとStopをスイッチする
+  if btnStart.ImageIndex = 0 then
+  begin
+    // Startボタンが押されたときの動作
+    btnStart.ImageIndex := 1;           // ボタンのアイコンをStopにする
+    btnStart.Caption    := 'Stop';      // ボタンのキャプションを変更
+    cbDeviceList.Enabled:= False;       // コンボボックスの選択を抑止
+    // プロセスの実行
+    if MIDIEventThread = nil then
+    begin
+      MIDIEventThread := TMIDIEventThread.Create(True);         // 一時停止状態でスレッドを作成
+      MIDIEventThread.FreeOnTerminate := True;                  // スレッドが終わったらメモリを開放する
+      MIDIEventThread.OnTerminate := MIDIEventThreadTerminate;  // スレッド終了時のイベントを紐づける
+      MIDIEventThread.Start;                                    // スレッドの実行
+   end;
+  end
+  else
+  begin
+    // Stopボタンが押されたときの動作
+    btnStart.ImageIndex := 0;           // ボタンのアイコンをStartにする
+    btnStart.Caption    := 'Start';     // ボタンのキャプションを変更
+    cbDeviceList.Enabled:= True;        // コンボボックスの選択を有効にする
+    // プロセスの停止
+    if MIDIEventThread <> nil then
+    begin
+      // 停止命令を出す
+      MIDIEventThread.Terminate;
+    end;
+
+  end;
+
+end;
+
+{----------------------------------------------------------------------------}
 // 閉じるボタン
 procedure TBardPlayDelphi.btnExitClick(Sender: TObject);
 begin
+  // もしスレッドが実行してたら、中止命令を出す
+ if MIDIEventThread <> nil then
+  begin
+    MIDIEventThread.Terminate;
+    Application.ProcessMessages;
+    sleep(100);
+  end;
   Close;
 end;
 
+{----------------------------------------------------------------------------}
 // システムメニューのイベント
 procedure TBardPlayDelphi.WMCommand(var Msg: TWMSysCommand);
 var
@@ -107,7 +153,15 @@ begin
     inherited;
 end;
 
+{----------------------------------------------------------------------------}
+// MIDIイベントスレッドが止まった時の処理
+procedure TBardPlayDelphi.MIDIEventThreadTerminate(Sender: TObject);
+begin
+  TMIDIEventThread(Sender)  := nil; // なぜかこっちは効かない
+  MIDIEventThread           := nil; // しっくりこないけど、こちらで対応
+end;
 
+{----------------------------------------------------------------------------}
 // MIDIデバイス情報の取得
 procedure TBardPlayDelphi.getMIDIDeviceList();
 var
@@ -150,9 +204,9 @@ begin
   begin
     // MIDIデバイスが見つからなかったときは、アプリとして無効にする
     cbDeviceList.Style    := csSimple;
-    cbDeviceList.Enabled  := False;
-    cbDeviceList.Text     := ERR_NODEVICE;
-    btnStart.Enabled      := False;
+//    cbDeviceList.Enabled  := False;
+    cbDeviceList.Text     := NSG_DEVUCE_NOTFOUND;
+//    btnStart.Enabled      := False;
 
   end;
 
