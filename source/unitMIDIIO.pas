@@ -13,6 +13,8 @@ function procMIDIIn_GetDeviceName(iID: Integer; var strDeviceName: String; iLen:
 function procMIDIIn_Open(strDeviceName: String): Integer;
 function procMIDIIn_Close(iMIDIDevice: Integer): Integer;
 function procMIDIIn_Reset(iMIDIDevice: Integer): Integer;
+function procMIDIIn_GetMIDIMessage(iMIDIIn: Integer; var ucMessage: Array of byte; iLen: Integer): Integer;
+
 
 implementation
 Const procMIDIIn_DLL = 'MIDIIO.dll';

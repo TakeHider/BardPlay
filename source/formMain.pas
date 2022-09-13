@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.ImageList, Vcl.ImgList,
-  Vcl.StdCtrls, Vcl.Buttons,threadMIDIEvent,unitMIDIIO,FormVersion;
+  Vcl.StdCtrls, Vcl.Buttons,threadMIDIEvent,unitMIDIIO,FormVersion,System.IniFiles,
+  Vcl.ExtCtrls;
 
 type
   TBardPlayDelphi = class(TForm)
@@ -13,17 +14,27 @@ type
     btnStart: TBitBtn;
     btnExit: TBitBtn;
     btnRefresh: TBitBtn;
-    ilImageList: TImageList;
+    ImageList: TImageList;
+    speTop: TShape;
+    Label1: TLabel;
+    speBottom: TShape;
     procedure FormCreate(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
     procedure btnStartClick(Sender: TObject);
+    procedure speBottomContextPopup(Sender: TObject; MousePos: TPoint;
+      var Handled: Boolean);
   private
     { Private 宣言 }
     MIDIEventThread : TMIDIEventThread;
+    FDefaultDeviceName : String;
     procedure getMIDIDeviceList();
     procedure WMCommand(var Msg: TWMSysCommand);message WM_SYSCOMMAND;
     procedure MIDIEventThreadTerminate(Sender: TObject);
+    function ReadDefaultDeviceName() : String;
+    procedure WriteDefaultDeviceName(strDeviceName : String);
+
+
   public
     { Public 宣言 }
   end;
@@ -39,7 +50,8 @@ implementation
 {$R *.dfm}
 ResourceString
 NSG_DEVUCE_NOTFOUND = '*** MIDI Devicve Not Found ***';
-MNU_VERSIONINFO = 'About..';
+MNU_VERSIONINFO = 'Version Info.';
+
 
 {$IFDEF DEBUG}
 {$APPTYPE CONSOLE}
@@ -52,10 +64,13 @@ var
   hSysMenu: Integer;
 
 begin
-
 {$IFDEF DEBUG}
 WriteLn('デバグ情報');
 {$ENDIF}
+
+  MIDIEventThread := nil;
+  // iniの読み込み
+  FDefaultDeviceName := ReadDefaultDeviceName();
 
   // システムメニューの追加
   hSysMenu := GetSystemMenu(Handle,False);
@@ -67,7 +82,6 @@ WriteLn('デバグ情報');
   // MIDIデバイス情報の更新
   getMIDIDeviceList();
 
-  MIDIEventThread := nil;
 
 end;
 
@@ -87,15 +101,18 @@ begin
   if btnStart.ImageIndex = 0 then
   begin
     // Startボタンが押されたときの動作
+    FDefaultDeviceName  := cbDeviceList.Items[cbDeviceList.ItemIndex];  // デバイス名を保持
     btnStart.ImageIndex := 1;           // ボタンのアイコンをStopにする
     btnStart.Caption    := 'Stop';      // ボタンのキャプションを変更
     cbDeviceList.Enabled:= False;       // コンボボックスの選択を抑止
     // プロセスの実行
     if not Assigned(MIDIEventThread) then
     begin
-      MIDIEventThread := TMIDIEventThread.Create(True);         // 一時停止状態でスレッドを作成
-      MIDIEventThread.FreeOnTerminate := True;                  // スレッドが終わったらメモリを開放する
+      MIDIEventThread := TMIDIEventThread.Create(TRUE);         // 一時停止状態でスレッドを作成
+//    MIDIEventThread.FreeOnTerminate := True;                  // スレッドが終わったらメモリを開放する
       MIDIEventThread.OnTerminate := MIDIEventThreadTerminate;  // スレッド終了時のイベントを紐づける
+      MIDIEventThread.FDeviceNumber := cbDeviceList.ItemIndex;  // デバイス番号を渡す
+      MIDIEventThread.FDeviceName   := FDefaultDeviceName;      // デバイス番号
       MIDIEventThread.Start;                                    // スレッドの実行
    end;
   end
@@ -126,6 +143,9 @@ begin
     MIDIEventThread.Terminate;
     Application.ProcessMessages;
   end;
+  if FDefaultDeviceName<>'' then
+    WriteDefaultDeviceName(FDefaultDeviceName);
+
   Close;
 end;
 
@@ -163,12 +183,23 @@ end;
 // MIDIデバイス情報の取得
 procedure TBardPlayDelphi.getMIDIDeviceList();
 var
-  n             : Integer;
-  iDeviceCount  : integer;
-  strDeviceName : String;
-  iRetLength    : Integer;
+  n               : Integer;
+  iDeviceCount    : integer;
+  strDeviceName   : String;
+  iRetLength      : Integer;
+  strPreDeviceName: String;
 
 begin
+  // 現在のリストの状態を保持
+  strPreDeviceName := '';
+  if cbDeviceList.style = csDropDownList then
+  begin
+    if (cbDeviceList.Items.Count > 0) and (cbDeviceList.ItemIndex >=0) then
+    begin
+      strPreDeviceName := cbDeviceList.Items[cbDeviceList.ItemIndex ];
+    end;
+  end;
+
   // MIDIのデバイス数を数える
   iDeviceCount := procMIDIIn_GetDeviceNum();
 
@@ -177,6 +208,7 @@ begin
   begin
     // まずはコンボボックスの中身をクリア
     cbDeviceList.Items.Clear;
+    cbDeviceList.ItemIndex := -1;
     // デバイスの数だけ登録
     for n := 1 to iDeviceCount do
     begin
@@ -194,20 +226,67 @@ begin
   begin
     // もしコンボボックスに何か登録されていたら、アプリとして有効にする
     cbDeviceList.style    := csDropDownList;  // ドロップダウンリストにする
-    cbDeviceList.Enabled  := True;            // コントロールを有効にする
-    cbDeviceList.ItemIndex:= 0;
     btnStart.Enabled      := True;            // 実行ボタンも有効にする
+
+    // 直近で選択されたものがあれば、デフォルトにする
+    if (strPreDeviceName<>'') and (cbDeviceList.ItemIndex =-1)  then
+    begin
+      if cbDeviceList.Items.IndexOf(strPreDeviceName)>=0 then
+      begin
+        cbDeviceList.ItemIndex := cbDeviceList.Items.IndexOf(strPreDeviceName)
+      end;
+    end;
+    if (FDefaultDeviceName <> '') and (cbDeviceList.ItemIndex =-1) then
+    begin
+      begin
+        cbDeviceList.ItemIndex := cbDeviceList.Items.IndexOf(FDefaultDeviceName)
+      end;
+    end;
+
   end
   else
   begin
     // MIDIデバイスが見つからなかったときは、アプリとして無効にする
     cbDeviceList.Style    := csSimple;
-//    cbDeviceList.Enabled  := False;
     cbDeviceList.Text     := NSG_DEVUCE_NOTFOUND;
-//    btnStart.Enabled      := False;
+    btnStart.Enabled      := False;
 
   end;
 
+end;
+
+{----------------------------------------------------------------------------}
+// INIファイルからデフォルトのデバイス名を読み込む
+function TBardPlayDelphi.ReadDefaultDeviceName() : String;
+var
+  iniFile : TiniFile;
+begin
+  iniFile := TiniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
+  try
+    result := iniFile.ReadString('CONFIG','device_name','');
+  finally
+    iniFile.Free;
+  end;
+end;
+
+procedure TBardPlayDelphi.speBottomContextPopup(Sender: TObject;
+  MousePos: TPoint; var Handled: Boolean);
+begin
+
+end;
+
+{----------------------------------------------------------------------------}
+// INIファイルにデフォルトのデバイス名を書き込む
+procedure TBardPlayDelphi.WriteDefaultDeviceName(strDeviceName : String);
+var
+  iniFile : TiniFile;
+begin
+  iniFile := TiniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
+  try
+    iniFile.WriteString('CONFIG','device_name',FDefaultDeviceName);
+  finally
+    iniFile.Free;
+  end;
 end;
 
 end.
