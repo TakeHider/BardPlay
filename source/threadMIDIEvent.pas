@@ -40,6 +40,7 @@ type
     procedure setKeyCode();
     procedure ReadIniFile();
     procedure sendKeyMessage(wmEvent: Integer; ucNote: byte);
+    procedure sendPanic();
   public
     FDeviceNumber: Integer;
     FDeviceName  : String;
@@ -84,6 +85,7 @@ end;
 {----------------------------------------------------------------------------}
 // スレッドのコンストラクタ
 constructor TMIDIEventThread.Create(CreateSuspended : Boolean);
+
 begin
   //Suspend状態で開始する
   inherited Create(CreateSuspended);
@@ -95,6 +97,7 @@ begin
   setKeyCode();
   // INIの読み込み
   ReadIniFile();
+
 end;
 {----------------------------------------------------------------------------}
 // スレッドの実行
@@ -110,8 +113,6 @@ var
   n           : Integer;
 
 begin
-
-
   // MIDIデバイスを開く
   pMIDIIn := procMIDIIn_Open(FDeviceName);
   if pMIDIin = 0 then
@@ -133,6 +134,7 @@ begin
           ucStatus  := aucMessage[0]; // 最初のバイトはステータス
           ucData1   := aucMessage[1]; // 次のバイトは音階
           ucData2   := aucMessage[2]; // 最後のバイトは強さ
+
           // 取り扱うイベントは ノートOnとノートOffのみ
           if (ucStatus = NOTE_ON) or (ucStatus = NOTE_OFF) then
           begin
@@ -192,17 +194,13 @@ begin
         end;
 
       until Terminated;
-
       // ループを抜けたとき、もし何か押された状態のままだったら、放しておく
       if ucPreNote <> 0 then
       begin
         sendKeyMessage(WM_KEYUP, ucPreNote);
         //ucPreNote := 0;
       end;
-      // 押されたキーを片っ端から離す(要らないかな)
-      if FSendNoteList.Count > 0 then
-        for n := 0 to FSendNoteList.Count -1  do
-          sendKeyMessage(WM_KEYUP, FSendNoteList.Items[n]);
+
 
 
     finally
@@ -277,7 +275,25 @@ begin
 //  cbDeviceList.Enabled  := False;
     cbDeviceList.Text     := MSG_DEVICE_ERROR;
     btnStart.Enabled      := False;
+    btnStart.ImageIndex   := 0;           // ボタンのアイコンをStartにする
+    btnStart.Caption      := 'Start';     // ボタンのキャプションを変更
+
   end;
+
+end;
+
+{----------------------------------------------------------------------------}
+// パニックになった時の処理
+// でも「パニック」ボタンを押すとフォーカスが分かり、メッセージの送信先が変わってしまう。
+// いったん保留なロジック
+procedure TMIDIEventThread.sendPanic();
+var
+  n : Integer;
+begin
+  // 押されたキーを片っ端から離す(違うウインドウに飛ばすので意味ない)
+  if FSendNoteList.Count > 0 then
+    for n := 0 to FSendNoteList.Count -1  do
+      sendKeyMessage(WM_KEYUP, FSendNoteList.Items[n]);
 
 end;
 
@@ -306,7 +322,7 @@ begin
       if FOption.astrKeyMap[n]<>'' then
       begin
         if FOption.iMinRange = 0 then FOption.iMinRange := n;
-        FOption.iMinRange := n;
+        FOption.iMaxRange := n;
       end;
     end;
   finally

@@ -24,6 +24,7 @@ type
     procedure btnStartClick(Sender: TObject);
     procedure speBottomContextPopup(Sender: TObject; MousePos: TPoint;
       var Handled: Boolean);
+    procedure FormShow(Sender: TObject);
   private
     { Private 宣言 }
     MIDIEventThread : TMIDIEventThread;
@@ -64,9 +65,6 @@ var
   hSysMenu: Integer;
 
 begin
-{$IFDEF DEBUG}
-WriteLn('デバグ情報');
-{$ENDIF}
 
   MIDIEventThread := nil;
   // iniの読み込み
@@ -83,6 +81,13 @@ WriteLn('デバグ情報');
   getMIDIDeviceList();
 
 
+end;
+
+procedure TBardPlayDelphi.FormShow(Sender: TObject);
+begin
+{$IFDEF DEBUG}
+AllocConsole;
+{$ENDIF}
 end;
 
 {----------------------------------------------------------------------------}
@@ -283,7 +288,7 @@ var
 begin
   iniFile := TiniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
   try
-    iniFile.WriteString('CONFIG','device_name',FDefaultDeviceName);
+    iniFile.WriteString('CONFIG','device_name',strDeviceName);
   finally
     iniFile.Free;
   end;

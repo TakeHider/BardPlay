@@ -17,29 +17,29 @@ function procMIDIIn_GetMIDIMessage(iMIDIIn: Integer; var ucMessage: Array of byt
 
 
 implementation
-Const procMIDIIn_DLL = 'MIDIIO.dll';
+Const MIDIIO_DLL = 'MIDIIO.dll';
 
 
 {----------------------------------------------------------------------------}
 // MIDIIO.DLL 側関数
 {----------------------------------------------------------------------------}
 // MIDI出力デバイスの数を調べる
-function MIDIIn_GetDeviceNum(): DWORD; stdcall; external procMIDIIn_DLL;
+function MIDIIn_GetDeviceNum(): DWORD; stdcall; external MIDIIO_DLL;
 
 // MIDI入力デバイスの名前を調べる
-function MIDIIn_GetDeviceNameW(lID: DWORD; pszDeviceName:PWChar; lLen: DWORD): DWORD; stdcall; external procMIDIIn_DLL;
+function MIDIIn_GetDeviceNameW(lID: DWORD; pszDeviceName:PWChar; lLen: DWORD): DWORD; stdcall; external MIDIIO_DLL;
 
 // MIDI入力デバイスを開く
-function MIDIIn_OpenW(const pszDeviceName: PWChar): DWORD; stdcall; external procMIDIIn_DLL;
+function MIDIIn_OpenW(const pszDeviceName: PWChar): DWORD; stdcall; external MIDIIO_DLL;
 
 // MIDI入力デバイスを閉じる
-function MIDIIn_Close(pMIDIDevice: DWORD): DWORD;   stdcall; external procMIDIIn_DLL;
+function MIDIIn_Close(pMIDIDevice: DWORD): DWORD;   stdcall; external MIDIIO_DLL;
 
 // MIDI入力デバイスをリセットする
-function MIDIIn_Reset(pMIDIDevice: DWORD): DWORD;  stdcall; external procMIDIIn_DLL;
+function MIDIIn_Reset(pMIDIDevice: DWORD): DWORD;  stdcall; external MIDIIO_DLL;
 
 // MIDI入力デバイスから1メッセージ入力する
-function MIDIIn_GetMIDIMessage(pMIDIIn: DWORD; pMessage: PByte; lLen: DWORD): DWORD; stdcall; external procMIDIIn_DLL;
+function MIDIIn_GetMIDIMessage(pMIDIIn: DWORD; pMessage: PByte; lLen: DWORD): DWORD; stdcall; external MIDIIO_DLL;
 
 
 {----------------------------------------------------------------------------}
@@ -72,25 +72,11 @@ end;
 {----------------------------------------------------------------------------}
 // MIDI入力デバイスを開く
 function procMIDIIn_Open(strDeviceName: String):Integer;
-var
-  pszDeviceName: PWChar;
 begin
-  if length(strDeviceName)=0 then
-  begin
-    result := 0;
-  end
+  if Length(strDeviceName)=0 then
+    result := 0
   else
-  begin
-    // 文字列を格納するための領域を確保
-    pszDeviceName := StrAlloc(length(strDeviceName));
-    try
-      // DLLの呼び出し
-      result := MIDIIn_OpenW(pszDeviceName);
-    finally
-      // 最後に領域を解放
-      StrDispose(pszDeviceName);
-    end;
-  end;
+    result := MIDIIn_OpenW(PWChar(strDeviceName));
 end;
 
 {----------------------------------------------------------------------------}
@@ -121,9 +107,7 @@ begin
     result := MIDIIn_GetMIDIMessage(iMIDIIn, pMessage,iLen);
     // 引数で受け取ったByte型の配列に格納
     for n:=0  to iLen-1 do
-    begin
       ucMessage[n] := pMessage[n];
-    end;
   finally
     FreeMem(pMessage);
   end;

@@ -13,6 +13,7 @@ object BardPlayDelphi: TBardPlayDelphi
   Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object speTop: TShape
@@ -36,6 +37,7 @@ object BardPlayDelphi: TBardPlayDelphi
     Width = 260
     Height = 1
     Pen.Color = clBlue
+    Visible = False
     OnContextPopup = speBottomContextPopup
   end
   object cbDeviceList: TComboBox
