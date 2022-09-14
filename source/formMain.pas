@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.ImageList, Vcl.ImgList,
   Vcl.StdCtrls, Vcl.Buttons,threadMIDIEvent,unitMIDIIO,FormVersion,System.IniFiles,
-  Vcl.ExtCtrls;
+  Vcl.ExtCtrls,System.StrUtils;
 
 type
   TBardPlayDelphi = class(TForm)
@@ -15,25 +15,23 @@ type
     btnExit: TBitBtn;
     btnRefresh: TBitBtn;
     ImageList: TImageList;
-    speTop: TShape;
-    Label1: TLabel;
-    speBottom: TShape;
+    labMIDIDevice: TLabel;
+    chkStartOnRun: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
     procedure btnStartClick(Sender: TObject);
-    procedure speBottomContextPopup(Sender: TObject; MousePos: TPoint;
-      var Handled: Boolean);
     procedure FormShow(Sender: TObject);
+    procedure chkStartOnRunClick(Sender: TObject);
   private
     { Private 宣言 }
-    MIDIEventThread : TMIDIEventThread;
-    FDefaultDeviceName : String;
+    MIDIEventThread     : TMIDIEventThread;
+    FDefaultDeviceName  : String;
     procedure getMIDIDeviceList();
     procedure WMCommand(var Msg: TWMSysCommand);message WM_SYSCOMMAND;
     procedure MIDIEventThreadTerminate(Sender: TObject);
-    function ReadDefaultDeviceName() : String;
-    procedure WriteDefaultDeviceName(strDeviceName : String);
+    procedure ReadIniSetting();
+    procedure WriteIniSetting();
 
 
   public
@@ -68,7 +66,7 @@ begin
 
   MIDIEventThread := nil;
   // iniの読み込み
-  FDefaultDeviceName := ReadDefaultDeviceName();
+  ReadIniSetting();
 
   // システムメニューの追加
   hSysMenu := GetSystemMenu(Handle,False);
@@ -80,14 +78,20 @@ begin
   // MIDIデバイス情報の更新
   getMIDIDeviceList();
 
+  // 自動実行
+  if chkStartOnRun.Checked and (btnStart.ImageIndex = 0) and (cbDeviceList.ItemIndex <>-1) then
+    btnStartClick(self);
 
 end;
+
+
 
 procedure TBardPlayDelphi.FormShow(Sender: TObject);
 begin
 {$IFDEF DEBUG}
 AllocConsole;
 {$ENDIF}
+
 end;
 
 {----------------------------------------------------------------------------}
@@ -113,12 +117,11 @@ begin
     // プロセスの実行
     if not Assigned(MIDIEventThread) then
     begin
-      MIDIEventThread := TMIDIEventThread.Create(TRUE);         // 一時停止状態でスレッドを作成
-//    MIDIEventThread.FreeOnTerminate := True;                  // スレッドが終わったらメモリを開放する
-      MIDIEventThread.OnTerminate := MIDIEventThreadTerminate;  // スレッド終了時のイベントを紐づける
-      MIDIEventThread.FDeviceNumber := cbDeviceList.ItemIndex;  // デバイス番号を渡す
-      MIDIEventThread.FDeviceName   := FDefaultDeviceName;      // デバイス番号
-      MIDIEventThread.Start;                                    // スレッドの実行
+      MIDIEventThread := TMIDIEventThread.Create(TRUE);           // 一時停止状態でスレッドを作成る
+      MIDIEventThread.OnTerminate   := MIDIEventThreadTerminate;  // スレッド終了時のイベントを紐づける
+      MIDIEventThread.FDeviceNumber := cbDeviceList.ItemIndex;    // デバイス番号を渡す
+      MIDIEventThread.FDeviceName   := FDefaultDeviceName;        // デバイス番号
+      MIDIEventThread.Start;                                      // スレッドの実行
    end;
   end
   else
@@ -138,6 +141,11 @@ begin
 
 end;
 
+procedure TBardPlayDelphi.chkStartOnRunClick(Sender: TObject);
+begin
+
+end;
+
 {----------------------------------------------------------------------------}
 // 閉じるボタン
 procedure TBardPlayDelphi.btnExitClick(Sender: TObject);
@@ -149,7 +157,7 @@ begin
     Application.ProcessMessages;
   end;
   if FDefaultDeviceName<>'' then
-    WriteDefaultDeviceName(FDefaultDeviceName);
+    WriteIniSetting();
 
   Close;
 end;
@@ -166,6 +174,8 @@ begin
           // バージョン情報画面を動的に作る
           Application.CreateForm(TBardPlayVersionInfo, BardPlayVersionInfo);
           try
+            // 背景色♪
+            BardPlayVersionInfo.Color := BardPlayDelphi.Color;
             // バージョン情報の表示
             BardPlayVersionInfo.ShowModal;
           finally
@@ -261,34 +271,56 @@ begin
 end;
 
 {----------------------------------------------------------------------------}
-// INIファイルからデフォルトのデバイス名を読み込む
-function TBardPlayDelphi.ReadDefaultDeviceName() : String;
+// INIファイルから読み込む
+procedure TBardPlayDelphi.ReadIniSetting();
 var
-  iniFile : TiniFile;
+  b           : boolean;
+  iniFile     : TiniFile;
+  strBGColor  : String;
 begin
+  // INIファイルから情報を読み込む
   iniFile := TiniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
   try
-    result := iniFile.ReadString('CONFIG','device_name','');
+    FDefaultDeviceName  := iniFile.ReadString('CONFIG','device_name','');
+    b                   := iniFile.ReadInteger('CONFIG','start_on_run',0) = 1;
+    strBGColor          := iniFile.ReadString('CONFIG','color','#F5FFFA');
   finally
     iniFile.Free;
   end;
+  // アプリの背景色
+  if Length(strBGColor)=7 then
+  begin
+    if LeftStr(strBGColor,1)='#' then
+    begin
+      BardPlayDelphi.Color := RGB(StrToInt('$' + MidStr(strBGColor,2,2)),
+                                  StrToInt('$' + MidStr(strBGColor,4,2)),
+                                  StrToInt('$' + MidStr(strBGColor,6,2)));
+
+    end;
+
+  end;
+  // Start On Run
+  chkStartOnRun.Checked := b;
 end;
 
-procedure TBardPlayDelphi.speBottomContextPopup(Sender: TObject;
-  MousePos: TPoint; var Handled: Boolean);
-begin
-
-end;
 
 {----------------------------------------------------------------------------}
-// INIファイルにデフォルトのデバイス名を書き込む
-procedure TBardPlayDelphi.WriteDefaultDeviceName(strDeviceName : String);
+// INIファイルに書き込む
+procedure TBardPlayDelphi.WriteIniSetting();
 var
+  n       : Integer;
   iniFile : TiniFile;
 begin
+  if chkStartOnRun.Checked then
+    n := 1
+  else
+    n := 0;
+
+  // INIファイルに情報を書き込む
   iniFile := TiniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
   try
-    iniFile.WriteString('CONFIG','device_name',strDeviceName);
+    iniFile.WriteString('CONFIG','device_name',FDefaultDeviceName);
+    iniFile.WriteInteger('CONFIG','start_on_run',n);
   finally
     iniFile.Free;
   end;

@@ -3,9 +3,9 @@ object BardPlayDelphi: TBardPlayDelphi
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Bard Play'
-  ClientHeight = 93
-  ClientWidth = 275
-  Color = clMoneyGreen
+  ClientHeight = 91
+  ClientWidth = 256
+  Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -16,76 +16,85 @@ object BardPlayDelphi: TBardPlayDelphi
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object speTop: TShape
+  object labMIDIDevice: TLabel
     Left = 8
-    Top = 16
-    Width = 260
-    Height = 1
-    Pen.Color = clBlue
-  end
-  object Label1: TLabel
-    Left = 32
     Top = 8
     Width = 64
     Height = 13
     Caption = ' MIDI Device '
     Transparent = False
   end
-  object speBottom: TShape
-    Left = 8
-    Top = 54
-    Width = 260
-    Height = 1
-    Pen.Color = clBlue
-    Visible = False
-    OnContextPopup = speBottomContextPopup
-  end
   object cbDeviceList: TComboBox
     Left = 8
     Top = 27
-    Width = 256
+    Width = 193
     Height = 21
+    Hint = 'MIDI Device List'
     Style = csDropDownList
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 2
   end
   object btnStart: TBitBtn
-    Left = 128
-    Top = 61
+    Left = 107
+    Top = 58
     Width = 65
     Height = 25
+    Hint = 'Start or Stop Process'
     Caption = 'Start'
     DisabledImageIndex = 0
     ImageIndex = 0
     Images = ImageList
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 1
     OnClick = btnStartClick
   end
   object btnExit: TBitBtn
-    Left = 199
-    Top = 61
+    Left = 178
+    Top = 58
     Width = 65
     Height = 25
+    Hint = 'Close'
     Caption = 'Exit'
     ImageIndex = 2
     Images = ImageList
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 3
     OnClick = btnExitClick
   end
   object btnRefresh: TBitBtn
-    Left = 8
-    Top = 61
-    Width = 75
+    Left = 207
+    Top = 25
+    Width = 34
     Height = 25
-    Caption = 'Refresh'
+    Hint = 'Refresh MIDI Device'
     DisabledImageIndex = 0
     ImageIndex = 3
     Images = ImageList
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 0
     OnClick = btnRefreshClick
   end
+  object chkStartOnRun: TCheckBox
+    Left = 8
+    Top = 62
+    Width = 93
+    Height = 17
+    Hint = 'Check when start on run'
+    Caption = 'Start on Run'
+    Color = clBtnFace
+    ParentColor = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 4
+    OnClick = chkStartOnRunClick
+  end
   object ImageList: TImageList
-    Left = 88
-    Top = 56
+    Left = 136
+    Top = 8
     Bitmap = {
       494C010104000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020

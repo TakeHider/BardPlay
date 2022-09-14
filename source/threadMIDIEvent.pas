@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,Classes,ShellAPI,Vcl.Forms,Vcl.StdCtrls,Generics.Collections,
-  System.IniFiles,System.SysUtils,intList;
+  System.IniFiles,System.SysUtils;
 
 
 type
@@ -35,12 +35,10 @@ type
   private
     FKeyCode      : THash<string, byte>;
     FOption       : TIniInfo;
-    FSendNoteList : TIntegerList;
     procedure Sync_SetDeviceError;
     procedure setKeyCode();
     procedure ReadIniFile();
     procedure sendKeyMessage(wmEvent: Integer; ucNote: byte);
-    procedure sendPanic();
   public
     FDeviceNumber: Integer;
     FDeviceName  : String;
@@ -65,8 +63,6 @@ const
 
 ResourceString
 MSG_DEVICE_ERROR = '*** MIDI Devicve Error ***';
-INISECTION_CONFIG = 'CONFIG';
-INISECTION_MAPPING= 'MAPPING';
 
 {----------------------------------------------------------------------------}
 { THash<TKey, TValue> }
@@ -110,8 +106,6 @@ var
   ucData1     : byte;
   ucData2     : byte;
   ucPreNote   : byte;
-  n           : Integer;
-
 begin
   // MIDIデバイスを開く
   pMIDIIn := procMIDIIn_Open(FDeviceName);
@@ -122,7 +116,6 @@ begin
   end
   else
   begin
-    FSendNoteList := TIntegerList.Create;
     try
       ucPreNote := $00;
       repeat
@@ -204,7 +197,6 @@ begin
 
 
     finally
-      FSendNoteList.Free;
       procMIDIIn_Close(pMIDIIn);  // MIDIデバイスの解放
     end;
 
@@ -234,21 +226,14 @@ begin
       for n := 0 to length(astrKeys)-1 do
       begin
         if wmEvent = WM_KEYDOWN then      // ノートOnのとき
-        begin
           // 指定されたキーの順番で押す
-          iIndex := n;
-          // 押されたキーを覚えておく
-          if FSendNoteList.IndexOf(ucNote) = -1 then FSendNoteList.Add(ucNote);
-        end
+          iIndex := n
         else if wmEvent = WM_KEYUP then   // ノートOffのとき
-        begin
           // 逆の順番で離す
-          iIndex := (length(astrKeys)-n-1);
-        end
+          iIndex := (length(astrKeys)-n-1)
         else                              // 何だかよくわからないとき
-        begin
           iIndex := n;
-        end;
+
 {$IFDEF DEBUG}
 WriteLn(Format(' winHandle = 0x%x : Note = %d : Key = %s : Event = %d', [hwnd, ucNote, astrKeys[iIndex], wmEvent]));
 {$ENDIF}
@@ -283,21 +268,6 @@ begin
 end;
 
 {----------------------------------------------------------------------------}
-// パニックになった時の処理
-// でも「パニック」ボタンを押すとフォーカスが分かり、メッセージの送信先が変わってしまう。
-// いったん保留なロジック
-procedure TMIDIEventThread.sendPanic();
-var
-  n : Integer;
-begin
-  // 押されたキーを片っ端から離す(違うウインドウに飛ばすので意味ない)
-  if FSendNoteList.Count > 0 then
-    for n := 0 to FSendNoteList.Count -1  do
-      sendKeyMessage(WM_KEYUP, FSendNoteList.Items[n]);
-
-end;
-
-{----------------------------------------------------------------------------}
 // 設定情報の読み込み
 procedure TMIDIEventThread.ReadIniFile();
 var
@@ -307,9 +277,8 @@ begin
   iniFile := TiniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
   try
     // CONFIGセクションの読み込み
-    FOption.strDeviceName := iniFile.ReadString(INISECTION_CONFIG,'device_name','');
-    FOption.bPlayOnStart  := iniFile.ReadInteger(INISECTION_CONFIG,'start_on_run',0) = 1;
-    FOption.iExitOutRange := iniFile.ReadInteger(INISECTION_CONFIG,'start_on_run',1);
+    FOption.strDeviceName := iniFile.ReadString('CONFIG','device_name','');
+    FOption.iExitOutRange := iniFile.ReadInteger('CONFIG','exit_outrange',1);
 
     // MAPPINGセクションの読み込み
     FOption.iMinRange := 0; // 範囲の最小値
@@ -317,7 +286,7 @@ begin
     for n := 0 to 127 do
     begin
       // マッピングにセット(キーが無いときは空欄をセット)
-      FOption.astrKeyMap[n] := iniFile.ReadString(INISECTION_MAPPING,IntToStr(n),'');
+      FOption.astrKeyMap[n] := iniFile.ReadString('MAPPING',IntToStr(n),'');
       // キーが存在するときは、範囲の指定をする
       if FOption.astrKeyMap[n]<>'' then
       begin

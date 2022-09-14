@@ -4,7 +4,7 @@
         <ProjectVersion>19.2</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>2</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -108,10 +108,12 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Special>true</VerInfo_Special>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=TakeHide Soft.;FileDescription=MIDI Event to PC-Key Event;FileVersion=1.0.0.22;InternalName=BardPlayDelphi;LegalCopyright=(C) 2022 TakeHide Soft.;LegalTrademarks=;OriginalFilename=BardPlay.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;SpecialBuild=Lera Irara Edition</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=TakeHide Soft.;FileDescription=MIDI Event to PC-Key Event Tool;FileVersion=1.1.0.24;InternalName=BardPlayDelphi;LegalCopyright=(C) 2022 TakeHide Soft.;LegalTrademarks=;OriginalFilename=BardPlay.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.1.0.0;Comments=;SpecialBuild=Lera Irara Edition</VerInfo_Keys>
         <VerInfo_Debug>true</VerInfo_Debug>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Build>22</VerInfo_Build>
+        <VerInfo_Build>24</VerInfo_Build>
+        <VerInfo_MinorVer>1</VerInfo_MinorVer>
+        <Icon_MainIcon>BardPlay_Icon2.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -126,6 +128,9 @@
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Icon_MainIcon>BardPlay_Icon.ico</Icon_MainIcon>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -141,7 +146,6 @@
             <Form>BardPlayVersionInfo</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="source\IntList.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
