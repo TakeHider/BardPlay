@@ -1,4 +1,10 @@
-﻿unit threadMIDIEvent;
+﻿{ Bard Play ( BardPlay Delphi ) }
+{  MIDI Evenet Thread process   }
+{                               }
+{ (C) 2022 TakeHide Soft.       }
+{         TakeHider@outlook.com }
+
+unit threadMIDIEvent;
 
 interface
 
@@ -10,13 +16,14 @@ uses
 type
   // INIファイルの中身を格納する構造体
   TIniInfo = record
-    iDeviceNumber : Integer;  // デバイス番号
-    strDeviceName : String;   // デバイス名
-    bPlayOnStart  : Boolean;  // 起動時に処理を開始するか
-    iExitOutRange : Integer;  // 範囲から外れたらSTOPするか(および、境界値との距離)
-    iMinRange     : Integer;  // 範囲下限
-    iMaxRange     : Integer;  // 範囲上限
-    astrKeyMap    : array[0..127] of String;  // マッピング情報
+    iDeviceNumber   : Integer;  // デバイス番号
+    strDeviceName   : String;   // デバイス名
+    bPlayOnStart    : Boolean;  // 起動時に処理を開始するか
+    iExitOutRange   : Integer;  // 範囲から外れたらSTOPするか(および、境界値との距離)
+    iMinRange       : Integer;  // 範囲下限
+    iMaxRange       : Integer;  // 範囲上限
+    iUsePostMessage : Integer;  // データの送信メソッドでPostMessageを使うか
+    astrKeyMap      : array[0..127] of String;  // マッピング情報
   end;
 
 
@@ -42,6 +49,7 @@ type
   public
     FDeviceNumber: Integer;
     FDeviceName  : String;
+    FTransepose  : Integer;
     constructor Create(CreateSuspended : Boolean);
   protected
     procedure Execute; override;
@@ -109,6 +117,10 @@ var
 begin
   // MIDIデバイスを開く
   pMIDIIn := procMIDIIn_Open(FDeviceName);
+{$IFDEF DEBUG}
+writeln('Open MIDI Device.');
+{$ENDIF}
+
   if pMIDIin = 0 then
   begin
     // MIDIデバイスのオープンに失敗した時
@@ -131,6 +143,9 @@ begin
           // 取り扱うイベントは ノートOnとノートOffのみ
           if (ucStatus = NOTE_ON) or (ucStatus = NOTE_OFF) then
           begin
+            // トランスポーズ
+            ucData1 := ucData1 + FTransepose * 12;
+
             // 音階がマッピング範囲内の時
             if (FOption.iMinRange <= ucData1) and (ucData1 <= FOption.iMaxRange) then
             begin
@@ -172,9 +187,8 @@ begin
                 if ((ucData1-FOption.iExitOutRange) < FOption.iMinRange)  or
                    ((ucData1+FOption.iExitOutRange) > FOPtion.iMaxRange) then
                 begin
-                  Terminate;
-                  Application.ProcessMessages;
-                  sleep(1);
+                  DoTerminate;  // 親フォームの OnTerminateを実行する
+                  break;        // ループを抜ける
                 end;
               end;
             end;
@@ -182,22 +196,24 @@ begin
         end
         else
         begin
-          Application.ProcessMessages;
           sleep(1);
         end;
 
       until Terminated;
+{$IFDEF DEBUG}
+writeln('Thread Terminated.');
+{$ENDIF}
       // ループを抜けたとき、もし何か押された状態のままだったら、放しておく
       if ucPreNote <> 0 then
       begin
         sendKeyMessage(WM_KEYUP, ucPreNote);
         //ucPreNote := 0;
       end;
-
-
-
     finally
       procMIDIIn_Close(pMIDIIn);  // MIDIデバイスの解放
+{$IFDEF DEBUG}
+writeln('Close MIDI Device.');
+{$ENDIF}
     end;
 
   end;
@@ -214,8 +230,14 @@ var
   n       : Integer;
 
 begin
+  // もしマッピングの範囲を超えていたら処理しない
+  if (ucNote < Low(FOption.astrKeyMap)) or (ucNote > High(FOption.astrKeyMap)) then
+    exit;
+
+  // 宛先ウインドウを取得
   hwnd := GetForegroundWindow();
 
+  // キーの文字列を取得
   strKey := FOption.astrKeyMap[ucNote];
   if strKey <> '' then
   begin
@@ -238,9 +260,12 @@ begin
 WriteLn(Format(' winHandle = 0x%x : Note = %d : Key = %s : Event = %d', [hwnd, ucNote, astrKeys[iIndex], wmEvent]));
 {$ENDIF}
         // User32.SendMessage をコール
-        SendMessage(hwnd, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), 0);
+        if FOption.iUsePostMessage = 1 then
+          PostMessage(hwnd, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), 0)
+        else
+          SendMessage(hwnd, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), 0);
         // 次のイベントのためにちょっとプロセスを開けておく
-        Application.ProcessMessages;
+//        sleep(1);
 
       end;
 
@@ -248,21 +273,25 @@ WriteLn(Format(' winHandle = 0x%x : Note = %d : Key = %s : Event = %d', [hwnd, u
   end;
 end;
 
+
+
 {----------------------------------------------------------------------------}
 // MIDIデバイスがうまく繋げられなかった時の処理
 procedure TMIDIEventThread.Sync_SetDeviceError;
 begin
-  // 親ウインドウのプロシージャを呼び出す
+  // 親ウインドウのコントロールを変更
   with BardPlayDelphi do
   begin
+    FProcRunning          := False;       // プロセスは止まりましたー
+
     // MIDIデバイスが見つからなかったときは、アプリとして無効にする
-    cbDeviceList.Style    := csSimple;
-//  cbDeviceList.Enabled  := False;
-    cbDeviceList.Text     := MSG_DEVICE_ERROR;
     btnStart.Enabled      := False;
     btnStart.ImageIndex   := 0;           // ボタンのアイコンをStartにする
     btnStart.Caption      := 'Start';     // ボタンのキャプションを変更
-
+    cbDeviceList.Style    := csSimple;
+    cbDeviceList.Text     := MSG_DEVICE_ERROR;
+    btnRefresh.Enabled    := True;        // 再検索のボタンを有効にする
+    cbTransepose.Enabled  := True;        // トランスポーズを有効
   end;
 
 end;
@@ -277,8 +306,9 @@ begin
   iniFile := TiniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
   try
     // CONFIGセクションの読み込み
-    FOption.strDeviceName := iniFile.ReadString('CONFIG','device_name','');
-    FOption.iExitOutRange := iniFile.ReadInteger('CONFIG','exit_outrange',1);
+    FOption.strDeviceName   := iniFile.ReadString('CONFIG','device_name','');
+    FOption.iExitOutRange   := iniFile.ReadInteger('CONFIG','exit_outrange',1);
+    FOption.iUsePostMessage := iniFile.ReadInteger('CONFIG','use_post_message',0);
 
     // MAPPINGセクションの読み込み
     FOption.iMinRange := 0; // 範囲の最小値

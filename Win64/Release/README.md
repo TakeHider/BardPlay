@@ -5,20 +5,17 @@ TakeHider@outlook.com
 
 ## 概要
 
-【FF14対応】 MIDIデバイスからの情報を、PCキーボードのイベントに変換して送信します。
+【FF14対応】 MIDIデバイスからの情報を、PCキーボードのイベントに変換して送信します。  
+仕様上、単音しか出せません。複数の音を同時に出すことはできません。  
 
-似たようなアプリケーションは他にもいくつかありますが、かゆいところに手が届かなかったので自前で作りました。 
-Ver.0.9(Python版) -> Ver.1.0(GO言語版) -> Ver.1.1(Delphi版) と開発を進め、ようやくこのバージョンで、必要な機能を満たしたソフトウェアが出来ました。
 
 ## 改定内容
 ### 1.2.0
 - アイコンを変更。
 - オクターブ単位でトランスポーズをさせる機能を追加。
-- 安定性向上に向けたマルチスレッド処理の大幅見直し。  
-- Wait処理の変更  
-  `Application.ProcessMessages`を止めて`sleep(1)`を使っています。  
-- `exit_outrange`を指定した際に、終了しない場合がある不具合への対応
+- 安定性向上に向けたマルチスレッド処理の見直し。
 - iniの設定で `SendMessage`の代わりに`PostMessage`が使えるようにした。(*非推奨*)
+- `exit_outrange`を指定した際に、稀に終了しない不具合の対応
 
 
 
@@ -38,7 +35,7 @@ Ver.0.9(Python版) -> Ver.1.0(GO言語版) -> Ver.1.1(Delphi版) と開発を進
 
 ### 本ソフトウェアはMIDIIOライブラリ(MIDIIO.dll)を使用します。
 
-MIDIIOライブラリの著作権は"(C)2002-2012 くず / おーぷんMIDIぷろじぇくと"様が保有しています。  
+`MIDIIOライブラリ`の著作権は"`(C)2002-2012 くず / おーぷんMIDIぷろじぇくと`"様が保有しています。  
  https://openmidiproject.osdn.jp/MIDIIOLibrary.html  
 LGPLライセンスで配布されています  
 
@@ -47,79 +44,73 @@ LGPLライセンスで配布されています
 イメージボタンの画像は [Icons 8](https://icons8.com)(https://icons8.com) を利用しています。  
 
 
-## Delphiでのコンパイル
-
-本アプリケーションは Embarcadero Delphi 10.4 Community Edition で開発されています。  
-デフォルトの状態で、そのままコンパイルすることができます。  
-ただし、実行には後述の`MIDIIO.DLL`が必要です。
-
-
-## その他必要なライブラリ
-
-* MIDIIO.dll - MIDIIOライブラリ  (C)2002-2022 くず
-  [おーぷんMIDIぷろじぇくと](https://openmidiproject.osdn.jp/MIDIIOLibrary.html) (https://openmidiproject.osdn.jp/MIDIIOLibrary.html)
-
-MIDIIO.dllを、プロジェクトと同じフォルダか、パスの通っているフォルダに格納してください。
-
 ## 実行方法
 
 あらかじめMIDIデバイスをPCに接続してから、アプリケーションを実行してください。
 
-画面にMIDIデバイス名が表示されます。  
-もしエラーが出た場合は、MIDI機器が正しく接続されているか＆電源が入っているかを確認して、リロードボタンを押してみてください。  
+アプリケーションを実行すると、画面にMIDIデバイス名が表示されます。  
+もしエラーが出ている場合は、MIDI機器が正しく接続されているか＆電源が入っているかを確認して、リロードボタンを押してみてください。  
 複数のMIDI機器を接続していて、意図しないデバイスが表示されていたときは、リストから対象の機器を選択してください。  
 
-詳細は、readme.mdをご参照ください。
+MIDI機器の接続エラーが出ている状態では、`Start`ボタンは押せません。  
+
+
+### 画面ボタン操作
+
+* Start  
+  MIDIイベント⇒キーボード入力情報の変換処理を実行します。  
+  処理が実行されると、Startボタンは、Stopボタンに切り替わります。  
+* Stop  
+  MIDIイベント⇒キーボード入力情報の変換処理を停止します。  
+  処理が停止されると、Stopボタンは、Startボタンに切り替わります。    
+* Quit  
+  実行中の処理を止めて、アプリケーションを終了します。  
+* Refresh  
+  MIDI機器を再検索します。  
 
 
 ## iniファイル
 
 ### [CONFIG]
 
-* device_name  
-  最後に接続したMIDIデバイス名を保持します。  
-  初めて使用されるときは、画面のリストから選択してください。   
-
 * exit_outrange (default=1)  
   キーマッピングされた範囲外の音が出されたら、処理を停止します。  
   0を指定するとこのオプションは機能しません。  
-  1以上の数字を指定すると、指定された数だけ範囲から外れた音が出されたときに、処理を停止します。  
-  1だと、範囲のすぐ外側の音から有効になります。  
-  鍵盤楽器などで、誤って押してしまいそうなときは、少し範囲を広げてください。  
+  1以上の数字を指定すると、マッピングされた範囲から指定された数だけ外れた音が出されたときに、処理を停止します。  
+  例えば`1`を指定すると、範囲のすぐ外側の音から有効になります。(半外の音を出した途端に、処理が止まります。)    
+  鍵盤楽器など、誤って押してしまいそうなときは、少し範囲を広げてください。  
 
 * start_on_run (default=0)  
   アプリケーション実行時に処理を開始します。  
   ただし、MIDI機器が正しく接続されていないと、実行されません。  
 
-* transepose (default=0)  
-  `-3`～`3`の範囲でオクターブを指定することで、音程を調節することができます。  
-  SHS-300側でギターの音色を指定したら1オクターブ低かったので、慌てて実装しました。  
-  1音単位で調整できるようにすることもできますが、個人的には要らない機能なので実装しませんでした。  
-  要望があれば付けます。
+* device_name  
+  最後に接続したMIDIデバイス名を保持します。  
+  初めて使用されるときは、画面のリストから選択してください。   
+  iniファイルの値を直接編集すると、うまく動かない可能性があります。  
 
-* use_postmessage (default=0)  
-  `SendMessage`の代わりに`PostMessage`を使います。  
-  パフォーマンスは若干上がったのですが、CTRLやSHIFTを同時に押すようなとき、上手く動作しない場合があったので、公式な設定から外しました。  
-
-
+* transepose (default=0)
+  特定のMIDI機器では、中心のC音が `C4(noteNo.60 - 261.6hz)`ではなく、1オクターブ低かったり、高かったりします。  
+  `-3`～`3`の範囲でオクターブを指定することで、音程を調節することができます。
 
 
 ### [MAPPING]
 
 MIDIのノートをキーに対応させたもの。  
-対応するMIDIノートに、割り当てたいキーを指定します。    
-SHIFTキーや、CTRLキーなど、同時に押したいときは、押す順番にスペースで区切ってください。  
-例) SHIFT + Sキーのとき -> `shift s`  
-特殊キーは Pythonのpyautoguiに準拠していますが、全ての特殊キーには対応できていません。  
-きっとSHIFTキーとCRTLキーがあれば十分でしょう。
+対応するMIDIノートに、割り当てたいキーを指定します。   
+(MIDIノートは、READMEの最後に記載しています。)    
+`SHIFT`キーや`CTRL`キーを使って、複数のキーを同時に押したいときは、押す順番にスペースで区切ってください。  
+例) `SHIFT` + `S`キーのとき -> `shift s`  
+特殊キーは Pythonの`pyautogui`に準拠していますが、全ての特殊キーには対応できていません。  
+きっと`SHIFT`キーと`CRTL`キーがあれば十分でしょう。
 
 
-### その他
+### iniファイル名について
 
 * 実行ファイル名を変更した時は、iniファイルの名前も変えてください。  
   例）  
-  　BardPlay.exe の時は bardplay.ini  
-  　BardPlay2.exe の時は bardplay2.ini
+  　`BardPlay.exe` の時は `bardplay.ini`  
+  　`BardPlay2.exe` の時は `bardplay2.ini`
 
 * iniファイルは、Python版 BardPlay.py ([BardPlay 0.9x](https://github.com/TakeHider/BardPlayPy))、GO言語版 BardPlay.go ([BardPlay 1.0x](https://github.com/TakeHider/BardPlayGo))と互換性があります。  
   ただし、[CONFIG]のセクションは、本バージョンから使用されなくなったオプションがあります。  
@@ -127,14 +118,16 @@ SHIFTキーや、CTRLキーなど、同時に押したいときは、押す順�
 
 ## その他
 
-GO言語版が、あまりに実行ファイルのサイズが大きくなりすぎたので、素直にDelphiで作り直すことにしました。  
-慣れた言語だったので、実装したかった機能を全て盛り込むことが出来ました。
+以下の機器で動作確認をしています。  
+* CACIO LK-511 61鍵 電子キーボード 光ナビゲーション  
+* YAMAHA SHS-300 Sonogenic 37鍵 ショルダーキーボード
 
-GO言語と同世にマルチスレッドで処理されています。  
-マルチスレッドは、GO言語の方が扱いやすいですね。  
+MIDIの仕様を確認して各社に対応したつもりですが、全てのメーカーの機器を試せていないので、もしかすると正しく動作しない機器があるかもしれません。  
+その場合は、お手数ですがご連絡をいただければ、極力対応するようにいたします。   
+(ノートOFFは `0x80` - `0xXX` と、`0x90` - `0x00` の2種類に対応しています)  
 
-同時発音数が1音しかありません。  
-ターゲットがFF14なので、複数同時発音に対応させるつもりはありません。    
+FF14等で使用していて、もし音が止まらなくなったときは、焦らずに対応するPC-Keyを押してみてください。  
+
 
 ## 変更履歴
 
@@ -142,7 +135,6 @@ GO言語と同世にマルチスレッドで処理されています。
 |:--|:-:|:--|
 |1.2.0|2022/9/19|1オクターブ単位でトランスポーズ機能を追加<br/> パフォーマンスの向上、および軽微な不具合対応|
 |1.1.0|2022/9/15|Delphi版作成|
-
 
 
 ----
@@ -157,19 +149,13 @@ TakeHider@outlook.com
 
 [FF14 compatible] Converts information from MIDI devices into PC keyboard events and transmits them.  
 
-There are some other similar applications, but I couldn't reach the itch, so I made my own.  
-We proceeded with Ver.0.9 (Python version) -> Ver.1.0 (GO language version) -> Ver.1.1 (Delphi version).  
-
 ## Revised contents
 ### 1.2.0
 - Change icon.
 - Added a function to transpose in octave units.
-- Major overhaul of multithreading for stability improvement.
-- Changed Wait processing
-   Stopping `Application.ProcessMessages` and using `sleep(1)`.
-- Dealing with a bug that may not end when `exit_outrange` is specified
+- Review of multithreading for stability improvement.
 - Made it possible to use `PostMessage` instead of `SendMessage` in the ini settings. (*not recommended*)
-
+- Fixed a bug that rarely exits when `exit_outrange` is specified
 
 
 ## license
@@ -196,36 +182,23 @@ Distributed under LGPL license
 
 The image of the image button uses [Icons 8](https://icons8.com)(https://icons8.com).
 
-## Compilation in Delphi
 
-This application is developed on his Embarcadero Delphi 10.4 Community Edition.  
-You can compile as-is in the default state.  
-However, `MIDIIO.DLL` described later is required for execution.  
-
-
-## Other required libraries
-
-* MIDIIO.dll - MIDIIO library (C)2002-2022 scrap [Open MIDI project](https://openmidiproject.osdn.jp/MIDIIOLibrary.html) (https://openmidiproject.osdn.jp/MIDIIOLibrary.html )
-
-Store MIDIIO.dll in the same folder as the project or in a folder with a path.
-
-
-## Execution method
+## Execution
 
 Connect the MIDI device to your PC in advance, and then run the application.  
 
-The screen will show the MIDI device name.  
+When you run the application, you will see the MIDI device name on the screen.  
 If you get an error, make sure your MIDI device is connected correctly and powered on, and try pressing the reload button.  
 If multiple MIDI devices are connected and an unintended device is displayed, select the target device from the list.  
 
-See readme.md for details.  
+The `Start` button cannot be pressed while there is a MIDI device connection error.  
 
 
 ### Screen button operation
 
 * Start  
    Executes conversion processing of MIDI event ⇒ keyboard input information.  
-   If the MIDI device is not properly connected, the button cannot be pressed.  
+   Once the process is done, the Start button will switch to a Stop button.  
 * Stop  
    Stop converting MIDI event ⇒ keyboard input information.  
 * Quit  
@@ -233,39 +206,28 @@ See readme.md for details.
 * Refresh  
    Search for MIDI devices again.  
 
-
 ## ini File
 
 ### [CONFIG]
 
-* port_in (default=1)  
-   MIDI port number to use.  
-   Not used in Delphi version.  
-
 * device_name  
-   Retains the name of the last connected MIDI device.  
-   When using for the first time, select from the list on the screen.  
+  Retains the name of the last connected MIDI device.  
+  When using for the first time, select from the list on the screen.  
 
 * exit_outrange (default=1)  
-   Stop processing when a note outside the keymapped range is played.  
-   This option has no effect if you specify 0.  
-   If you specify a number greater than or equal to 1, processing will stop when the specified number of out-of-range notes are played.  
-   A value of 1 activates notes immediately outside the range.  
-   Widen the range slightly when you are likely to accidentally press a keyboard instrument.  
+  Stop processing when a note outside the keymapped range is played.  
+  This option has no effect if you specify 0.  
+  If you specify a number greater than or equal to 1, processing will stop when the specified number of notes outside the mapped range are played.  
+  For example, if you specify `1`, the sound immediately outside the range will be effective. (The process stops as soon as the half-out sound is produced.)  
+  Widen the range slightly when you are likely to accidentally press a keyboard instrument.  
 
 * start_on_run (default=0)  
-   Start processing when the application is run.  
-   However, if the MIDI device is not properly connected, it will not run.  
+  Start processing when the application is run.  
+  However, if the MIDI device is not properly connected, it will not run.
 
-* transpose (default=0)  
-   You can adjust the pitch by specifying an octave in the range of `-3` to `3`.  
-   When I specified the guitar tone on the SHS-300, it was one octave lower, so I implemented it in a hurry.  
-   It is also possible to make it possible to adjust by 1 note unit, but I personally don't need it, so I didn't implement it.  
-   I will add it if requested.  
-
-* use_postmessage (default=0)  
-   Use `PostMessage` instead of `SendMessage`.  
-   Performance has improved slightly, but when pressing CTRL and SHIFT at the same time, it sometimes didn't work well, so I removed it from the official setting.  
+* transpose (default=0)
+   On certain MIDI devices, the middle C note is not `C4(noteNo.60 - 261.6hz)`, but one octave lower or higher.  
+   You can adjust the pitch by specifying an octave in the range of `-3` to `3`.
 
 
 ### [MAPPING]
@@ -277,7 +239,7 @@ Example) SHIFT + S key -> `shift s`
 Special keys conform to Python's pyautogui, but not all special keys are supported.  
 Surely the SHIFT and CRTL keys will suffice.  
 
-### memo
+### About ini file name
 
 * When you change the name of the executable file, please change the name of the ini file as well.  
    example)    
@@ -292,14 +254,15 @@ Surely the SHIFT and CRTL keys will suffice.
 
 ## Other
 
-The size of the executable file of the GO language version became too large, so I decided to recreate it in Delphi.  
-It was a language I was familiar with, so I was able to include all the features I wanted to implement.  
+Operation has been confirmed with the following devices.  
+* CACIO LK-511 61-key electronic keyboard optical navigation  
+* YAMAHA SHS-300 Sonogenic 37-key shoulder keyboard  
 
-It is processed with multithreading in the same world as GO language.
-Multithreading is easier to handle in GO language.  
+I have checked the MIDI specifications and tried to support each company, but I have not been able to test all manufacturers' devices, so there may be devices that do not work properly.  
+In that case, please contact us and we will do our best to accommodate you.  
+(`Note OFF` supports two types: `0x80 - 0xXX` and `0x90 - 0x00`)  
 
-Simultaneous polyphony is only one note.  
-Since the target is FF14, I don't intend to support multiple simultaneous sounds.  
+If you are using it in FF14 etc. and the sound does not stop, please try to press the corresponding PC-Key without rushing.  
 
 ## change history
 

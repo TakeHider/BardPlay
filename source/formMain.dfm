@@ -3,7 +3,7 @@ object BardPlayDelphi: TBardPlayDelphi
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Bard Play'
-  ClientHeight = 91
+  ClientHeight = 122
   ClientWidth = 256
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -12,17 +12,25 @@ object BardPlayDelphi: TBardPlayDelphi
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnClose = FormClose
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object labMIDIDevice: TLabel
+  object lblMIDIDevice: TLabel
     Left = 8
     Top = 8
-    Width = 64
+    Width = 65
     Height = 13
-    Caption = ' MIDI Device '
+    Caption = ' MIDI Device:'
     Transparent = False
+  end
+  object lblTransepose: TLabel
+    Left = 13
+    Top = 59
+    Width = 60
+    Height = 13
+    Caption = 'Trancepose:'
   end
   object cbDeviceList: TComboBox
     Left = 8
@@ -37,14 +45,14 @@ object BardPlayDelphi: TBardPlayDelphi
   end
   object btnStart: TBitBtn
     Left = 107
-    Top = 58
+    Top = 88
     Width = 65
     Height = 25
     Hint = 'Start or Stop Process'
     Caption = 'Start'
     DisabledImageIndex = 0
     ImageIndex = 0
-    Images = ImageList
+    Images = ilImageList
     ParentShowHint = False
     ShowHint = True
     TabOrder = 1
@@ -52,13 +60,13 @@ object BardPlayDelphi: TBardPlayDelphi
   end
   object btnExit: TBitBtn
     Left = 178
-    Top = 58
+    Top = 88
     Width = 65
     Height = 25
     Hint = 'Close'
     Caption = 'Exit'
     ImageIndex = 2
-    Images = ImageList
+    Images = ilImageList
     ParentShowHint = False
     ShowHint = True
     TabOrder = 3
@@ -70,9 +78,8 @@ object BardPlayDelphi: TBardPlayDelphi
     Width = 34
     Height = 25
     Hint = 'Refresh MIDI Device'
-    DisabledImageIndex = 0
     ImageIndex = 3
-    Images = ImageList
+    Images = ilImageList
     ParentShowHint = False
     ShowHint = True
     TabOrder = 0
@@ -80,7 +87,7 @@ object BardPlayDelphi: TBardPlayDelphi
   end
   object chkStartOnRun: TCheckBox
     Left = 8
-    Top = 62
+    Top = 92
     Width = 93
     Height = 17
     Hint = 'Check when start on run'
@@ -90,9 +97,32 @@ object BardPlayDelphi: TBardPlayDelphi
     ParentShowHint = False
     ShowHint = True
     TabOrder = 4
-    OnClick = chkStartOnRunClick
   end
-  object ImageList: TImageList
+  object cbTransepose: TComboBox
+    Left = 79
+    Top = 54
+    Width = 74
+    Height = 21
+    Style = csDropDownList
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ItemIndex = 3
+    ParentFont = False
+    TabOrder = 5
+    Text = '    0 (C4)'
+    Items.Strings = (
+      '-36 (C1)'
+      '-24 (C2)'
+      '-12 (C3)'
+      '    0 (C4)'
+      '+12 (C5)'
+      '+24 (C6)'
+      '+36 (C7)')
+  end
+  object ilImageList: TImageList
     Left = 136
     Top = 8
     Bitmap = {

@@ -1,4 +1,10 @@
-﻿unit formMain;
+﻿{ Bard Play ( BardPlay Delphi ) }
+{          Main Form            }
+{                               }
+{ (C) 2022 TakeHide Soft.       }
+{         TakeHider@outlook.com }
+
+unit formMain;
 
 interface
 
@@ -6,36 +12,38 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.ImageList, Vcl.ImgList,
   Vcl.StdCtrls, Vcl.Buttons,threadMIDIEvent,unitMIDIIO,FormVersion,System.IniFiles,
-  Vcl.ExtCtrls,System.StrUtils;
+  Vcl.ExtCtrls,System.StrUtils, Vcl.ComCtrls;
 
 type
   TBardPlayDelphi = class(TForm)
+    // ウインドウコントロールとイベント
     cbDeviceList: TComboBox;
     btnStart: TBitBtn;
     btnExit: TBitBtn;
     btnRefresh: TBitBtn;
-    ImageList: TImageList;
-    labMIDIDevice: TLabel;
+    ilImageList: TImageList;
+    lblMIDIDevice: TLabel;
     chkStartOnRun: TCheckBox;
+    lblTransepose: TLabel;
+    cbTransepose: TComboBox;
     procedure FormCreate(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
     procedure btnStartClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure chkStartOnRunClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private 宣言 }
-    MIDIEventThread     : TMIDIEventThread;
-    FDefaultDeviceName  : String;
-    procedure getMIDIDeviceList();
+    MIDIEventThread     : TMIDIEventThread;   // MIDIイベント用(スレッド処理)
+    FDefaultDeviceName  : String;             // デフォルトのMIDIデバイス名
+    procedure getMIDIDeviceList();            // MIDIデバイスの検索
     procedure WMCommand(var Msg: TWMSysCommand);message WM_SYSCOMMAND;
-    procedure MIDIEventThreadTerminate(Sender: TObject);
     procedure ReadIniSetting();
     procedure WriteIniSetting();
-
-
+    procedure ThreadTerminate(Sender: TObject);
   public
     { Public 宣言 }
+    FProcRunning : Boolean;   // スレッドは処理中かな
   end;
 
  const
@@ -63,8 +71,8 @@ var
   hSysMenu: Integer;
 
 begin
-
-  MIDIEventThread := nil;
+  // スレッドが動いているかのフラグ
+  FProcRunning := False;
   // iniの読み込み
   ReadIniSetting();
 
@@ -84,8 +92,33 @@ begin
 
 end;
 
+{----------------------------------------------------------------------------}
+// フォームクローズ時
+procedure TBardPlayDelphi.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  // もしスレッドが実行してたら、中止命令を出す
+ if FProcRunning then
+  begin
+    // マルチスレッドの停止命令を出す
+    MIDIEventThread.Terminate;
+    // 処理を渡して一呼吸置く
+    Application.ProcessMessages;
+  end;
+  // レジストリに書き込む
+  if FDefaultDeviceName<>'' then
+    WriteIniSetting();
+
+{$IFDEF DEBUG}
+writeln(FProcRunning);
+{$ENDIF}
+
+  Action := caFree;
+
+end;
 
 
+{----------------------------------------------------------------------------}
+// フォームを開いた時
 procedure TBardPlayDelphi.FormShow(Sender: TObject);
 begin
 {$IFDEF DEBUG}
@@ -114,13 +147,17 @@ begin
     btnStart.ImageIndex := 1;           // ボタンのアイコンをStopにする
     btnStart.Caption    := 'Stop';      // ボタンのキャプションを変更
     cbDeviceList.Enabled:= False;       // コンボボックスの選択を抑止
+    btnRefresh.Enabled  := False;       // 再検索のボタンを抑止
+    cbTransepose.Enabled:= False;       // トランスポーズを抑止
     // プロセスの実行
-    if not Assigned(MIDIEventThread) then
+    if not FProcRunning then
     begin
-      MIDIEventThread := TMIDIEventThread.Create(TRUE);           // 一時停止状態でスレッドを作成る
-      MIDIEventThread.OnTerminate   := MIDIEventThreadTerminate;  // スレッド終了時のイベントを紐づける
+      FProcRunning    := True;
+      MIDIEventThread := TMIDIEventThread.Create(TRUE);           // 一時停止状態でスレッドを作成るる
       MIDIEventThread.FDeviceNumber := cbDeviceList.ItemIndex;    // デバイス番号を渡す
       MIDIEventThread.FDeviceName   := FDefaultDeviceName;        // デバイス番号
+      MIDIEventThread.FTransepose   := cbTransepose.ItemIndex -3; // トランスポーズ
+      MIDIEventThread.OnTerminate   := ThreadTerminate;           // スレッドが終了した時の処理
       MIDIEventThread.Start;                                      // スレッドの実行
    end;
   end
@@ -130,8 +167,11 @@ begin
     btnStart.ImageIndex := 0;           // ボタンのアイコンをStartにする
     btnStart.Caption    := 'Start';     // ボタンのキャプションを変更
     cbDeviceList.Enabled:= True;        // コンボボックスの選択を有効にする
+    btnRefresh.Enabled  := True;       // 再検索のボタンを有効にする
+    cbTransepose.Enabled:= True;       // トランスポーズを有効
+
     // プロセスの停止
-    if Assigned(MIDIEventThread) then
+    if FProcRunning  then
     begin
       // 停止命令を出す
       MIDIEventThread.Terminate;
@@ -141,23 +181,19 @@ begin
 
 end;
 
-procedure TBardPlayDelphi.chkStartOnRunClick(Sender: TObject);
-begin
-
-end;
-
 {----------------------------------------------------------------------------}
 // 閉じるボタン
 procedure TBardPlayDelphi.btnExitClick(Sender: TObject);
 begin
   // もしスレッドが実行してたら、中止命令を出す
- if Assigned(MIDIEventThread) then
+ if FProcRunning then
   begin
+    // マルチスレッドの停止命令を出す
     MIDIEventThread.Terminate;
+    // 処理を渡して一呼吸置く
     Application.ProcessMessages;
   end;
-  if FDefaultDeviceName<>'' then
-    WriteIniSetting();
+
 
   Close;
 end;
@@ -187,12 +223,25 @@ begin
     inherited;
 end;
 
+
 {----------------------------------------------------------------------------}
-// MIDIイベントスレッドが止まった時の処理
-procedure TBardPlayDelphi.MIDIEventThreadTerminate(Sender: TObject);
+// スレッドのTerminateイベント
+procedure TBardPlayDelphi.ThreadTerminate(Sender: TObject);
 begin
-  MIDIEventThread := nil;
+  FProcRunning        := False;       // プロセスは止まりましたー
+  // Thread側で停止した時は、ボタンをSTOPにしておく
+  if btnStart.ImageIndex <>0 then
+  begin
+    // Stopボタンが押されたときの動作
+   btnStart.ImageIndex   := 0;           // ボタンのアイコンをStartにする
+    btnStart.Caption      := 'Start';     // ボタンのキャプションを変更
+    cbDeviceList.Enabled  := True;        // コンボボックスの選択を有効にする
+    btnRefresh.Enabled    := True;        // 再検索のボタンを有効にする
+    cbTransepose.Enabled  := True;        // トランスポーズを有効
+  End;
 end;
+
+
 
 {----------------------------------------------------------------------------}
 // MIDIデバイス情報の取得
@@ -251,6 +300,7 @@ begin
         cbDeviceList.ItemIndex := cbDeviceList.Items.IndexOf(strPreDeviceName)
       end;
     end;
+    // 直近で指定されたものあなければ、INIから取得
     if (FDefaultDeviceName <> '') and (cbDeviceList.ItemIndex =-1) then
     begin
       begin
@@ -281,13 +331,14 @@ begin
   // INIファイルから情報を読み込む
   iniFile := TiniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
   try
-    FDefaultDeviceName  := iniFile.ReadString('CONFIG','device_name','');
-    b                   := iniFile.ReadInteger('CONFIG','start_on_run',0) = 1;
-    strBGColor          := iniFile.ReadString('CONFIG','color','#F5FFFA');
+    FDefaultDeviceName    := iniFile.ReadString('CONFIG','device_name','');       // デバイス名
+    b                     := iniFile.ReadInteger('CONFIG','start_on_run',0) = 1;  // 起動時に開始
+    strBGColor            := iniFile.ReadString('CONFIG','color','#F5FFFA');      // 背景色
+    cbTransepose.ItemIndex:= iniFile.ReadInteger('CONFIG','transpose',0)+3 ;      // トランスポーズ
   finally
     iniFile.Free;
   end;
-  // アプリの背景色
+  // アプリの背景色をセットする
   if Length(strBGColor)=7 then
   begin
     if LeftStr(strBGColor,1)='#' then
@@ -321,6 +372,7 @@ begin
   try
     iniFile.WriteString('CONFIG','device_name',FDefaultDeviceName);
     iniFile.WriteInteger('CONFIG','start_on_run',n);
+    iniFIle.WriteInteger('CONFIG','transpose', cbTransepose.ItemIndex -3);
   finally
     iniFile.Free;
   end;
