@@ -1,3 +1,9 @@
+{ Bard Play ( BardPlay Delphi ) }
+{  Version Infomation Dialog    }
+{                               }
+{ (C) 2022 TakeHide Soft.       }
+{         TakeHider@outlook.com }
+
 unit FormVersion;
 
 interface
@@ -108,7 +114,8 @@ begin
   //スクロールテロップ
   with Memo.Lines do
   begin
-    Insert(0,'-'+FFileDescription+'-');
+    Insert(0,'');
+    Insert(0,''+FFileDescription+'');
     Insert(0,'');
     Insert(0,'Version '+FFileVersion);
     Insert(0,FProductName);

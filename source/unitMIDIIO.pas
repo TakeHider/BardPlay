@@ -1,4 +1,10 @@
-﻿unit unitMIDIIO;
+﻿{ Bard Play ( BardPlay Delphi ) }
+{     MIDIIO.dll Interface      }
+{                               }
+{ (C) 2022 TakeHide Soft.       }
+{         TakeHider@outlook.com }
+
+unit unitMIDIIO;
 
 // MIIDIO.DLLとDelphiの橋渡し関数
 // C言語のDLLをそのまま利用するに手は諸々お手続きが必要なので、ここでDelphi用関数に翻訳しておく
