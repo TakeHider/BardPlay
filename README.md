@@ -5,10 +5,10 @@ TakeHider@outlook.com
 
 ## 概要
 
-【FF14対応】 MIDIデバイスからの情報を、PCキーボードのイベントに変換して送信します。
+【FF14対応】 MIDIデバイスからの情報を、PCキーボードのイベントに変換して送信します。  
 
-似たようなアプリケーションは他にもいくつかありますが、かゆいところに手が届かなかったので自前で作りました。 
-Ver.0.9(Python版) -> Ver.1.0(GO言語版) -> Ver.1.1(Delphi版) と開発を進め、ようやくこのバージョンで、必要な機能を満たしたソフトウェアが出来ました。
+似たようなアプリケーションは他にもいくつかありますが、かゆいところに手が届かなかったので自前で作りました。   
+Ver.0.9(Python版) -> Ver.1.0(GO言語版) -> Ver.1.1(Delphi版) と開発を進め、ようやくこのバージョンで、必要な機能を満たしたソフトウェアが出来ました。  
 
 ## 改定内容
 ### 1.2.0
@@ -92,14 +92,15 @@ MIDIIO.dllを、プロジェクトと同じフォルダか、パスの通って�
   ただし、MIDI機器が正しく接続されていないと、実行されません。  
 
 * transepose (default=0)  
-  `-3`～`3`の範囲でオクターブを指定することで、音程を調節することができます。  
+  オクターブを、`-3`～`3`の範囲で調節することができます。  
   SHS-300側でギターの音色を指定したら1オクターブ低かったので、慌てて実装しました。  
   1音単位で調整できるようにすることもできますが、個人的には要らない機能なので実装しませんでした。  
   要望があれば付けます。
 
 * use_postmessage (default=0)  
   `SendMessage`の代わりに`PostMessage`を使います。  
-  パフォーマンスは若干上がったのですが、CTRLやSHIFTを同時に押すようなとき、上手く動作しない場合があったので、公式な設定から外しました。  
+  パフォーマンスは若干上がったのですが、CTRLやSHIFTを同時に押すようなときに上手く動作しない場合があったので、公式な設定から外しました。  
+  そのうち、PostMessageは機能からも落とします。  
 
 
 
@@ -114,7 +115,7 @@ SHIFTキーや、CTRLキーなど、同時に押したいときは、押す順�
 きっとSHIFTキーとCRTLキーがあれば十分でしょう。
 
 
-### その他
+### iniのファイル名について
 
 * 実行ファイル名を変更した時は、iniファイルの名前も変えてください。  
   例）  
@@ -128,13 +129,11 @@ SHIFTキーや、CTRLキーなど、同時に押したいときは、押す順�
 ## その他
 
 GO言語版が、あまりに実行ファイルのサイズが大きくなりすぎたので、素直にDelphiで作り直すことにしました。  
-慣れた言語だったので、実装したかった機能を全て盛り込むことが出来ました。
+慣れた言語だったので、実装したかった機能を全て盛り込むことが出来ました。  
+何となく、Pythonで作った [Ver.0.9.x](https://github.com/TakeHider/BardPlayPython) の方がレスポンスが良いような気がします…  
+次のバージョンでは、レスポンスの向上を目指します。  
 
-GO言語と同世にマルチスレッドで処理されています。  
-マルチスレッドは、GO言語の方が扱いやすいですね。  
-
-同時発音数が1音しかありません。  
-ターゲットがFF14なので、複数同時発音に対応させるつもりはありません。    
+同時発音数が1音しかありませんが、ターゲットがFF14なので、複数同時発音に対応させるつもりはありません。 
 
 ## 変更履歴
 
@@ -294,12 +293,12 @@ Surely the SHIFT and CRTL keys will suffice.
 
 The size of the executable file of the GO language version became too large, so I decided to recreate it in Delphi.  
 It was a language I was familiar with, so I was able to include all the features I wanted to implement.  
+Somehow, I feel that his [Ver.0.9.x](https://github.com/TakeHider/BardPlayPython) made with Python has better response...  
+In the next version, we aim to improve the response.  
 
-It is processed with multithreading in the same world as GO language.
-Multithreading is easier to handle in GO language.  
 
-Simultaneous polyphony is only one note.  
-Since the target is FF14, I don't intend to support multiple simultaneous sounds.  
+There is only one sound that can be played simultaneously, but since the target is FF14, we do not intend to support multiple simultaneous sounds.  
+
 
 ## change history
 
