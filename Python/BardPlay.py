@@ -200,6 +200,18 @@ if __name__=='__main__':
         exit_outrange = int(config_ini.get('CONFIG','exit_outrange'))
     else:
         exit_outrange = -1
+    # STOPボタン
+    if config_ini.has_option('CONFIG','exit_note'):
+        exit_note = config_ini.get('CONFIG','exit_note').strip()
+    else:
+        exit_note = ''
+    if exit_note != '':
+        exit_status = int(exit_note.split('-')[0].strip())
+        exit_data   = int(exit_note.split('-')[1].strip()) if '-' in exit_note else 0
+    else:
+        exit_status = 0
+        exit_data   = 0
+        
 
     # キーのマッピング
     key_map = list(' '*127)
@@ -239,7 +251,7 @@ if __name__=='__main__':
     pre_event = ''
     while loop:
         if midi_in.poll():
-            midi_events = midi_in.read(1)   # 一応5イベントまで取得
+            midi_events = midi_in.read(5)   # 一応5イベントまで取得
             for event in midi_events:
                 status  = event[0][0]  # イベント
                 data1   = event[0][1]  # 音
@@ -269,7 +281,11 @@ if __name__=='__main__':
                             # 範囲外の音が出たときに止める指定がされていたら、ループを抜ける
                             if  (data1 - exit_outrange ) < key_min or (data1 + exit_outrange ) > key_max:
                                 loop = False
-    
+                elif exit_status > 0:
+                    if exit_status == status and (data1 if exit_data >0 else -1) == exit_data:
+                        loop = False
+                else:
+                    print('STATUS:{:3d}-note:{:3d}'.format(status,data1)) 
     # もし何か鳴っていたら止める
     if pre_event != '':
         send_off(pre_event)
