@@ -1,4 +1,4 @@
-# BardPlay 1.2 (BardPlay Delphi)
+# BardPlay 1.3 (BardPlay Delphi)
 
 BardPlay (C) 2022 TakeHide Soft.  
 TakeHider@outlook.com
@@ -8,9 +8,18 @@ TakeHider@outlook.com
 【FF14対応】 MIDIデバイスからの情報を、PCキーボードのイベントに変換して送信します。  
 
 似たようなアプリケーションは他にもいくつかありますが、かゆいところに手が届かなかったので自前で作りました。   
-Ver.0.9(Python版) -> Ver.1.0(GO言語版) -> Ver.1.1(Delphi版) と開発を進め、ようやくこのバージョンで、必要な機能を満たしたソフトウェアが出来ました。  
+Ver.0.9(Python版) -> Ver.1.0(GO言語版) -> Ver.1.1以降(Delphi版) と開発を進めてます。  
+リポジトリの中には各開発言語のソースが入っています。  
 
 ## 改定内容
+### 1.3.0
+- MIDIイベントの受信処理をバッファリングに変更。
+  レスポンスが大幅に改善しました。
+- 複数の音を同時に出そうとしたときに、低い音から順に弾く機能を実装。  
+  ただし「同時に」が難しく、機能させるのは至難の業。殆どの人は、(機械的に見て)押した順番でしか出せないと思います。  
+  実装はしたものの、作成者本人が「ノートオフ情報を絡めたテストが十分に出来なかった」ため、非推奨機能に格下げしました。  
+
+
 ### 1.2.0
 - アイコンを変更。
 - オクターブ単位でトランスポーズをさせる機能を追加。
@@ -84,26 +93,34 @@ MIDIIO.dllを、プロジェクトと同じフォルダか、パスの通って�
   キーマッピングされた範囲外の音が出されたら、処理を停止します。  
   0を指定するとこのオプションは機能しません。  
   1以上の数字を指定すると、指定された数だけ範囲から外れた音が出されたときに、処理を停止します。  
-  1だと、範囲のすぐ外側の音から有効になります。  
+  1だと、範囲のすぐ外側の音から有効になります。2だと、2音外側の音から有効になります。    
   鍵盤楽器などで、誤って押してしまいそうなときは、少し範囲を広げてください。  
+  アプリケーションの画面に戻らなくても、MIDI楽器から処理を停止させることが出来る機能ですが、再び処理を開始させるにはアプリの画面から`Start`ボタンを押すしかなく、便利な様でいまいちな機能です。      
 
 * start_on_run (default=0)  
   アプリケーション実行時に処理を開始します。  
-  ただし、MIDI機器が正しく接続されていないと、実行されません。  
+  MIDI機器が正しく接続されていないと実行されません。  
 
 * transepose (default=0)  
   オクターブを、`-3`～`3`の範囲で調節することができます。  
   SHS-300側でギターの音色を指定したら1オクターブ低かったので、慌てて実装しました。  
-  1音単位で調整できるようにすることもできますが、個人的には要らない機能なので実装しませんでした。  
-  要望があれば付けます。
+  1音単位で調整できるようにすることもできますが、個人的には要らないので実装していません。(
+  要望があれば付けます)
 
 * use_postmessage (default=0)  
   `SendMessage`の代わりに`PostMessage`を使います。  
   パフォーマンスは若干上がったのですが、CTRLやSHIFTを同時に押すようなときに上手く動作しない場合があったので、公式な設定から外しました。  
-  そのうち、PostMessageは機能からも落とします。  
+  そのうち`PostMessage`は機能からも落とします。  
 
-
-
+* virtual_chords (default=0)  
+  和音などで複数の音を同時に出そうとしたときに、低い音から順に出力してくれます。  
+  内部的には、バッファリングされた内容を低音→高音順にソートして処理しています。  
+  実際はバッファリングされるよりも先に処理をこなしてしまうので、よほどのことがない限り「低い音から順に出る」の機能を体感するとはないと思います。  
+  開発者も、ノートオンはテストできたのですが、ノートオフと混在した時のテストが十分に出来ず、品質の担保ができないため、実装したものの非推奨機能にしています。
+    
+* color (default=#F0FFF0)  
+  アプリケーションの背景色を指定します。  
+  自分的には気に入った色を背景色にしたつもりですが、「いまいちだなぁ」と思う人もいるかもしれないので実装しました。    
 
 ### [MAPPING]
 
@@ -112,7 +129,7 @@ MIDIのノートをキーに対応させたもの。
 SHIFTキーや、CTRLキーなど、同時に押したいときは、押す順番にスペースで区切ってください。  
 例) SHIFT + Sキーのとき -> `shift s`  
 特殊キーは Pythonのpyautoguiに準拠していますが、全ての特殊キーには対応できていません。  
-きっとSHIFTキーとCRTLキーがあれば十分でしょう。
+きっとSHIFTキーとCRTLキーがあれば十分でしょう。   
 
 
 ### iniのファイル名について
@@ -128,18 +145,23 @@ SHIFTキーや、CTRLキーなど、同時に押したいときは、押す順�
 
 ## その他
 
-GO言語版が、あまりに実行ファイルのサイズが大きくなりすぎたので、素直にDelphiで作り直すことにしました。  
-慣れた言語だったので、実装したかった機能を全て盛り込むことが出来ました。  
-何となく、Pythonで作った [Ver.0.9.x](https://github.com/TakeHider/BardPlayPython) の方がレスポンスが良いような気がします…  
-次のバージョンでは、レスポンスの向上を目指します。  
+最初にPythonで作ったものはコンソールからの実行でした。  
+そこで、GUIにするためにGO言語で作りなおしたのですが、GO言語はあまりに実行ファイルのサイズが大きくなりすぎたので、Delphiで作り直すことにしました。  
+Delphi版は、当初はPython版よりレスポンスが悪かったのですが、`Ver.1.3.0`でようやくPython版に並ぶことが出来ました。   
 
 同時発音数が1音しかありませんが、ターゲットがFF14なので、複数同時発音に対応させるつもりはありません。 
+
+個人的に必要な機能が充足できたので、これ以上バージョンアップをさせる予定はありません。    
+もし要望があれば、機能として取り込んでいく予定です。  
+
+
 
 ## 変更履歴
 
 |バージョン|言語|リリース日|内容|
 |:--|:-:|:-:|:--|
-|1.2.0|Delphi|2022/09/19|1オクターブ単位でトランスポーズ機能を追加<br/> パフォーマンスの向上、および軽微な不具合対応|
+|1.3.0|Delphi|2022/9/24|レスポンスの改善<br/> 同時に音を出したときに低い音から順に出す機能を実装|
+|1.2.0|Delphi|2022/09/19|1オクターブ単位でトランスポーズ機能を追加<br/> パフォーマンスの向上、および軽微な不具合対応<br />PostMessageにも対応|
 |1.1.0|Delphi|2022/09/15|Delphi版作成|
 |1.0.0|GOlang|2022/09/06|GOlang版作成|
 |0.9.1|Python|2022/09/06|WindowsではSendMessageで送信に変更|
@@ -148,7 +170,7 @@ GO言語版が、あまりに実行ファイルのサイズが大きくなりす
 ----
 
 
-# BardPlay 1.2 (BardPlay Delphi)
+# BardPlay 1.3 (BardPlay Delphi)
 
 BardPlay (C) 2022 TakeHide Soft.  
 TakeHider@outlook.com
@@ -158,9 +180,19 @@ TakeHider@outlook.com
 [FF14 compatible] Converts information from MIDI devices into PC keyboard events and transmits them.  
 
 There are some other similar applications, but I couldn't reach the itch, so I made my own.  
-We proceeded with Ver.0.9 (Python version) -> Ver.1.0 (GO language version) -> Ver.1.1 (Delphi version).  
+Ver.0.9 (Python version) -> Ver.1.0 (GO language version) -> Ver.1.1 or later (Delphi version).  
+The repository contains sources for each development language.  
+
+
 
 ## Revised contents
+### 1.3.0  
+- Changed MIDI event reception processing to buffering.
+   Greatly improved response.  
+- Implemented a function to play in order from the lowest note when trying to play multiple notes at the same time.  
+   However, "at the same time" is difficult, and it is extremely difficult to make it work. Most people think that they can only come out in the order they were pressed (from a mechanical point of view).  
+   Although it was implemented, it was deprecated because the creator himself said, "I couldn't sufficiently test the note-off information."  
+
 ### 1.2.0
 - Change icon.
 - Added a function to transpose in octave units.
@@ -264,8 +296,19 @@ See readme.md for details.
    I will add it if requested.  
 
 * use_postmessage (default=0)  
-   Use `PostMessage` instead of `SendMessage`.  
-   Performance has improved slightly, but when pressing CTRL and SHIFT at the same time, it sometimes didn't work well, so I removed it from the official setting.  
+  Use `PostMessage` instead of `SendMessage`.  
+  The performance has improved a little, but there were cases where it didn't work well when pressing CTRL and SHIFT at the same time, so it was removed from the official setting.  
+  Among them, `PostMessage` is also dropped from the function.  
+
+* virtual_chords (default=0)  
+  When you try to output multiple sounds at the same time, such as a chord, it will output in order from the lowest sound.  
+  Internally, the buffered contents are sorted in order from low to high and processed.  
+  In fact, the processing is done before it is buffered, so I don't think you will experience the function of "playing in order from the lowest sound" unless there is a very good reason.  
+  The developer was able to test note-on, but it was not possible to fully test when it was mixed with note-off.  
+    
+* color (default=#F0FFF0)  
+  Specifies the background color of the application.  
+  Personally, I intended to use a color I like as the background color, but some people may think that it's not good enough, so I implemented it.  
 
 
 ### [MAPPING]
@@ -290,29 +333,114 @@ Surely the SHIFT and CRTL keys will suffice.
 
 
 
-## Other
+## others
 
-The size of the executable file of the GO language version became too large, so I decided to recreate it in Delphi.  
-It was a language I was familiar with, so I was able to include all the features I wanted to implement.  
-Somehow, I feel that his [Ver.0.9.x](https://github.com/TakeHider/BardPlayPython) made with Python has better response...  
-In the next version, we aim to improve the response.  
+The first thing I made with Python was execution from the console.  
+Therefore, I remade it in GO language to make it a GUI, but GO language made the size of the executable file too large, so I decided to remake it in Delphi.  
+The Delphi version had a worse response than the Python version at first, but with `Ver.1.3.0` it was finally able to line up with the Python version.  
 
 
-There is only one sound that can be played simultaneously, but since the target is FF14, we do not intend to support multiple simultaneous sounds.  
+There is only one sound that can be played simultaneously, but since the target is FF14, we do not intend to support multiple simultaneous sounds.
+
+
+Since I was able to satisfy the functions that I personally need, there are no plans to upgrade any further.  
+If there is a demand, we plan to include it as a feature.
+
+
 
 
 ## change history
 
-|Version|Release Date|Contents|
-|:--|:-:|:--|
-|1.2.0|2022/9/19|Added transpose function by 1 octave unit<br/> Improved performance and fixed minor bugs|
-|1.1.0|2022/9/15|Created Delphi version|
+|Version|Language|Release Date|Contents|
+|:--|:-:|:-:|:--|
+|1.3.0|Delphi|2022/9/24|Improved response<br/> Implemented a function to output sounds in order from the lowest one when playing sounds at the same time|
+|1.2.0|Delphi|2022/09/19|Added transpose function by 1 octave unit<br/> Improved performance and fixed minor bugs<br />Also supports PostMessage|
+|1.1.0|Delphi|2022/09/15|Created Delphi version|
+|1.0.0|GOlang|2022/09/06|GOlang version created|
+|0.9.1|Python|2022/09/06|Changed to sending with SendMessage on Windows|
+|0.9.0|Python|2022/09/04||Initial release (Python)|
 
 
 ---
+## reference
+.ini file [MAPPING] section setting guide. 
+
+### Keyboard-Mapping Configuration 
+
+|configuration<br />Strings|KeyCode<br />(reference)|
+|:-:|:-:|
+|backspace | 0x08|
+|tab       | 0x09|
+|enter     | 0x0D|
+|shift     | 0x10|
+|ctrl      | 0x11|
+|alt       | 0x12|
+|pause     | 0x13|
+|capslock  | 0x14|
+|esc       | 0x1B|
+|space     | 0x20|
+|pageup    | 0x21|
+|pagedown  | 0x22|
+|end       | 0x23|
+|home      | 0x24|
+|left      | 0x25|
+|up        | 0x26|
+|right     | 0x27|
+|down      | 0x28|
+|printscrn | 0x2C|
+|insert    | 0x2D|
+|delete    | 0x2E|
+|0         | 0x30|
+|1         | 0x31|
+|2         | 0x32|
+|3         | 0x33|
+|4         | 0x34|
+|5         | 0x35|
+|6         | 0x36|
+|7         | 0x37|
+|8         | 0x38|
+|9         | 0x39|
+|a         | 0x41|
+|b         | 0x42|
+|c         | 0x43|
+|d         | 0x44|
+|e         | 0x45|
+|f         | 0x46|
+|g         | 0x47|
+|h         | 0x48|
+|i         | 0x49|
+|j         | 0x4A|
+|k         | 0x4B|
+|l         | 0x4C|
+|m         | 0x4D|
+|n         | 0x4E|
+|o         | 0x4F|
+|p         | 0x50|
+|q         | 0x51|
+|r         | 0x52|
+|s         | 0x53|
+|t         | 0x54|
+|u         | 0x55|
+|v         | 0x56|
+|w         | 0x57|
+|x         | 0x58|
+|y         | 0x59|
+|z         | 0x5A|
+|f1        | 0x70|
+|f2        | 0x71|
+|f3        | 0x72|
+|f4        | 0x73|
+|f5        | 0x74|
+|f6        | 0x75|
+|f7        | 0x76|
+|f8        | 0x77|
+|f9        | 0x78|
+|f10       | 0x79|
+|f11       | 0x7A|
+|f12       | 0x7B|
 
 
-## MIDI Note Infomation (.ini File [MAPPING] Section )  
+### MIDI Note Infomation  
 
 | Tone    | Note Number | .ini File |
 |:-------:| -----------:| --------- |

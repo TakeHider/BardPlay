@@ -1,4 +1,4 @@
-# BardPlay 1.2 (BardPlay Delphi)
+# BardPlay 1.3 (BardPlay Delphi)
 
 BardPlay (C) 2022 TakeHide Soft.  
 TakeHider@outlook.com
@@ -10,6 +10,11 @@ TakeHider@outlook.com
 
 
 ## 改定内容
+### 1.3.0
+- MIDIイベントの受信処理をバッファリングに変更。
+  レスポンスが大幅に改善しました。
+- 複数の音を同時に出そうとしたときに、低い音から順に弾く機能を実装。(*非推奨*)
+
 ### 1.2.0
 - アイコンを変更。
 - オクターブ単位でトランスポーズをさせる機能を追加。
@@ -93,6 +98,11 @@ MIDI機器の接続エラーが出ている状態では、`Start`ボタンは押
   特定のMIDI機器では、中心のC音が `C4(noteNo.60 - 261.6hz)`ではなく、1オクターブ低かったり、高かったりします。  
   `-3`～`3`の範囲でオクターブを指定することで、音程を調節することができます。
 
+* virtual_chords (default=0)
+  和音などで複数の音を同時に出そうとしたときに、低い音から順に出すようにします。  
+  とは言え「同時に出す」が難しく、ほぼ気持ちの問題。  
+  ノートオフの情報と混ざった時のテストが十分に出来なかったので、非推奨機能に格下げしました。  
+ 
 
 ### [MAPPING]
 
@@ -133,14 +143,17 @@ FF14等で使用していて、もし音が止まらなくなったときは、�
 
 |バージョン|リリース日|内容|
 |:--|:-:|:--|
+|1.3.0|2022/9/24|レスポンスの改善|
 |1.2.0|2022/9/19|1オクターブ単位でトランスポーズ機能を追加<br/> パフォーマンスの向上、および軽微な不具合対応|
 |1.1.0|2022/9/15|Delphi版作成|
 
 
+以下、英語訳とマッピングの際の参考資料を記載。  
+
 ----
 
 
-# BardPlay 1.2 (BardPlay Delphi)
+# BardPlay 1.3 (BardPlay Delphi)
 
 BardPlay (C) 2022 TakeHide Soft.  
 TakeHider@outlook.com
@@ -148,8 +161,14 @@ TakeHider@outlook.com
 ## Overview
 
 [FF14 compatible] Converts information from MIDI devices into PC keyboard events and transmits them.  
+Due to the specifications, only single notes can be produced. It is not possible to play multiple sounds at the same time. 
 
 ## Revised contents
+### 1.3.0
+- Changed MIDI event reception processing to buffering.  
+   Greatly improved response.  
+- Implemented a function that plays in order from the lowest note when trying to play multiple notes at the same time. (*not recommended*)
+
 ### 1.2.0
 - Change icon.
 - Added a function to transpose in octave units.
@@ -229,6 +248,11 @@ The `Start` button cannot be pressed while there is a MIDI device connection err
    On certain MIDI devices, the middle C note is not `C4(noteNo.60 - 261.6hz)`, but one octave lower or higher.  
    You can adjust the pitch by specifying an octave in the range of `-3` to `3`.
 
+* virtual_chords (default=0)
+   When trying to produce multiple sounds at the same time, such as in a chord, the sounds will be produced in order from the lowest note.  
+   However, it is difficult to "put out at the same time", and it is almost a matter of feeling.  
+   It was deprecated because it could not be sufficiently tested when mixed with note-off information.  
+
 
 ### [MAPPING]
 
@@ -268,14 +292,91 @@ If you are using it in FF14 etc. and the sound does not stop, please try to pres
 
 |Version|Release Date|Contents|
 |:--|:-:|:--|
+|1.3.0|2022/9/24|Improved response|
 |1.2.0|2022/9/19|Added transpose function by 1 octave unit<br/> Improved performance and fixed minor bugs|
 |1.1.0|2022/9/15|Created Delphi version|
 
 
 ---
+## reference
+.ini file [MAPPING] section setting guide. 
+
+### Keyboard-Mapping Configuration 
+
+|configuration<br />Strings|KeyCode<br />(reference)|
+|:-:|:-:|
+|backspace | 0x08|
+|tab       | 0x09|
+|enter     | 0x0D|
+|shift     | 0x10|
+|ctrl      | 0x11|
+|alt       | 0x12|
+|pause     | 0x13|
+|capslock  | 0x14|
+|esc       | 0x1B|
+|space     | 0x20|
+|pageup    | 0x21|
+|pagedown  | 0x22|
+|end       | 0x23|
+|home      | 0x24|
+|left      | 0x25|
+|up        | 0x26|
+|right     | 0x27|
+|down      | 0x28|
+|printscrn | 0x2C|
+|insert    | 0x2D|
+|delete    | 0x2E|
+|0         | 0x30|
+|1         | 0x31|
+|2         | 0x32|
+|3         | 0x33|
+|4         | 0x34|
+|5         | 0x35|
+|6         | 0x36|
+|7         | 0x37|
+|8         | 0x38|
+|9         | 0x39|
+|a         | 0x41|
+|b         | 0x42|
+|c         | 0x43|
+|d         | 0x44|
+|e         | 0x45|
+|f         | 0x46|
+|g         | 0x47|
+|h         | 0x48|
+|i         | 0x49|
+|j         | 0x4A|
+|k         | 0x4B|
+|l         | 0x4C|
+|m         | 0x4D|
+|n         | 0x4E|
+|o         | 0x4F|
+|p         | 0x50|
+|q         | 0x51|
+|r         | 0x52|
+|s         | 0x53|
+|t         | 0x54|
+|u         | 0x55|
+|v         | 0x56|
+|w         | 0x57|
+|x         | 0x58|
+|y         | 0x59|
+|z         | 0x5A|
+|f1        | 0x70|
+|f2        | 0x71|
+|f3        | 0x72|
+|f4        | 0x73|
+|f5        | 0x74|
+|f6        | 0x75|
+|f7        | 0x76|
+|f8        | 0x77|
+|f9        | 0x78|
+|f10       | 0x79|
+|f11       | 0x7A|
+|f12       | 0x7B|
 
 
-## MIDI Note Infomation (.ini File [MAPPING] Section )  
+### MIDI Note Infomation  
 
 | Tone    | Note Number | .ini File |
 |:-------:| -----------:| --------- |

@@ -4,7 +4,7 @@
         <ProjectVersion>19.2</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>2</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -87,13 +87,14 @@
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=テイクハイド ソフト;FileDescription=MIDI Event to PC-Key Event Tool;FileVersion=1.2.0.27;InternalName=BardPlayDelphi;LegalCopyright=(C) 2022 TakeHide Soft.;LegalTrademarks=;OriginalFilename=BardPlay.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.2.0.0;Comments=;SpecialBuild=Rera Irara Edition</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=テイクハイド ソフト;FileDescription=MIDI Event to PC-Key Event Tool;FileVersion=1.3.0.27;InternalName=BardPlayDelphi;LegalCopyright=(C) 2022 TakeHide Soft.;LegalTrademarks=;OriginalFilename=BardPlay.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.3.0.0;Comments=;SpecialBuild=Rera Irara Edition</VerInfo_Keys>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <Icon_MainIcon>MainIcon.ico</Icon_MainIcon>
-        <VerInfo_MinorVer>2</VerInfo_MinorVer>
+        <VerInfo_MinorVer>3</VerInfo_MinorVer>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_Build>27</VerInfo_Build>
         <VerInfo_Special>true</VerInfo_Special>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -114,11 +115,11 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Special>true</VerInfo_Special>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=TakeHide Soft.;FileDescription=MIDI Event to PC-Key Event Tool;FileVersion=1.2.0.31;InternalName=BardPlayDelphi;LegalCopyright=(C) 2022 TakeHide Soft.;LegalTrademarks=;OriginalFilename=BardPlay.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.2.0.0;Comments=;SpecialBuild=Rera Irara Edition</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=TakeHide Soft.;FileDescription=MIDI Event to PC-Key Event Tool;FileVersion=1.3.0.33;InternalName=BardPlayDelphi;LegalCopyright=(C) 2022 TakeHide Soft.;LegalTrademarks=;OriginalFilename=BardPlay.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.3.0.0;Comments=;SpecialBuild=Rera Irara Edition</VerInfo_Keys>
         <VerInfo_Debug>true</VerInfo_Debug>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Build>31</VerInfo_Build>
-        <VerInfo_MinorVer>2</VerInfo_MinorVer>
+        <VerInfo_Build>33</VerInfo_Build>
+        <VerInfo_MinorVer>3</VerInfo_MinorVer>
         <Icon_MainIcon>MainIcon.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -136,11 +137,12 @@
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <Icon_MainIcon>MainIcon.ico</Icon_MainIcon>
-        <VerInfo_MinorVer>2</VerInfo_MinorVer>
+        <VerInfo_MinorVer>3</VerInfo_MinorVer>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_Keys>CompanyName=テイクハイド ソフト;FileDescription=MIDI Event to PC-Key Event Tool;FileVersion=1.2.0.34;InternalName=BardPlayDelphi;LegalCopyright=(C) 2022 TakeHide Soft.;LegalTrademarks=;OriginalFilename=BardPlay.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.2.0.0;Comments=;SpecialBuild=Rera Irara Edition</VerInfo_Keys>
-        <VerInfo_Build>34</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=テイクハイド ソフト;FileDescription=MIDI Event to PC-Key Event Tool;FileVersion=1.3.0.43;InternalName=BardPlayDelphi;LegalCopyright=(C) 2022 TakeHide Soft.;LegalTrademarks=;OriginalFilename=BardPlay.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.3.0.0;Comments=;SpecialBuild=Rera Irara Edition</VerInfo_Keys>
+        <VerInfo_Build>43</VerInfo_Build>
         <VerInfo_Special>true</VerInfo_Special>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

@@ -14,19 +14,6 @@ uses
 
 
 type
-  // INIファイルの中身を格納する構造体
-  TIniInfo = record
-    iDeviceNumber   : Integer;  // デバイス番号
-    strDeviceName   : String;   // デバイス名
-    bPlayOnStart    : Boolean;  // 起動時に処理を開始するか
-    iExitOutRange   : Integer;  // 範囲から外れたらSTOPするか(および、境界値との距離)
-    iMinRange       : Integer;  // 範囲下限
-    iMaxRange       : Integer;  // 範囲上限
-    iUsePostMessage : Integer;  // データの送信メソッドでPostMessageを使うか
-    astrKeyMap      : array[0..127] of String;  // マッピング情報
-  end;
-
-
   // マッピングを保持するハッシュ(連想配列)
   // http://bougyuusonnin.seesaa.net/article/148148627.html
   THash<TKey,TValue> = class(TDictionary<TKey,TValue>)
@@ -37,7 +24,7 @@ type
     property Items[const Key: TKey]: TValue read GetItem write SetItem; default;
   end;
 
-  // MIDIイベント
+  // MIDIのノート情報
   TNoteEvent = record
     ucStatus  : byte;
     ucData1   : byte;
@@ -48,10 +35,15 @@ type
   // スレッド本体
   TMIDIEventThread = class(TThread)
   private
-    FKeyCode      : THash<string, byte>;
-    FOption       : TIniInfo;
-    FNoteSend     : boolean;
-    FhwndTerget   : Integer;
+    FNoteSend       : boolean;    // ノート情報を送信したかのフラグ
+    FhwndTerget     : Integer;    // ターゲットウインドウのウインドハンドル
+    FExitOutRange   : Integer;    // 範囲から外れたらSTOPするか(および、境界値との距離)
+    FMinRange       : Integer;    // 範囲下限
+    FMaxRange       : Integer;    // 範囲上限
+    FUsePostMessage : Integer;    // データの送信メソッドでPostMessageを使うか
+    FKeyMapping     : array[0..127] of String;  // マッピング情報
+    FKeyCode        : THash<string, byte>;      // キーコード
+
     procedure Sync_SetDeviceError;
     procedure setKeyCode();
     procedure ReadIniFile();
@@ -59,16 +51,15 @@ type
     procedure sendKeyMessage(wmEvent: Integer; ucNote: byte);
 
   public
-    FDeviceNumber: Integer;
-    FDeviceName  : String;
-    FTransepose  : Integer;
-    FVirtualChords: boolean;
+    FDeviceNumber : Integer;  // デバイス番号
+    FDeviceName   : String;   // デバイス名
+    FTransepose   : Integer;  // トランスポーズ
+    FVirtualChords: boolean;  // 疑似和音
+
     constructor Create(CreateSuspended : Boolean);
   protected
     procedure Execute; override;
   end;
-
-
 
 implementation
 
@@ -87,8 +78,7 @@ MSG_DEVICE_ERROR = '*** MIDI Devicve Error ***';
 
 
 //--------------------------------------------------------------------------------------
-//  TList のソート関数のコールバック関数
-//  レコード型の場合 (ucData1 メンバの値で昇順)
+//  TList のソート用コールバック関数 (ucData1 メンバの値で昇順)
 //--------------------------------------------------------------------------------------
 function CompareFunc_NoteEvent(Item1, Item2: Pointer): Integer;
 begin
@@ -96,7 +86,8 @@ begin
 end;
 
 {----------------------------------------------------------------------------}
-{ THash<TKey, TValue> }
+// キーコードを格納するハッシュ
+// THash<TKey, TValue>
 function THash<TKey, TValue>.GetItem(const Key: TKey): TValue;
 begin
   TryGetValue(Key, Result);
@@ -152,11 +143,12 @@ writeln('Open MIDI Device.');
 
   if pMIDIin = 0 then
   begin
-    // MIDIデバイスのオープンに失敗した時
+    // MIDIデバイスのオープンに失敗した時は処理しない
     Synchronize(Sync_SetDeviceError);
   end
   else
   begin
+    // ノート情報を格納するバッファ(リストオブジェクト)の作成
     lstNoteList:= TList.Create;
     try
       ucPreNote := $00;
@@ -166,12 +158,13 @@ writeln('Open MIDI Device.');
         iRet := readNoteMessage(pMIDIIn, lstNoteList);
         if iRet > 0 then
         begin
+          // ノート情報を先着順に処理
           for i := 0 to lstNoteList.Count-1 do
           begin
             pucNoteEvent := PNoteEvent(lstNoteList[i]);
-            ucStatus  := pucNoteEvent^.ucStatus;  // 最初のバイトはステータス
-            ucData1   := pucNoteEvent^.ucData1;   // 次のバイトは音階
-            ucData2   := pucNoteEvent^.ucData2;   // 最後のバイトは強さ
+            ucStatus     := pucNoteEvent^.ucStatus;  // 最初のバイトはステータス
+            ucData1      := pucNoteEvent^.ucData1;   // 次のバイトは音階
+            ucData2      := pucNoteEvent^.ucData2;   // 最後のバイトは強さ
 
             // 取り扱うイベントは ノートOnとノートOffのみ
             if (ucStatus = NOTE_ON) or (ucStatus = NOTE_OFF) then
@@ -180,7 +173,7 @@ writeln('Open MIDI Device.');
               ucData1 := ucData1 + FTransepose * 12;
 
               // 音階がマッピング範囲内の時
-              if (FOption.iMinRange <= ucData1) and (ucData1 <= FOption.iMaxRange) then
+              if (FMinRange <= ucData1) and (ucData1 <= FMaxRange) then
               begin
                 // ノートONのとき
                 if (ucStatus = NOTE_ON) and (ucData2 <> $00) then
@@ -214,11 +207,11 @@ writeln('Open MIDI Device.');
               // 範囲外の時
               else
               begin
-                if FOption.iExitOutRange > 0 then
+                if FExitOutRange > 0 then
                 begin
                   // 「範囲外の音が出たときは止める」指定がされていたら、ループを抜ける
-                  if ((ucData1-FOption.iExitOutRange) < FOption.iMinRange)  or
-                     ((ucData1+FOption.iExitOutRange) > FOPtion.iMaxRange) then
+                  if ((ucData1-FExitOutRange) < FMinRange)  or
+                     ((ucData1+FExitOutRange) > FMaxRange) then
                   begin
                     DoTerminate;  // 親フォームの OnTerminateを実行する
                     break;        // ループを抜ける
@@ -245,16 +238,20 @@ writeln('Thread Terminated.');
         sendKeyMessage(WM_KEYUP, ucPreNote);
         //ucPreNote := 0;
       end;
+
     finally
-      // リストオブジェクトのクリア
+      // ノート情報を格納していたリストオブジェクトの解放
       if lstNoteList.Count >0  then
       begin
+        // 中身から破棄しておく
         for i := lstNoteList.Count -1 downto 0 do
         begin
           Dispose(PNoteEvent(lstNoteList[i]));
         end;
       end;
+      // 最後にリストオブジェクトを破棄
       lstNoteList.Free;
+
       // MIDIデバイスの解放
       procMIDIIn_Close(pMIDIIn);
 {$IFDEF DEBUG}
@@ -267,6 +264,9 @@ end;
 
 {----------------------------------------------------------------------------}
 // MIDIからノート情報を読み取る
+// 引数：pMIDIIn      … MIDIIOのポインタ
+//     ：lstNoteList  … ノート情報を格納するバッファ(リストオブジェクト)
+// 返値：受信したノートイベントの個数
 function TMIDIEventThread.readNoteMessage(pMIDIIn:Integer; lstNoteList : TList): Integer;
 var
   iRet,i      : Integer;
@@ -303,8 +303,10 @@ begin
     end;
   until iRet = 0;   // バッファが空になるまで繰り返す
 
-  // ノート情報が複数あった時は、昇順にソートする(疑似アルベジオ)
-  if lstNoteList.Count>1 then
+  // ノート情報が複数あった時は、昇順にソートする
+  // 実際に使うと、「同時押し」が難しく、ソートする時としない時があるため
+  // オプション設定時のみ有効にした
+  if (lstNoteList.Count>1) and (FVirtualChords) then
     lstNoteList.Sort(CompareFunc_NoteEvent);
 
   result := lstNoteList.Count;
@@ -315,19 +317,21 @@ end;
 
 {----------------------------------------------------------------------------}
 // キー情報の送信
+// 引数：wmEvent … イベント(On/Off)
+//     ：ucNote  … ノート情報
 procedure TMIDIEventThread.sendKeyMessage(wmEvent: Integer; ucNote: byte);
 var
   iIndex  : Integer;
-
   strKey  : String;
   astrKeys: TStringDynArray;
   n       : Integer;
 begin
   // もしマッピングの範囲を超えていたら処理しない
-  if (ucNote < Low(FOption.astrKeyMap)) or (ucNote > High(FOption.astrKeyMap)) then
+  if (ucNote < Low(FKeyMapping)) or (ucNote > High(FKeyMapping)) then
     exit;
 
   // 宛先ウインドウを取得
+  // 都度拾うのも無駄なので、ノート情報が流れ始めたときだけ取得
   if not FNoteSend then
   begin
     FhwndTerget := GetForegroundWindow();
@@ -335,34 +339,30 @@ begin
   end;
 
   // キーの文字列を取得
-  strKey := FOption.astrKeyMap[ucNote];
+  strKey := FKeyMapping[ucNote];
   if strKey <> '' then
   begin
-    // アサインされたキーを配列に格納
-    astrKeys := SplitString(strKey,' ');
+    astrKeys := SplitString(strKey,' ');    // アサインされたキーを配列に格納
     if length(astrKeys)>0 then
     begin
+      // Onの時は指定された順番に押して、Offの時は指定とは逆順に離す
       for n := 0 to length(astrKeys)-1 do
       begin
-        if wmEvent = WM_KEYDOWN then      // ノートOnのとき
-          // 指定されたキーの順番で押す
-          iIndex := n
-        else if wmEvent = WM_KEYUP then   // ノートOffのとき
-          // 逆の順番で離す
-          iIndex := (length(astrKeys)-n-1)
-        else                              // 何だかよくわからないとき
-          iIndex := n;
+        if wmEvent = WM_KEYDOWN then
+          iIndex := n                       // ノートOnのときは、指定されたキーの順番で押す
+        else if wmEvent = WM_KEYUP then
+          iIndex := (length(astrKeys)-n-1)  // ノートOffのときは、逆の順番で離す
+        else
+          iIndex := n;                      // 上記以外は、とりあえず指定された順番で流す
 
 {$IFDEF DEBUG}
-WriteLn(Format(' winHandle = 0x%x : Note = %d : Key = %s : Event = %d', [FhwndTerget, ucNote, astrKeys[iIndex], wmEvent]));
+WriteLn(Format(' winHandle = 0x%x : Note = %d : Event = %d : Key = %s ', [FhwndTerget, ucNote, wmEvent, astrKeys[iIndex]]));
 {$ENDIF}
-        // User32.SendMessage をコール
-        if FOption.iUsePostMessage = 1 then
-          PostMessage(FhwndTerget, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), 0)
+        // メッセージを送信(通常はSendMessageで送る)
+        if FUsePostMessage = 0 then
+          SendMessage(FhwndTerget, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), 0)
         else
-          SendMessage(FhwndTerget, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), 0);
-        // 次のイベントのためにちょっとプロセスを開けておく
-//        sleep(1);
+          PostMessage(FhwndTerget, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), 0);
 
       end;
 
@@ -403,22 +403,22 @@ begin
   iniFile := TiniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
   try
     // CONFIGセクションの読み込み
-    FOption.strDeviceName   := iniFile.ReadString('CONFIG','device_name','');
-    FOption.iExitOutRange   := iniFile.ReadInteger('CONFIG','exit_outrange',1);
-    FOption.iUsePostMessage := iniFile.ReadInteger('CONFIG','use_post_message',0);
+    FDeviceName   := iniFile.ReadString('CONFIG','device_name','');
+    FExitOutRange   := iniFile.ReadInteger('CONFIG','exit_outrange',1);
+    FUsePostMessage := iniFile.ReadInteger('CONFIG','use_post_message',0);
 
     // MAPPINGセクションの読み込み
-    FOption.iMinRange := 0; // 範囲の最小値
-    FOption.iMaxRange := 0; // 範囲の最大値
+    FMinRange := 0; // 範囲の最小値
+    FMaxRange := 0; // 範囲の最大値
     for n := 0 to 127 do
     begin
       // マッピングにセット(キーが無いときは空欄をセット)
-      FOption.astrKeyMap[n] := iniFile.ReadString('MAPPING',IntToStr(n),'');
+      FKeyMapping[n] := iniFile.ReadString('MAPPING',IntToStr(n),'');
       // キーが存在するときは、範囲の指定をする
-      if FOption.astrKeyMap[n]<>'' then
+      if FKeyMapping[n]<>'' then
       begin
-        if FOption.iMinRange = 0 then FOption.iMinRange := n;
-        FOption.iMaxRange := n;
+        if FMinRange = 0 then FMinRange := n;
+        FMaxRange := n;
       end;
     end;
   finally

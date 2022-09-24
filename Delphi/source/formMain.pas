@@ -58,9 +58,10 @@ implementation
 {$R *.dfm}
 ResourceString
 NSG_DEVUCE_NOTFOUND = '*** MIDI Devicve Not Found ***';
-MNU_VERSIONINFO = 'Version Info.';
+MNU_VERSIONINFO     = 'Version Info.';
 
 
+// デバッグモードの時はコンソルを出す
 {$IFDEF DEBUG}
 {$APPTYPE CONSOLE}
 {$ENDIF}
@@ -122,6 +123,7 @@ end;
 // フォームを開いた時
 procedure TBardPlayDelphi.FormShow(Sender: TObject);
 begin
+// デバグモードの時はコンソールを表示させる
 {$IFDEF DEBUG}
 AllocConsole;
 {$ENDIF}
@@ -235,7 +237,7 @@ begin
   if btnStart.ImageIndex <>0 then
   begin
     // Stopボタンが押されたときの動作
-   btnStart.ImageIndex   := 0;           // ボタンのアイコンをStartにする
+   btnStart.ImageIndex   := 0;            // ボタンのアイコンをStartにする
     btnStart.Caption      := 'Start';     // ボタンのキャプションを変更
     cbDeviceList.Enabled  := True;        // コンボボックスの選択を有効にする
     btnRefresh.Enabled    := True;        // 再検索のボタンを有効にする
@@ -256,8 +258,9 @@ var
   strPreDeviceName: String;
 
 begin
-  // 現在のリストの状態を保持
   strPreDeviceName := '';
+
+  // 更新前のデバイス情報を保持しておく
   if cbDeviceList.style = csDropDownList then
   begin
     if (cbDeviceList.Items.Count > 0) and (cbDeviceList.ItemIndex >=0) then
@@ -294,7 +297,7 @@ begin
     cbDeviceList.style    := csDropDownList;  // ドロップダウンリストにする
     btnStart.Enabled      := True;            // 実行ボタンも有効にする
 
-    // 直近で選択されたものがあれば、デフォルトにする
+    // 更新前と同じデバイスがあれば、デフォルトにする
     if (strPreDeviceName<>'') and (cbDeviceList.ItemIndex =-1)  then
     begin
       if cbDeviceList.Items.IndexOf(strPreDeviceName)>=0 then
@@ -302,18 +305,15 @@ begin
         cbDeviceList.ItemIndex := cbDeviceList.Items.IndexOf(strPreDeviceName)
       end;
     end;
-    // 直近で指定されたものあなければ、INIから取得
+    // 更新前と同じデバイスが無い時は、INIから取得
     if (FDefaultDeviceName <> '') and (cbDeviceList.ItemIndex =-1) then
     begin
-      begin
-        cbDeviceList.ItemIndex := cbDeviceList.Items.IndexOf(FDefaultDeviceName)
-      end;
+      cbDeviceList.ItemIndex := cbDeviceList.Items.IndexOf(FDefaultDeviceName)
     end;
-
   end
   else
   begin
-    // MIDIデバイスが見つからなかったときは、アプリとして無効にする
+    // MIDIデバイスが1つも見つからなかったときは、アプリとして無効にする
     cbDeviceList.Style    := csSimple;
     cbDeviceList.Text     := NSG_DEVUCE_NOTFOUND;
     btnStart.Enabled      := False;
@@ -336,7 +336,7 @@ begin
   try
     FDefaultDeviceName    := iniFile.ReadString('CONFIG','device_name','');         // デバイス名
     bStatOnRun            := iniFile.ReadInteger('CONFIG','start_on_run',0) = 1;    // 起動時に開始
-    bVirtualChords        := iniFile.ReadInteger('CONFIG','virtual_chords',1) = 1;  // 疑似和音
+    bVirtualChords        := iniFile.ReadInteger('CONFIG','virtual_chords',0) = 1;  // 疑似和音
     strBGColor            := iniFile.ReadString('CONFIG','color','#F5FFFA');        // 背景色
     cbTransepose.ItemIndex:= iniFile.ReadInteger('CONFIG','transpose',0)+3 ;        // トランスポーズ
   finally

@@ -3,8 +3,8 @@ object BardPlayDelphi: TBardPlayDelphi
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Bard Play'
-  ClientHeight = 122
-  ClientWidth = 314
+  ClientHeight = 112
+  ClientWidth = 252
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,23 +19,23 @@ object BardPlayDelphi: TBardPlayDelphi
   TextHeight = 13
   object lblMIDIDevice: TLabel
     Left = 8
-    Top = 8
+    Top = 5
     Width = 65
     Height = 13
     Caption = ' MIDI Device:'
     Transparent = False
   end
   object lblTransepose: TLabel
-    Left = 13
+    Left = 8
     Top = 49
     Width = 60
     Height = 13
     Caption = 'Trancepose:'
   end
   object cbDeviceList: TComboBox
-    Left = 79
-    Top = 8
-    Width = 186
+    Left = 8
+    Top = 18
+    Width = 193
     Height = 21
     Hint = 'MIDI Device List'
     Style = csDropDownList
@@ -44,8 +44,8 @@ object BardPlayDelphi: TBardPlayDelphi
     TabOrder = 2
   end
   object btnStart: TBitBtn
-    Left = 169
-    Top = 89
+    Left = 105
+    Top = 80
     Width = 65
     Height = 25
     Hint = 'Start or Stop Process'
@@ -59,8 +59,8 @@ object BardPlayDelphi: TBardPlayDelphi
     OnClick = btnStartClick
   end
   object btnExit: TBitBtn
-    Left = 240
-    Top = 89
+    Left = 176
+    Top = 80
     Width = 65
     Height = 25
     Hint = 'Close'
@@ -73,8 +73,8 @@ object BardPlayDelphi: TBardPlayDelphi
     OnClick = btnExitClick
   end
   object btnRefresh: TBitBtn
-    Left = 271
-    Top = 8
+    Left = 207
+    Top = 16
     Width = 34
     Height = 25
     Hint = 'Refresh MIDI Device'
@@ -87,7 +87,7 @@ object BardPlayDelphi: TBardPlayDelphi
   end
   object chkStartOnRun: TCheckBox
     Left = 13
-    Top = 93
+    Top = 84
     Width = 93
     Height = 17
     Hint = 'Check when start on run'
@@ -99,7 +99,7 @@ object BardPlayDelphi: TBardPlayDelphi
     TabOrder = 4
   end
   object cbTransepose: TComboBox
-    Left = 79
+    Left = 74
     Top = 45
     Width = 74
     Height = 21
@@ -123,16 +123,17 @@ object BardPlayDelphi: TBardPlayDelphi
       '+36 (C7)')
   end
   object chkVirtualChords: TCheckBox
-    Left = 208
+    Left = 154
     Top = 47
     Width = 97
     Height = 17
     Caption = 'Virtual Chords'
     TabOrder = 6
+    Visible = False
   end
   object ilImageList: TImageList
-    Left = 117
-    Top = 54
+    Left = 109
+    Top = 6
     Bitmap = {
       494C010104000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
