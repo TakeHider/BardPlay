@@ -37,19 +37,32 @@ type
     property Items[const Key: TKey]: TValue read GetItem write SetItem; default;
   end;
 
+  // MIDIイベント
+  TNoteEvent = record
+    ucStatus  : byte;
+    ucData1   : byte;
+    ucData2   : byte;
+  end;
+  PNoteEvent = ^TNoteEvent;
+
   // スレッド本体
   TMIDIEventThread = class(TThread)
   private
     FKeyCode      : THash<string, byte>;
     FOption       : TIniInfo;
+    FNoteSend     : boolean;
+    FhwndTerget   : Integer;
     procedure Sync_SetDeviceError;
     procedure setKeyCode();
     procedure ReadIniFile();
+    Function readNoteMessage(pMIDIIn:Integer; lstNoteList : TList) : Integer;
     procedure sendKeyMessage(wmEvent: Integer; ucNote: byte);
+
   public
     FDeviceNumber: Integer;
     FDeviceName  : String;
     FTransepose  : Integer;
+    FVirtualChords: boolean;
     constructor Create(CreateSuspended : Boolean);
   protected
     procedure Execute; override;
@@ -71,6 +84,16 @@ const
 
 ResourceString
 MSG_DEVICE_ERROR = '*** MIDI Devicve Error ***';
+
+
+//--------------------------------------------------------------------------------------
+//  TList のソート関数のコールバック関数
+//  レコード型の場合 (ucData1 メンバの値で昇順)
+//--------------------------------------------------------------------------------------
+function CompareFunc_NoteEvent(Item1, Item2: Pointer): Integer;
+begin
+  Result := PNoteEvent(Item1)^.ucData1 - PNoteEvent(Item2)^.ucData1;
+end;
 
 {----------------------------------------------------------------------------}
 { THash<TKey, TValue> }
@@ -97,9 +120,11 @@ begin
   FreeOnTerminate:=True;
   // キーマッピングオブジェクトの作成
   FKeyCode := THash<string, byte>.Create;
+  // 疑似コード
+  FVirtualChords := True;
   // キーマッピングのセット (ここに書くとうざいので、別のところでやってもらう)
   setKeyCode();
-  // INIの読み込み
+  // マッピング情報をINIから読み込み
   ReadIniFile();
 
 end;
@@ -108,13 +133,17 @@ end;
 procedure TMIDIEventThread.Execute;
 var
   pMIDIIn     : Integer;
-  iRet        : Integer;
-  aucMessage  : Array[0..255] of byte;
+  iRet,i      : Integer;
   ucStatus    : byte;
   ucData1     : byte;
   ucData2     : byte;
   ucPreNote   : byte;
+  lstNoteList : TList;
+  pucNoteEvent: PNoteEvent;
+
 begin
+  FNoteSend := False;
+
   // MIDIデバイスを開く
   pMIDIIn := procMIDIIn_Open(FDeviceName);
 {$IFDEF DEBUG}
@@ -128,67 +157,72 @@ writeln('Open MIDI Device.');
   end
   else
   begin
+    lstNoteList:= TList.Create;
     try
       ucPreNote := $00;
+
       repeat
         // MIDIメッセージの受信
-        iRet := procMIDIIn_GetMIDIMessage(pMIDIIn, aucMessage, SizeOf(aucMessage));
-        // ノートOnとノートOffは3バイトずつ信号が来る
-        if iRet >= 3 then
+        iRet := readNoteMessage(pMIDIIn, lstNoteList);
+        if iRet > 0 then
         begin
-          ucStatus  := aucMessage[0]; // 最初のバイトはステータス
-          ucData1   := aucMessage[1]; // 次のバイトは音階
-          ucData2   := aucMessage[2]; // 最後のバイトは強さ
-
-          // 取り扱うイベントは ノートOnとノートOffのみ
-          if (ucStatus = NOTE_ON) or (ucStatus = NOTE_OFF) then
+          for i := 0 to lstNoteList.Count-1 do
           begin
-            // トランスポーズ
-            ucData1 := ucData1 + FTransepose * 12;
+            pucNoteEvent := PNoteEvent(lstNoteList[i]);
+            ucStatus  := pucNoteEvent^.ucStatus;  // 最初のバイトはステータス
+            ucData1   := pucNoteEvent^.ucData1;   // 次のバイトは音階
+            ucData2   := pucNoteEvent^.ucData2;   // 最後のバイトは強さ
 
-            // 音階がマッピング範囲内の時
-            if (FOption.iMinRange <= ucData1) and (ucData1 <= FOption.iMaxRange) then
+            // 取り扱うイベントは ノートOnとノートOffのみ
+            if (ucStatus = NOTE_ON) or (ucStatus = NOTE_OFF) then
             begin
-              // ノートONのとき
-              if (ucStatus = NOTE_ON) and (ucData2 <> $00) then
-              begin;
-                // もし他のノートが押されていたら、放しておく
-                if (ucPreNote <> ucData1) and ( ucPreNote <> $00) then
+              // トランスポーズ
+              ucData1 := ucData1 + FTransepose * 12;
+
+              // 音階がマッピング範囲内の時
+              if (FOption.iMinRange <= ucData1) and (ucData1 <= FOption.iMaxRange) then
+              begin
+                // ノートONのとき
+                if (ucStatus = NOTE_ON) and (ucData2 <> $00) then
+                begin;
+                  // もし他のノートが押されていたら、放しておく
+                  if (ucPreNote <> ucData1) and ( ucPreNote <> $00) then
+                  begin
+                   sendKeyMessage(WM_KEYUP,ucPreNote);
+                  end;
+                  // 今と異なるノートだったら、指定されたノートを押す
+                  if ucPreNote <> ucData1 then
+                  begin
+                    sendKeyMessage(WM_KEYDOWN, ucData1);
+                    ucPreNote := ucData1;
+                  end;
+                end
+                //ノートオフの時
+                else if (ucStatus = NOTE_OFF) or  ((ucStatus = NOTE_ON) and (ucData2 = $00)) then
                 begin
-                 sendKeyMessage(WM_KEYUP,ucPreNote);
-                end;
-                // 今と異なるノートだったら、指定されたノートを押す
-                if ucPreNote <> ucData1 then
-                begin
-                  sendKeyMessage(WM_KEYDOWN, ucData1);
-                  ucPreNote := ucData1;
+
+                  // 今押されているノートと同じだった時に放す
+                  if ucPreNote = ucData1 then
+                  begin
+                    // 指定されたノートを離す
+                    sendKeyMessage(WM_KEYUP, ucData1);
+                    ucPreNote := $00;
+                  end;
+
                 end;
               end
-              //ノートオフの時
-              else if (ucStatus = NOTE_OFF) or  ((ucStatus = NOTE_ON) and (ucData2 = $00)) then
+              // 範囲外の時
+              else
               begin
-
-                // 今押されているノートと同じだった時に放す
-                if ucPreNote = ucData1 then
+                if FOption.iExitOutRange > 0 then
                 begin
-                  // 指定されたノートを離す
-                  sendKeyMessage(WM_KEYUP, ucData1);
-                  ucPreNote := $00;
-                end;
-
-              end;
-            end
-            // 範囲外の時
-            else
-            begin
-              if FOption.iExitOutRange > 0 then
-              begin
-                // 「範囲外の音が出たときは止める」指定がされていたら、ループを抜ける
-                if ((ucData1-FOption.iExitOutRange) < FOption.iMinRange)  or
-                   ((ucData1+FOption.iExitOutRange) > FOPtion.iMaxRange) then
-                begin
-                  DoTerminate;  // 親フォームの OnTerminateを実行する
-                  break;        // ループを抜ける
+                  // 「範囲外の音が出たときは止める」指定がされていたら、ループを抜ける
+                  if ((ucData1-FOption.iExitOutRange) < FOption.iMinRange)  or
+                     ((ucData1+FOption.iExitOutRange) > FOPtion.iMaxRange) then
+                  begin
+                    DoTerminate;  // 親フォームの OnTerminateを実行する
+                    break;        // ループを抜ける
+                  end;
                 end;
               end;
             end;
@@ -196,6 +230,8 @@ writeln('Open MIDI Device.');
         end
         else
         begin
+          // ノート情報が何も来ていなかった時は休憩する
+          FNoteSend := False;
           sleep(1);
         end;
 
@@ -210,7 +246,17 @@ writeln('Thread Terminated.');
         //ucPreNote := 0;
       end;
     finally
-      procMIDIIn_Close(pMIDIIn);  // MIDIデバイスの解放
+      // リストオブジェクトのクリア
+      if lstNoteList.Count >0  then
+      begin
+        for i := lstNoteList.Count -1 downto 0 do
+        begin
+          Dispose(PNoteEvent(lstNoteList[i]));
+        end;
+      end;
+      lstNoteList.Free;
+      // MIDIデバイスの解放
+      procMIDIIn_Close(pMIDIIn);
 {$IFDEF DEBUG}
 writeln('Close MIDI Device.');
 {$ENDIF}
@@ -220,22 +266,73 @@ writeln('Close MIDI Device.');
 end;
 
 {----------------------------------------------------------------------------}
+// MIDIからノート情報を読み取る
+function TMIDIEventThread.readNoteMessage(pMIDIIn:Integer; lstNoteList : TList): Integer;
+var
+  iRet,i      : Integer;
+  aucMessage  : Array[0..255] of byte;
+  pucNoteEvent: PNoteEvent;
+begin
+  result := 0;
+  // リストオブジェクトが初期化されていなかったら処理しない
+  if lstNoteList = nil then exit;
+
+  // リストオブジェクトのクリア
+  if lstNoteList.Count >0  then
+  begin
+    for i := lstNoteList.Count -1 downto 0 do
+    begin
+      Dispose(PNoteEvent(lstNoteList[i]));
+    end;
+  end;
+  lstNoteList.Clear;
+
+  // イベントの受信
+  repeat
+    // MIDI情報を読み取る
+    iRet := procMIDIIn_GetMIDIMessage(pMIDIIn, aucMessage, SizeOf(aucMessage));
+    // ノート情報は3バイトずつ来る
+    if iRet = 3 then
+    begin
+      New(pucNoteEvent);                            // メモリ領域を確保
+      pucNoteEvent^ := System.Default(TNoteEvent);  // 初期化しておく
+      pucNoteEvent^.ucStatus  := aucMessage[0];     // ステータスをセット
+      pucNoteEvent^.ucData1   := aucMessage[1];     // ノート情報をセット
+      pucNoteEvent^.ucData2   := aucMessage[2];
+      lstNoteList.Add(pucNoteEvent);                // ポインタをリストに格納
+    end;
+  until iRet = 0;   // バッファが空になるまで繰り返す
+
+  // ノート情報が複数あった時は、昇順にソートする(疑似アルベジオ)
+  if lstNoteList.Count>1 then
+    lstNoteList.Sort(CompareFunc_NoteEvent);
+
+  result := lstNoteList.Count;
+
+end;
+
+
+
+{----------------------------------------------------------------------------}
 // キー情報の送信
 procedure TMIDIEventThread.sendKeyMessage(wmEvent: Integer; ucNote: byte);
 var
   iIndex  : Integer;
-  hwnd    : Integer;
+
   strKey  : String;
   astrKeys: TStringDynArray;
   n       : Integer;
-
 begin
   // もしマッピングの範囲を超えていたら処理しない
   if (ucNote < Low(FOption.astrKeyMap)) or (ucNote > High(FOption.astrKeyMap)) then
     exit;
 
   // 宛先ウインドウを取得
-  hwnd := GetForegroundWindow();
+  if not FNoteSend then
+  begin
+    FhwndTerget := GetForegroundWindow();
+    FNoteSend   := True;
+  end;
 
   // キーの文字列を取得
   strKey := FOption.astrKeyMap[ucNote];
@@ -257,13 +354,13 @@ begin
           iIndex := n;
 
 {$IFDEF DEBUG}
-WriteLn(Format(' winHandle = 0x%x : Note = %d : Key = %s : Event = %d', [hwnd, ucNote, astrKeys[iIndex], wmEvent]));
+WriteLn(Format(' winHandle = 0x%x : Note = %d : Key = %s : Event = %d', [FhwndTerget, ucNote, astrKeys[iIndex], wmEvent]));
 {$ENDIF}
         // User32.SendMessage をコール
         if FOption.iUsePostMessage = 1 then
-          PostMessage(hwnd, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), 0)
+          PostMessage(FhwndTerget, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), 0)
         else
-          SendMessage(hwnd, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), 0);
+          SendMessage(FhwndTerget, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), 0);
         // 次のイベントのためにちょっとプロセスを開けておく
 //        sleep(1);
 

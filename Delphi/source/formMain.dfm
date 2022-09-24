@@ -4,7 +4,7 @@ object BardPlayDelphi: TBardPlayDelphi
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Bard Play'
   ClientHeight = 122
-  ClientWidth = 256
+  ClientWidth = 314
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -27,15 +27,15 @@ object BardPlayDelphi: TBardPlayDelphi
   end
   object lblTransepose: TLabel
     Left = 13
-    Top = 59
+    Top = 49
     Width = 60
     Height = 13
     Caption = 'Trancepose:'
   end
   object cbDeviceList: TComboBox
-    Left = 8
-    Top = 27
-    Width = 193
+    Left = 79
+    Top = 8
+    Width = 186
     Height = 21
     Hint = 'MIDI Device List'
     Style = csDropDownList
@@ -44,8 +44,8 @@ object BardPlayDelphi: TBardPlayDelphi
     TabOrder = 2
   end
   object btnStart: TBitBtn
-    Left = 107
-    Top = 88
+    Left = 169
+    Top = 89
     Width = 65
     Height = 25
     Hint = 'Start or Stop Process'
@@ -59,8 +59,8 @@ object BardPlayDelphi: TBardPlayDelphi
     OnClick = btnStartClick
   end
   object btnExit: TBitBtn
-    Left = 178
-    Top = 88
+    Left = 240
+    Top = 89
     Width = 65
     Height = 25
     Hint = 'Close'
@@ -73,8 +73,8 @@ object BardPlayDelphi: TBardPlayDelphi
     OnClick = btnExitClick
   end
   object btnRefresh: TBitBtn
-    Left = 207
-    Top = 25
+    Left = 271
+    Top = 8
     Width = 34
     Height = 25
     Hint = 'Refresh MIDI Device'
@@ -86,8 +86,8 @@ object BardPlayDelphi: TBardPlayDelphi
     OnClick = btnRefreshClick
   end
   object chkStartOnRun: TCheckBox
-    Left = 8
-    Top = 92
+    Left = 13
+    Top = 93
     Width = 93
     Height = 17
     Hint = 'Check when start on run'
@@ -100,7 +100,7 @@ object BardPlayDelphi: TBardPlayDelphi
   end
   object cbTransepose: TComboBox
     Left = 79
-    Top = 54
+    Top = 45
     Width = 74
     Height = 21
     Style = csDropDownList
@@ -122,9 +122,17 @@ object BardPlayDelphi: TBardPlayDelphi
       '+24 (C6)'
       '+36 (C7)')
   end
+  object chkVirtualChords: TCheckBox
+    Left = 208
+    Top = 47
+    Width = 97
+    Height = 17
+    Caption = 'Virtual Chords'
+    TabOrder = 6
+  end
   object ilImageList: TImageList
-    Left = 136
-    Top = 8
+    Left = 117
+    Top = 54
     Bitmap = {
       494C010104000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020

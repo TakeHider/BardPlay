@@ -26,6 +26,7 @@ type
     chkStartOnRun: TCheckBox;
     lblTransepose: TLabel;
     cbTransepose: TComboBox;
+    chkVirtualChords: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
@@ -157,6 +158,7 @@ begin
       MIDIEventThread.FDeviceNumber := cbDeviceList.ItemIndex;    // デバイス番号を渡す
       MIDIEventThread.FDeviceName   := FDefaultDeviceName;        // デバイス番号
       MIDIEventThread.FTransepose   := cbTransepose.ItemIndex -3; // トランスポーズ
+      MIDIEventThread.FVirtualChords:= chkVirtualChords.checked;  // 疑似コード
       MIDIEventThread.OnTerminate   := ThreadTerminate;           // スレッドが終了した時の処理
       MIDIEventThread.Start;                                      // スレッドの実行
    end;
@@ -324,17 +326,19 @@ end;
 // INIファイルから読み込む
 procedure TBardPlayDelphi.ReadIniSetting();
 var
-  b           : boolean;
-  iniFile     : TiniFile;
-  strBGColor  : String;
+  bStatOnRun    : boolean;
+  bVirtualChords: boolean;
+  iniFile       : TiniFile;
+  strBGColor    : String;
 begin
   // INIファイルから情報を読み込む
   iniFile := TiniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
   try
-    FDefaultDeviceName    := iniFile.ReadString('CONFIG','device_name','');       // デバイス名
-    b                     := iniFile.ReadInteger('CONFIG','start_on_run',0) = 1;  // 起動時に開始
-    strBGColor            := iniFile.ReadString('CONFIG','color','#F5FFFA');      // 背景色
-    cbTransepose.ItemIndex:= iniFile.ReadInteger('CONFIG','transpose',0)+3 ;      // トランスポーズ
+    FDefaultDeviceName    := iniFile.ReadString('CONFIG','device_name','');         // デバイス名
+    bStatOnRun            := iniFile.ReadInteger('CONFIG','start_on_run',0) = 1;    // 起動時に開始
+    bVirtualChords        := iniFile.ReadInteger('CONFIG','virtual_chords',1) = 1;  // 疑似和音
+    strBGColor            := iniFile.ReadString('CONFIG','color','#F5FFFA');        // 背景色
+    cbTransepose.ItemIndex:= iniFile.ReadInteger('CONFIG','transpose',0)+3 ;        // トランスポーズ
   finally
     iniFile.Free;
   end;
@@ -350,8 +354,9 @@ begin
     end;
 
   end;
-  // Start On Run
-  chkStartOnRun.Checked := b;
+
+  chkStartOnRun.Checked     := bStatOnRun;      // Start On Run
+  chkVirtualChords.checked  := bVirtualChords;  // Virtual Chords
 end;
 
 
@@ -359,20 +364,28 @@ end;
 // INIファイルに書き込む
 procedure TBardPlayDelphi.WriteIniSetting();
 var
-  n       : Integer;
-  iniFile : TiniFile;
+  iStatOnRun        : Integer;
+  iVirtualChords    : Integer;
+  iniFile           : TiniFile;
 begin
-  if chkStartOnRun.Checked then
-    n := 1
+  // 画面の状態を取得(Delphiには3項演算子が無いのだ)
+  if chkStartOnRun.Checked then       // Start On Run
+    iStatOnRun := 1
   else
-    n := 0;
+    iStatOnRun := 0;
+  if chkVirtualChords.Checked then    // Virtual Chords
+    iVirtualChords := 1
+  else
+    iVirtualChords := 0;
+
 
   // INIファイルに情報を書き込む
   iniFile := TiniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
   try
     iniFile.WriteString('CONFIG','device_name',FDefaultDeviceName);
-    iniFile.WriteInteger('CONFIG','start_on_run',n);
+    iniFile.WriteInteger('CONFIG','start_on_run',iStatOnRun);
     iniFIle.WriteInteger('CONFIG','transpose', cbTransepose.ItemIndex -3);
+    iniFile.WriteInteger('CONFIG','virtual_chords',iVirtualChords);
   finally
     iniFile.Free;
   end;
