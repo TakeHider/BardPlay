@@ -261,13 +261,19 @@ td{
     
 </style>
 <head>
-<h1>BardPlay 1.2 (BardPlay Delphi)</h1>
+<h1>BardPlay 1.3 (BardPlay Delphi)</h1>
 <p>BardPlay (C) 2022 TakeHide Soft.<br />
 TakeHider@outlook.com</p>
 <h2>概要</h2>
 <p>【FF14対応】 MIDIデバイスからの情報を、PCキーボードのイベントに変換して送信します。<br />
 仕様上、単音しか出せません。複数の音を同時に出すことはできません。  </p>
 <h2>改定内容</h2>
+<h3>1.3.0</h3>
+<ul>
+<li>MIDIイベントの受信処理をバッファリングに変更。
+  レスポンスが大幅に改善しました。</li>
+<li>複数の音を同時に出そうとしたときに、低い音から順に弾く機能を実装。(<em>非推奨</em>)</li>
+</ul>
 <h3>1.2.0</h3>
 <ul>
 <li>アイコンを変更。</li>
@@ -276,24 +282,6 @@ TakeHider@outlook.com</p>
 <li>iniの設定で <code>SendMessage</code>の代わりに<code>PostMessage</code>が使えるようにした。(<em>非推奨</em>)</li>
 <li><code>exit_outrange</code>を指定した際に、稀に終了しない不具合の対応</li>
 </ul>
-<h2>ライセンス</h2>
-<p>このソフトウェアは GNU 劣等一般公衆利用許諾書(GNU LGPL)に基づいて配布されています。</p>
-<ul>
-<li>あなたはこのソフトウェアを、GNU LGPLに基づき、複製・転載・配布することができます。  </li>
-<li>あなたはこのソフトウェアを改変することができ、それをGNU LGPLに基づき配布することができます。  </li>
-<li>あなたはこのソフトウェアを利用して、あなた独自のライセンスのアプリケーションを製作・配布することができます。  </li>
-<li>いずれの場合も作者に許可を得る必要はありません。  </li>
-<li>このソフトウェアは全くの無保証です。<br />
-  このライブラリを使用した結果生じた損害につきまして作者は一切責任を負いません。<br />
-  あらかじめご了承ください。</li>
-</ul>
-<p>詳しくはGNU LGPL<a href="http://www.gnu.org/licenses/">ライセンス - GNUプロジェクト - フリーソフトウェアファウンデーション</a> もしくはその<a href="https://licenses.opensource.jp/LGPL-3.0/LGPL-3.0.html">日本語訳</a> をご参照ください。</p>
-<h3>本ソフトウェアはMIDIIOライブラリ(MIDIIO.dll)を使用します。</h3>
-<p><code>MIDIIOライブラリ</code>の著作権は"<code>(C)2002-2012 くず / おーぷんMIDIぷろじぇくと</code>"様が保有しています。<br />
- https://openmidiproject.osdn.jp/MIDIIOLibrary.html<br />
-LGPLライセンスで配布されています  </p>
-<h3>ボタンのイメージには Icons 8を使用しています。</h3>
-<p>イメージボタンの画像は <a href="https://icons8.com">Icons 8</a>(https://icons8.com) を利用しています。  </p>
 <h2>実行方法</h2>
 <p>あらかじめMIDIデバイスをPCに接続してから、アプリケーションを実行してください。</p>
 <p>アプリケーションを実行すると、画面にMIDIデバイス名が表示されます。<br />
@@ -313,6 +301,24 @@ LGPLライセンスで配布されています  </p>
 <li>Refresh<br />
   MIDI機器を再検索します。  </li>
 </ul>
+<h2>ライセンス</h2>
+<p>このソフトウェアは GNU 劣等一般公衆利用許諾書(GNU LGPL)に基づいて配布されています。</p>
+<ul>
+<li>あなたはこのソフトウェアを、GNU LGPLに基づき、複製・転載・配布することができます。  </li>
+<li>あなたはこのソフトウェアを改変することができ、それをGNU LGPLに基づき配布することができます。  </li>
+<li>あなたはこのソフトウェアを利用して、あなた独自のライセンスのアプリケーションを製作・配布することができます。  </li>
+<li>いずれの場合も作者に許可を得る必要はありません。  </li>
+<li>このソフトウェアは全くの無保証です。<br />
+  このライブラリを使用した結果生じた損害につきまして作者は一切責任を負いません。<br />
+  あらかじめご了承ください。</li>
+</ul>
+<p>詳しくはGNU LGPL<a href="http://www.gnu.org/licenses/">ライセンス - GNUプロジェクト - フリーソフトウェアファウンデーション</a> もしくはその<a href="https://licenses.opensource.jp/LGPL-3.0/LGPL-3.0.html">日本語訳</a> をご参照ください。</p>
+<h4>本ソフトウェアはMIDIIOライブラリ(MIDIIO.dll)を使用します。</h4>
+<p><code>MIDIIOライブラリ</code>の著作権は"<code>(C)2002-2012 くず / おーぷんMIDIぷろじぇくと</code>"様が保有しています。<br />
+ https://openmidiproject.osdn.jp/MIDIIOLibrary.html<br />
+LGPLライセンスで配布されています  </p>
+<h4>ボタンのイメージには Icons 8を使用しています。</h4>
+<p>イメージボタンの画像は <a href="https://icons8.com">Icons 8</a>(https://icons8.com) を利用しています。  </p>
 <h2>iniファイル</h2>
 <h3>[CONFIG]</h3>
 <ul>
@@ -340,6 +346,12 @@ LGPLライセンスで配布されています  </p>
   特定のMIDI機器では、中心のC音が <code>C4(noteNo.60 - 261.6hz)</code>ではなく、1オクターブ低かったり、高かったりします。<br />
 <code>-3</code>～<code>3</code>の範囲でオクターブを指定することで、音程を調節することができます。</p>
 </li>
+<li>
+<p>virtual_chords (default=0)
+  和音などで複数の音を同時に出そうとしたときに、低い音から順に出すようにします。<br />
+  とは言え「同時に出す」が難しく、ほぼ気持ちの問題。<br />
+  ノートオフの情報と混ざった時のテストが十分に出来なかったので、非推奨機能に格下げしました。  </p>
+</li>
 </ul>
 <h3>[MAPPING]</h3>
 <p>MIDIのノートをキーに対応させたもの。<br />
@@ -364,8 +376,8 @@ LGPLライセンスで配布されています  </p>
 </ul>
 <h2>その他</h2>
 <p>以下の機器で動作確認をしています。<br />
-<em> CACIO LK-511 61鍵 電子キーボード 光ナビゲーション<br />
-</em> YAMAHA SHS-300 Sonogenic 37鍵 ショルダーキーボード</p>
+- CACIO LK-511 61鍵 電子キーボード 光ナビゲーション<br />
+- YAMAHA SHS-300 Sonogenic 37鍵 ショルダーキーボード</p>
 <p>MIDIの仕様を確認して各社に対応したつもりですが、全てのメーカーの機器を試せていないので、もしかすると正しく動作しない機器があるかもしれません。<br />
 その場合は、お手数ですがご連絡をいただければ、極力対応するようにいたします。 <br />
 (ノートOFFは <code>0x80</code> - <code>0xXX</code> と、<code>0x90</code> - <code>0x00</code> の2種類に対応しています)  </p>
@@ -381,6 +393,11 @@ LGPLライセンスで配布されています  </p>
 </thead>
 <tbody>
 <tr>
+<td style="text-align: left;">1.3.0</td>
+<td style="text-align: center;">2022/9/24</td>
+<td style="text-align: left;">レスポンスの改善</td>
+</tr>
+<tr>
 <td style="text-align: left;">1.2.0</td>
 <td style="text-align: center;">2022/9/19</td>
 <td style="text-align: left;">1オクターブ単位でトランスポーズ機能を追加<br/> パフォーマンスの向上、および軽微な不具合対応</td>
@@ -392,13 +409,21 @@ LGPLライセンスで配布されています  </p>
 </tr>
 </tbody>
 </table>
+<p>以下、英語訳とマッピングの際の参考資料を記載。  </p>
 <hr />
-<h1>BardPlay 1.2 (BardPlay Delphi)</h1>
+<h1>BardPlay 1.3 (BardPlay Delphi)</h1>
 <p>BardPlay (C) 2022 TakeHide Soft.<br />
 TakeHider@outlook.com</p>
 <h2>Overview</h2>
-<p>[FF14 compatible] Converts information from MIDI devices into PC keyboard events and transmits them.  </p>
+<p>[FF14 compatible] Converts information from MIDI devices into PC keyboard events and transmits them.<br />
+Due to the specifications, only single notes can be produced. It is not possible to play multiple sounds at the same time. </p>
 <h2>Revised contents</h2>
+<h3>1.3.0</h3>
+<ul>
+<li>Changed MIDI event reception processing to buffering.<br />
+   Greatly improved response.  </li>
+<li>Implemented a function that plays in order from the lowest note when trying to play multiple notes at the same time. (<em>not recommended</em>)</li>
+</ul>
 <h3>1.2.0</h3>
 <ul>
 <li>Change icon.</li>
@@ -407,24 +432,6 @@ TakeHider@outlook.com</p>
 <li>Made it possible to use <code>PostMessage</code> instead of <code>SendMessage</code> in the ini settings. (<em>not recommended</em>)</li>
 <li>Fixed a bug that rarely exits when <code>exit_outrange</code> is specified</li>
 </ul>
-<h2>license</h2>
-<p>This software is distributed under the GNU Lesser General Public License (GNU LGPL).  </p>
-<ul>
-<li>You may copy, reprint, and distribute this software under the GNU LGPL.  </li>
-<li>You may modify this software and distribute it under the GNU LGPL.  </li>
-<li>You can use this software to create and distribute your own licensed applications.  </li>
-<li>In either case, you don't need to get permission from the author.  </li>
-<li>This software comes with absolutely no warranty.<br />
-   The author is not responsible for any damages resulting from using this library.<br />
-   Please note.  </li>
-</ul>
-<p>For details, see GNU LGPL <a href="http://www.gnu.org/licenses/">License - GNU Project - Free Software Foundation</a>.  </p>
-<h3>This software uses MIDIIO Library (MIDIIO.dll).</h3>
-<p>The copyright of the MIDIIO library is held by "(C)2002-2012 Kuzu / Open MIDI Project".<br />
- https://openmidiproject.osdn.jp/MIDIIOLibrary.html <br />
-Distributed under LGPL license  </p>
-<h3>UUsing Icons 8 for the button image.</h3>
-<p>The image of the image button uses <a href="https://icons8.com">Icons 8</a>(https://icons8.com).</p>
 <h2>Execution</h2>
 <p>Connect the MIDI device to your PC in advance, and then run the application.  </p>
 <p>When you run the application, you will see the MIDI device name on the screen.<br />
@@ -443,6 +450,24 @@ If multiple MIDI devices are connected and an unintended device is displayed, se
 <li>Refresh<br />
    Search for MIDI devices again.  </li>
 </ul>
+<h2>license</h2>
+<p>This software is distributed under the GNU Lesser General Public License (GNU LGPL).  </p>
+<ul>
+<li>You may copy, reprint, and distribute this software under the GNU LGPL.  </li>
+<li>You may modify this software and distribute it under the GNU LGPL.  </li>
+<li>You can use this software to create and distribute your own licensed applications.  </li>
+<li>In either case, you don't need to get permission from the author.  </li>
+<li>This software comes with absolutely no warranty.<br />
+   The author is not responsible for any damages resulting from using this library.<br />
+   Please note.  </li>
+</ul>
+<p>For details, see GNU LGPL <a href="http://www.gnu.org/licenses/">License - GNU Project - Free Software Foundation</a>.  </p>
+<h4>This software uses MIDIIO Library (MIDIIO.dll).</h4>
+<p>The copyright of the MIDIIO library is held by "(C)2002-2012 Kuzu / Open MIDI Project".<br />
+ https://openmidiproject.osdn.jp/MIDIIOLibrary.html <br />
+Distributed under LGPL license  </p>
+<h4>Using Icons 8 for the button image.</h4>
+<p>The image of the image button uses <a href="https://icons8.com">Icons 8</a>(https://icons8.com).</p>
 <h2>ini File</h2>
 <h3>[CONFIG]</h3>
 <ul>
@@ -468,6 +493,12 @@ If multiple MIDI devices are connected and an unintended device is displayed, se
 <p>transpose (default=0)
    On certain MIDI devices, the middle C note is not <code>C4(noteNo.60 - 261.6hz)</code>, but one octave lower or higher.<br />
    You can adjust the pitch by specifying an octave in the range of <code>-3</code> to <code>3</code>.</p>
+</li>
+<li>
+<p>virtual_chords (default=0)
+   When trying to produce multiple sounds at the same time, such as in a chord, the sounds will be produced in order from the lowest note.<br />
+   However, it is difficult to "put out at the same time", and it is almost a matter of feeling.<br />
+   It was deprecated because it could not be sufficiently tested when mixed with note-off information.  </p>
 </li>
 </ul>
 <h3>[MAPPING]</h3>
@@ -509,6 +540,11 @@ In that case, please contact us and we will do our best to accommodate you.<br /
 </thead>
 <tbody>
 <tr>
+<td style="text-align: left;">1.3.0</td>
+<td style="text-align: center;">2022/9/24</td>
+<td style="text-align: left;">Improved response</td>
+</tr>
+<tr>
 <td style="text-align: left;">1.2.0</td>
 <td style="text-align: center;">2022/9/19</td>
 <td style="text-align: left;">Added transpose function by 1 octave unit<br/> Improved performance and fixed minor bugs</td>
@@ -521,7 +557,296 @@ In that case, please contact us and we will do our best to accommodate you.<br /
 </tbody>
 </table>
 <hr />
-<h2>MIDI Note Infomation (.ini File [MAPPING] Section )</h2>
+<h2>reference</h2>
+<p>.ini file [MAPPING] section setting guide. </p>
+<h3>Keyboard-Mapping Configuration</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">configuration<br />Strings</th>
+<th style="text-align: center;">KeyCode<br />(reference)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">backspace</td>
+<td style="text-align: center;">0x08</td>
+</tr>
+<tr>
+<td style="text-align: center;">tab</td>
+<td style="text-align: center;">0x09</td>
+</tr>
+<tr>
+<td style="text-align: center;">enter</td>
+<td style="text-align: center;">0x0D</td>
+</tr>
+<tr>
+<td style="text-align: center;">shift</td>
+<td style="text-align: center;">0x10</td>
+</tr>
+<tr>
+<td style="text-align: center;">ctrl</td>
+<td style="text-align: center;">0x11</td>
+</tr>
+<tr>
+<td style="text-align: center;">alt</td>
+<td style="text-align: center;">0x12</td>
+</tr>
+<tr>
+<td style="text-align: center;">pause</td>
+<td style="text-align: center;">0x13</td>
+</tr>
+<tr>
+<td style="text-align: center;">capslock</td>
+<td style="text-align: center;">0x14</td>
+</tr>
+<tr>
+<td style="text-align: center;">esc</td>
+<td style="text-align: center;">0x1B</td>
+</tr>
+<tr>
+<td style="text-align: center;">space</td>
+<td style="text-align: center;">0x20</td>
+</tr>
+<tr>
+<td style="text-align: center;">pageup</td>
+<td style="text-align: center;">0x21</td>
+</tr>
+<tr>
+<td style="text-align: center;">pagedown</td>
+<td style="text-align: center;">0x22</td>
+</tr>
+<tr>
+<td style="text-align: center;">end</td>
+<td style="text-align: center;">0x23</td>
+</tr>
+<tr>
+<td style="text-align: center;">home</td>
+<td style="text-align: center;">0x24</td>
+</tr>
+<tr>
+<td style="text-align: center;">left</td>
+<td style="text-align: center;">0x25</td>
+</tr>
+<tr>
+<td style="text-align: center;">up</td>
+<td style="text-align: center;">0x26</td>
+</tr>
+<tr>
+<td style="text-align: center;">right</td>
+<td style="text-align: center;">0x27</td>
+</tr>
+<tr>
+<td style="text-align: center;">down</td>
+<td style="text-align: center;">0x28</td>
+</tr>
+<tr>
+<td style="text-align: center;">printscrn</td>
+<td style="text-align: center;">0x2C</td>
+</tr>
+<tr>
+<td style="text-align: center;">insert</td>
+<td style="text-align: center;">0x2D</td>
+</tr>
+<tr>
+<td style="text-align: center;">delete</td>
+<td style="text-align: center;">0x2E</td>
+</tr>
+<tr>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0x30</td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0x31</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">0x32</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0x33</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">0x34</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">0x35</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">0x36</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">0x37</td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">0x38</td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td style="text-align: center;">0x39</td>
+</tr>
+<tr>
+<td style="text-align: center;">a</td>
+<td style="text-align: center;">0x41</td>
+</tr>
+<tr>
+<td style="text-align: center;">b</td>
+<td style="text-align: center;">0x42</td>
+</tr>
+<tr>
+<td style="text-align: center;">c</td>
+<td style="text-align: center;">0x43</td>
+</tr>
+<tr>
+<td style="text-align: center;">d</td>
+<td style="text-align: center;">0x44</td>
+</tr>
+<tr>
+<td style="text-align: center;">e</td>
+<td style="text-align: center;">0x45</td>
+</tr>
+<tr>
+<td style="text-align: center;">f</td>
+<td style="text-align: center;">0x46</td>
+</tr>
+<tr>
+<td style="text-align: center;">g</td>
+<td style="text-align: center;">0x47</td>
+</tr>
+<tr>
+<td style="text-align: center;">h</td>
+<td style="text-align: center;">0x48</td>
+</tr>
+<tr>
+<td style="text-align: center;">i</td>
+<td style="text-align: center;">0x49</td>
+</tr>
+<tr>
+<td style="text-align: center;">j</td>
+<td style="text-align: center;">0x4A</td>
+</tr>
+<tr>
+<td style="text-align: center;">k</td>
+<td style="text-align: center;">0x4B</td>
+</tr>
+<tr>
+<td style="text-align: center;">l</td>
+<td style="text-align: center;">0x4C</td>
+</tr>
+<tr>
+<td style="text-align: center;">m</td>
+<td style="text-align: center;">0x4D</td>
+</tr>
+<tr>
+<td style="text-align: center;">n</td>
+<td style="text-align: center;">0x4E</td>
+</tr>
+<tr>
+<td style="text-align: center;">o</td>
+<td style="text-align: center;">0x4F</td>
+</tr>
+<tr>
+<td style="text-align: center;">p</td>
+<td style="text-align: center;">0x50</td>
+</tr>
+<tr>
+<td style="text-align: center;">q</td>
+<td style="text-align: center;">0x51</td>
+</tr>
+<tr>
+<td style="text-align: center;">r</td>
+<td style="text-align: center;">0x52</td>
+</tr>
+<tr>
+<td style="text-align: center;">s</td>
+<td style="text-align: center;">0x53</td>
+</tr>
+<tr>
+<td style="text-align: center;">t</td>
+<td style="text-align: center;">0x54</td>
+</tr>
+<tr>
+<td style="text-align: center;">u</td>
+<td style="text-align: center;">0x55</td>
+</tr>
+<tr>
+<td style="text-align: center;">v</td>
+<td style="text-align: center;">0x56</td>
+</tr>
+<tr>
+<td style="text-align: center;">w</td>
+<td style="text-align: center;">0x57</td>
+</tr>
+<tr>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">0x58</td>
+</tr>
+<tr>
+<td style="text-align: center;">y</td>
+<td style="text-align: center;">0x59</td>
+</tr>
+<tr>
+<td style="text-align: center;">z</td>
+<td style="text-align: center;">0x5A</td>
+</tr>
+<tr>
+<td style="text-align: center;">f1</td>
+<td style="text-align: center;">0x70</td>
+</tr>
+<tr>
+<td style="text-align: center;">f2</td>
+<td style="text-align: center;">0x71</td>
+</tr>
+<tr>
+<td style="text-align: center;">f3</td>
+<td style="text-align: center;">0x72</td>
+</tr>
+<tr>
+<td style="text-align: center;">f4</td>
+<td style="text-align: center;">0x73</td>
+</tr>
+<tr>
+<td style="text-align: center;">f5</td>
+<td style="text-align: center;">0x74</td>
+</tr>
+<tr>
+<td style="text-align: center;">f6</td>
+<td style="text-align: center;">0x75</td>
+</tr>
+<tr>
+<td style="text-align: center;">f7</td>
+<td style="text-align: center;">0x76</td>
+</tr>
+<tr>
+<td style="text-align: center;">f8</td>
+<td style="text-align: center;">0x77</td>
+</tr>
+<tr>
+<td style="text-align: center;">f9</td>
+<td style="text-align: center;">0x78</td>
+</tr>
+<tr>
+<td style="text-align: center;">f10</td>
+<td style="text-align: center;">0x79</td>
+</tr>
+<tr>
+<td style="text-align: center;">f11</td>
+<td style="text-align: center;">0x7A</td>
+</tr>
+<tr>
+<td style="text-align: center;">f12</td>
+<td style="text-align: center;">0x7B</td>
+</tr>
+</tbody>
+</table>
+<h3>MIDI Note Infomation</h3>
 <table>
 <thead>
 <tr>

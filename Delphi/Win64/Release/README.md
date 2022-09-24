@@ -24,30 +24,6 @@ TakeHider@outlook.com
 
 
 
-## ライセンス
-
-このソフトウェアは GNU 劣等一般公衆利用許諾書(GNU LGPL)に基づいて配布されています。
-
-* あなたはこのソフトウェアを、GNU LGPLに基づき、複製・転載・配布することができます。  
-* あなたはこのソフトウェアを改変することができ、それをGNU LGPLに基づき配布することができます。  
-* あなたはこのソフトウェアを利用して、あなた独自のライセンスのアプリケーションを製作・配布することができます。  
-* いずれの場合も作者に許可を得る必要はありません。  
-* このソフトウェアは全くの無保証です。  
-  このライブラリを使用した結果生じた損害につきまして作者は一切責任を負いません。  
-  あらかじめご了承ください。
-
-詳しくはGNU LGPL[ライセンス - GNUプロジェクト - フリーソフトウェアファウンデーション](http://www.gnu.org/licenses/) もしくはその[日本語訳](https://licenses.opensource.jp/LGPL-3.0/LGPL-3.0.html) をご参照ください。
-
-### 本ソフトウェアはMIDIIOライブラリ(MIDIIO.dll)を使用します。
-
-`MIDIIOライブラリ`の著作権は"`(C)2002-2012 くず / おーぷんMIDIぷろじぇくと`"様が保有しています。  
- https://openmidiproject.osdn.jp/MIDIIOLibrary.html  
-LGPLライセンスで配布されています  
-
-
-### ボタンのイメージには Icons 8を使用しています。
-イメージボタンの画像は [Icons 8](https://icons8.com)(https://icons8.com) を利用しています。  
-
 
 ## 実行方法
 
@@ -72,6 +48,31 @@ MIDI機器の接続エラーが出ている状態では、`Start`ボタンは押
   実行中の処理を止めて、アプリケーションを終了します。  
 * Refresh  
   MIDI機器を再検索します。  
+
+
+## ライセンス
+
+このソフトウェアは GNU 劣等一般公衆利用許諾書(GNU LGPL)に基づいて配布されています。
+
+* あなたはこのソフトウェアを、GNU LGPLに基づき、複製・転載・配布することができます。  
+* あなたはこのソフトウェアを改変することができ、それをGNU LGPLに基づき配布することができます。  
+* あなたはこのソフトウェアを利用して、あなた独自のライセンスのアプリケーションを製作・配布することができます。  
+* いずれの場合も作者に許可を得る必要はありません。  
+* このソフトウェアは全くの無保証です。  
+  このライブラリを使用した結果生じた損害につきまして作者は一切責任を負いません。  
+  あらかじめご了承ください。
+
+詳しくはGNU LGPL[ライセンス - GNUプロジェクト - フリーソフトウェアファウンデーション](http://www.gnu.org/licenses/) もしくはその[日本語訳](https://licenses.opensource.jp/LGPL-3.0/LGPL-3.0.html) をご参照ください。
+
+#### 本ソフトウェアはMIDIIOライブラリ(MIDIIO.dll)を使用します。
+
+`MIDIIOライブラリ`の著作権は"`(C)2002-2012 くず / おーぷんMIDIぷろじぇくと`"様が保有しています。  
+ https://openmidiproject.osdn.jp/MIDIIOLibrary.html  
+LGPLライセンスで配布されています  
+
+
+#### ボタンのイメージには Icons 8を使用しています。
+イメージボタンの画像は [Icons 8](https://icons8.com)(https://icons8.com) を利用しています。  
 
 
 ## iniファイル
@@ -126,11 +127,12 @@ MIDIのノートをキーに対応させたもの。
   ただし、[CONFIG]のセクションは、本バージョンから使用されなくなったオプションがあります。  
 
 
+
 ## その他
 
 以下の機器で動作確認をしています。  
-* CACIO LK-511 61鍵 電子キーボード 光ナビゲーション  
-* YAMAHA SHS-300 Sonogenic 37鍵 ショルダーキーボード
+- CACIO LK-511 61鍵 電子キーボード 光ナビゲーション  
+- YAMAHA SHS-300 Sonogenic 37鍵 ショルダーキーボード
 
 MIDIの仕様を確認して各社に対応したつもりですが、全てのメーカーの機器を試せていないので、もしかすると正しく動作しない機器があるかもしれません。  
 その場合は、お手数ですがご連絡をいただければ、極力対応するようにいたします。   
@@ -177,31 +179,6 @@ Due to the specifications, only single notes can be produced. It is not possible
 - Fixed a bug that rarely exits when `exit_outrange` is specified
 
 
-## license
-
-This software is distributed under the GNU Lesser General Public License (GNU LGPL).  
-
-* You may copy, reprint, and distribute this software under the GNU LGPL.  
-* You may modify this software and distribute it under the GNU LGPL.  
-* You can use this software to create and distribute your own licensed applications.  
-* In either case, you don't need to get permission from the author.  
-* This software comes with absolutely no warranty.  
-   The author is not responsible for any damages resulting from using this library.  
-   Please note.  
-
-For details, see GNU LGPL [License - GNU Project - Free Software Foundation](http://www.gnu.org/licenses/).  
-
-### This software uses MIDIIO Library (MIDIIO.dll).
-
-The copyright of the MIDIIO library is held by "(C)2002-2012 Kuzu / Open MIDI Project".  
- https://openmidiproject.osdn.jp/MIDIIOLibrary.html   
-Distributed under LGPL license  
-
-### UUsing Icons 8 for the button image.
-
-The image of the image button uses [Icons 8](https://icons8.com)(https://icons8.com).
-
-
 ## Execution
 
 Connect the MIDI device to your PC in advance, and then run the application.  
@@ -224,6 +201,32 @@ The `Start` button cannot be pressed while there is a MIDI device connection err
    Quit the application.  
 * Refresh  
    Search for MIDI devices again.  
+
+
+## license
+
+This software is distributed under the GNU Lesser General Public License (GNU LGPL).  
+
+* You may copy, reprint, and distribute this software under the GNU LGPL.  
+* You may modify this software and distribute it under the GNU LGPL.  
+* You can use this software to create and distribute your own licensed applications.  
+* In either case, you don't need to get permission from the author.  
+* This software comes with absolutely no warranty.  
+   The author is not responsible for any damages resulting from using this library.  
+   Please note.  
+
+For details, see GNU LGPL [License - GNU Project - Free Software Foundation](http://www.gnu.org/licenses/).  
+
+#### This software uses MIDIIO Library (MIDIIO.dll).
+
+The copyright of the MIDIIO library is held by "(C)2002-2012 Kuzu / Open MIDI Project".  
+ https://openmidiproject.osdn.jp/MIDIIOLibrary.html   
+Distributed under LGPL license  
+
+#### Using Icons 8 for the button image.
+
+The image of the image button uses [Icons 8](https://icons8.com)(https://icons8.com).
+
 
 ## ini File
 
