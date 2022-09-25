@@ -266,7 +266,8 @@ td{
 TakeHider@outlook.com</p>
 <h2>概要</h2>
 <p>【FF14対応】 MIDIデバイスからの情報を、PCキーボードのイベントに変換して送信します。<br />
-仕様上、単音しか出せません。複数の音を同時に出すことはできません。  </p>
+例えば吟遊詩人を演奏状態にしておけば、PCに繋いだMIDI楽器から演奏を楽しむことができます。<br />
+仕様上、複数の音を同時に出すことはできません。  </p>
 <h2>改定内容</h2>
 <h3>1.3.0</h3>
 <ul>
@@ -287,22 +288,39 @@ TakeHider@outlook.com</p>
 <p>アプリケーションを実行すると、画面にMIDIデバイス名が表示されます。<br />
 もしエラーが出ている場合は、MIDI機器が正しく接続されているか＆電源が入っているかを確認して、リロードボタンを押してみてください。<br />
 複数のMIDI機器を接続していて、意図しないデバイスが表示されていたときは、リストから対象の機器を選択してください。  </p>
-<p>MIDI機器の接続エラーが出ている状態では、<code>Start</code>ボタンは押せません。  </p>
-<h3>画面ボタン操作</h3>
-<ul>
-<li>Start<br />
-  MIDIイベント⇒キーボード入力情報の変換処理を実行します。<br />
-  処理が実行されると、Startボタンは、Stopボタンに切り替わります。  </li>
-<li>Stop<br />
-  MIDIイベント⇒キーボード入力情報の変換処理を停止します。<br />
-  処理が停止されると、Stopボタンは、Startボタンに切り替わります。    </li>
-<li>Quit<br />
-  実行中の処理を止めて、アプリケーションを終了します。  </li>
-<li>Refresh<br />
-  MIDI機器を再検索します。  </li>
-</ul>
+<p>MIDI機器の接続エラーが出ていると<code>Start</code>ボタンは押せません。  </p>
+<h3>画面操作</h3>
+<p><img alt="画像" src=".\README.png" /></p>
+<p>
+1. MIDI Device<br />
+　利用するMIDI機器を選択します。<br />
+　MIDI機器は、あらかじめPCに接続をしておいてください。
+</p><p>
+2. Start<br />
+　MIDIイベント⇒キーボード入力情報の変換処理を実行します。<br />
+　処理が実行されると、Startボタンは、Stopボタンに切り替わります。<br />
+　この状態で、選択されているMIDI機器で演奏をすると、対応するPCキーの情報を送信します。
+</p><p>
+3. Stop<br />
+　MIDIイベント⇒キーボード入力情報の変換処理を停止します。<br />
+　処理が停止されると、Stopボタンは、Startボタンに切り替わります。<br />
+</p><p>
+4. Quit<br />
+　実行中の処理を止めて、アプリケーションを終了します。
+</p><p>
+5. Refresh<br />
+　MIDI機器を再検索します。
+</p><p>
+6. Trancepose<br />
+　1オクターブ単位でトランスポーズをしたい場合は、ここから選択します。<br />
+　-36～+36で、12刻み(1オクターブ)で指定できます。
+</p><p>
+7. Start on Run<br />
+　アプリケーション起動時に処理を開始させたい場合は、チェックをします。</p>
+
 <h2>ライセンス</h2>
-<p>このソフトウェアは GNU 劣等一般公衆利用許諾書(GNU LGPL)に基づいて配布されています。</p>
+<p>このソフトウェアは、いわゆるフリーウェアです。<br />
+ GNU 劣等一般公衆利用許諾書(GNU LGPL)に基づいて配布されています。</p>
 <ul>
 <li>あなたはこのソフトウェアを、GNU LGPLに基づき、複製・転載・配布することができます。  </li>
 <li>あなたはこのソフトウェアを改変することができ、それをGNU LGPLに基づき配布することができます。  </li>
@@ -332,7 +350,7 @@ LGPLライセンスで配布されています  </p>
 </li>
 <li>
 <p>start_on_run (default=0)<br />
-  アプリケーション実行時に処理を開始します。<br />
+  1を指定しすると、アプリケーション実行時に処理を開始します。<br />
   ただし、MIDI機器が正しく接続されていないと、実行されません。  </p>
 </li>
 <li>
@@ -342,13 +360,13 @@ LGPLライセンスで配布されています  </p>
   iniファイルの値を直接編集すると、うまく動かない可能性があります。  </p>
 </li>
 <li>
-<p>transepose (default=0)
-  特定のMIDI機器では、中心のC音が <code>C4(noteNo.60 - 261.6hz)</code>ではなく、1オクターブ低かったり、高かったりします。<br />
+<p>transepose (default=0)<br />
+  特定のMIDI機器では、中心のC音(ド)が <code>C4(noteNo.60 - 261.6hz)</code>ではなく、1オクターブ低かったり、高かったりします。<br />
 <code>-3</code>～<code>3</code>の範囲でオクターブを指定することで、音程を調節することができます。</p>
 </li>
 <li>
-<p>virtual_chords (default=0)
-  和音などで複数の音を同時に出そうとしたときに、低い音から順に出すようにします。<br />
+<p>virtual_chords (default=0)<br />
+  1を指定すると、和音などで複数の音を同時に出そうとしたときに、低い音から順に出すようにします。<br />
   とは言え「同時に出す」が難しく、ほぼ気持ちの問題。<br />
   ノートオフの情報と混ざった時のテストが十分に出来なかったので、非推奨機能に格下げしました。  </p>
 </li>
@@ -359,8 +377,10 @@ LGPLライセンスで配布されています  </p>
 (MIDIノートは、READMEの最後に記載しています。)  <br />
 <code>SHIFT</code>キーや<code>CTRL</code>キーを使って、複数のキーを同時に押したいときは、押す順番にスペースで区切ってください。<br />
 例) <code>SHIFT</code> + <code>S</code>キーのとき -&gt; <code>shift s</code><br />
+逆(<code>s shift</code>)を指定してしまうと、<code>s</code>キーを押した後で<code>shift</code>キーが押されるので、意図した音が出ない可能性があります。<br />
 特殊キーは Pythonの<code>pyautogui</code>に準拠していますが、全ての特殊キーには対応できていません。<br />
-きっと<code>SHIFT</code>キーと<code>CRTL</code>キーがあれば十分でしょう。</p>
+きっと<code>shift</code>キーと<code>ctrl</code>キーがあれば十分でしょう。<br />
+対応するキーは<a href="#reference">巻末</a>をご参照ください。</p>
 <h3>iniファイル名について</h3>
 <ul>
 <li>
@@ -370,11 +390,12 @@ LGPLライセンスで配布されています  </p>
 <code>BardPlay2.exe</code> の時は <code>bardplay2.ini</code></p>
 </li>
 <li>
-<p>iniファイルは、Python版 BardPlay.py (<a href="https://github.com/TakeHider/BardPlayPy">BardPlay 0.9x</a>)、GO言語版 BardPlay.go (<a href="https://github.com/TakeHider/BardPlayGo">BardPlay 1.0x</a>)と互換性があります。<br />
+<p>iniファイルは、Python版 BardPlay.py (<code>BardPlay 0.9x</code>)、GO言語版 BardPlay.go (<code>BardPlay 1.0x</code>)と互換性があります。<br />
   ただし、[CONFIG]のセクションは、本バージョンから使用されなくなったオプションがあります。  </p>
 </li>
 </ul>
 <h2>その他</h2>
+<h3>対応MIDI機器について</h3>
 <p>以下の機器で動作確認をしています。<br />
 - CACIO LK-511 61鍵 電子キーボード 光ナビゲーション<br />
 - YAMAHA SHS-300 Sonogenic 37鍵 ショルダーキーボード</p>
@@ -382,6 +403,11 @@ LGPLライセンスで配布されています  </p>
 その場合は、お手数ですがご連絡をいただければ、極力対応するようにいたします。 <br />
 (ノートOFFは <code>0x80</code> - <code>0xXX</code> と、<code>0x90</code> - <code>0x00</code> の2種類に対応しています)  </p>
 <p>FF14等で使用していて、もし音が止まらなくなったときは、焦らずに対応するPC-Keyを押してみてください。  </p>
+<h3>最新ファイルおよびソースコードについて</h3>
+<p>BardPlayはGitHubにてソースコードを公開しています。<br />
+Delphi版(1.1.x以降)に加えて、開発が終了したPython版(0.9.x)、GO言語版(1.0.x)もアップしていますので、プログラム開発に興味がある方は覗いてみてください。<br />
+最新のリリースもGitHub上で公開していますので、他のサイトからダウンロードされている方は、GibHubをご確認ください。<br />
+<a href="https://github.com/TakeHider/BardPlay">https://github.com/TakeHider/BardPlay</a></p>
 <h2>変更履歴</h2>
 <table>
 <thead>
@@ -409,162 +435,15 @@ LGPLライセンスで配布されています  </p>
 </tr>
 </tbody>
 </table>
-<p>以下、英語訳とマッピングの際の参考資料を記載。  </p>
 <hr />
-<h1>BardPlay 1.3 (BardPlay Delphi)</h1>
-<p>BardPlay (C) 2022 TakeHide Soft.<br />
-TakeHider@outlook.com</p>
-<h2>Overview</h2>
-<p>[FF14 compatible] Converts information from MIDI devices into PC keyboard events and transmits them.<br />
-Due to the specifications, only single notes can be produced. It is not possible to play multiple sounds at the same time. </p>
-<h2>Revised contents</h2>
-<h3>1.3.0</h3>
-<ul>
-<li>Changed MIDI event reception processing to buffering.<br />
-   Greatly improved response.  </li>
-<li>Implemented a function that plays in order from the lowest note when trying to play multiple notes at the same time. (<em>not recommended</em>)</li>
-</ul>
-<h3>1.2.0</h3>
-<ul>
-<li>Change icon.</li>
-<li>Added a function to transpose in octave units.</li>
-<li>Review of multithreading for stability improvement.</li>
-<li>Made it possible to use <code>PostMessage</code> instead of <code>SendMessage</code> in the ini settings. (<em>not recommended</em>)</li>
-<li>Fixed a bug that rarely exits when <code>exit_outrange</code> is specified</li>
-</ul>
-<h2>Execution</h2>
-<p>Connect the MIDI device to your PC in advance, and then run the application.  </p>
-<p>When you run the application, you will see the MIDI device name on the screen.<br />
-If you get an error, make sure your MIDI device is connected correctly and powered on, and try pressing the reload button.<br />
-If multiple MIDI devices are connected and an unintended device is displayed, select the target device from the list.  </p>
-<p>The <code>Start</code> button cannot be pressed while there is a MIDI device connection error.  </p>
-<h3>Screen button operation</h3>
-<ul>
-<li>Start<br />
-   Executes conversion processing of MIDI event ⇒ keyboard input information.<br />
-   Once the process is done, the Start button will switch to a Stop button.  </li>
-<li>Stop<br />
-   Stop converting MIDI event ⇒ keyboard input information.  </li>
-<li>Quit<br />
-   Quit the application.  </li>
-<li>Refresh<br />
-   Search for MIDI devices again.  </li>
-</ul>
-<h2>license</h2>
-<p>This software is distributed under the GNU Lesser General Public License (GNU LGPL).  </p>
-<ul>
-<li>You may copy, reprint, and distribute this software under the GNU LGPL.  </li>
-<li>You may modify this software and distribute it under the GNU LGPL.  </li>
-<li>You can use this software to create and distribute your own licensed applications.  </li>
-<li>In either case, you don't need to get permission from the author.  </li>
-<li>This software comes with absolutely no warranty.<br />
-   The author is not responsible for any damages resulting from using this library.<br />
-   Please note.  </li>
-</ul>
-<p>For details, see GNU LGPL <a href="http://www.gnu.org/licenses/">License - GNU Project - Free Software Foundation</a>.  </p>
-<h4>This software uses MIDIIO Library (MIDIIO.dll).</h4>
-<p>The copyright of the MIDIIO library is held by "(C)2002-2012 Kuzu / Open MIDI Project".<br />
- https://openmidiproject.osdn.jp/MIDIIOLibrary.html <br />
-Distributed under LGPL license  </p>
-<h4>Using Icons 8 for the button image.</h4>
-<p>The image of the image button uses <a href="https://icons8.com">Icons 8</a>(https://icons8.com).</p>
-<h2>ini File</h2>
-<h3>[CONFIG]</h3>
-<ul>
-<li>
-<p>device_name<br />
-  Retains the name of the last connected MIDI device.<br />
-  When using for the first time, select from the list on the screen.  </p>
-</li>
-<li>
-<p>exit_outrange (default=1)<br />
-  Stop processing when a note outside the keymapped range is played.<br />
-  This option has no effect if you specify 0.<br />
-  If you specify a number greater than or equal to 1, processing will stop when the specified number of notes outside the mapped range are played.<br />
-  For example, if you specify <code>1</code>, the sound immediately outside the range will be effective. (The process stops as soon as the half-out sound is produced.)<br />
-  Widen the range slightly when you are likely to accidentally press a keyboard instrument.  </p>
-</li>
-<li>
-<p>start_on_run (default=0)<br />
-  Start processing when the application is run.<br />
-  However, if the MIDI device is not properly connected, it will not run.</p>
-</li>
-<li>
-<p>transpose (default=0)
-   On certain MIDI devices, the middle C note is not <code>C4(noteNo.60 - 261.6hz)</code>, but one octave lower or higher.<br />
-   You can adjust the pitch by specifying an octave in the range of <code>-3</code> to <code>3</code>.</p>
-</li>
-<li>
-<p>virtual_chords (default=0)
-   When trying to produce multiple sounds at the same time, such as in a chord, the sounds will be produced in order from the lowest note.<br />
-   However, it is difficult to "put out at the same time", and it is almost a matter of feeling.<br />
-   It was deprecated because it could not be sufficiently tested when mixed with note-off information.  </p>
-</li>
-</ul>
-<h3>[MAPPING]</h3>
-<p>A MIDI note that corresponds to a key.<br />
-Specify the key you want to assign to the corresponding MIDI note.<br />
-If you want to press the SHIFT key or CTRL key at the same time, separate the keys in the order you press them with a space.<br />
-Example) SHIFT + S key -&gt; <code>shift s</code>
-Special keys conform to Python's pyautogui, but not all special keys are supported.<br />
-Surely the SHIFT and CRTL keys will suffice.  </p>
-<h3>About ini file name</h3>
-<ul>
-<li>
-<p>When you change the name of the executable file, please change the name of the ini file as well.<br />
-   example)  <br />
-   　When using BardPlay.exe, bardplay.ini<br />
-   　When using BardPlay2.exe, bardplay2.ini  </p>
-</li>
-<li>
-<p>The ini file is Python version BardPlay.py (<a href="https://github.com/TakeHider/BardPlayPy">BardPlay 0.9x</a>), GO language version BardPlay.go (<a href="https://github. com/TakeHider/BardPlayGo">BardPlay 1.0x</a>).<br />
-   However, the [CONFIG] section has options that are no longer used in this version.  </p>
-</li>
-</ul>
-<h2>Other</h2>
-<p>Operation has been confirmed with the following devices.<br />
-<em> CACIO LK-511 61-key electronic keyboard optical navigation<br />
-</em> YAMAHA SHS-300 Sonogenic 37-key shoulder keyboard  </p>
-<p>I have checked the MIDI specifications and tried to support each company, but I have not been able to test all manufacturers' devices, so there may be devices that do not work properly.<br />
-In that case, please contact us and we will do our best to accommodate you.<br />
-(<code>Note OFF</code> supports two types: <code>0x80 - 0xXX</code> and <code>0x90 - 0x00</code>)  </p>
-<p>If you are using it in FF14 etc. and the sound does not stop, please try to press the corresponding PC-Key without rushing.  </p>
-<h2>change history</h2>
+<h2>参考資料</h2>
+<p>.iniファイル [MAPPING]セクション設定ガイド </p>
+<h3>キーマッピング</h3>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Version</th>
-<th style="text-align: center;">Release Date</th>
-<th style="text-align: left;">Contents</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;">1.3.0</td>
-<td style="text-align: center;">2022/9/24</td>
-<td style="text-align: left;">Improved response</td>
-</tr>
-<tr>
-<td style="text-align: left;">1.2.0</td>
-<td style="text-align: center;">2022/9/19</td>
-<td style="text-align: left;">Added transpose function by 1 octave unit<br/> Improved performance and fixed minor bugs</td>
-</tr>
-<tr>
-<td style="text-align: left;">1.1.0</td>
-<td style="text-align: center;">2022/9/15</td>
-<td style="text-align: left;">Created Delphi version</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2>reference</h2>
-<p>.ini file [MAPPING] section setting guide. </p>
-<h3>Keyboard-Mapping Configuration</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: center;">configuration<br />Strings</th>
-<th style="text-align: center;">KeyCode<br />(reference)</th>
+<th style="text-align: center;">指定文字列</th>
+<th style="text-align: center;">キーコード<br />(参考)</th>
 </tr>
 </thead>
 <tbody>
@@ -846,655 +725,655 @@ In that case, please contact us and we will do our best to accommodate you.<br /
 </tr>
 </tbody>
 </table>
-<h3>MIDI Note Infomation</h3>
+<h3>MIDIノート情報(FF14準拠)</h3>
 <table>
 <thead>
 <tr>
 <th style="text-align: center;">Tone</th>
 <th style="text-align: right;">Note Number</th>
-<th>.ini File</th>
+<th style="text-align: center;">.ini File</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: center;">C-1</td>
 <td style="text-align: right;">0</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">C#</td>
 <td style="text-align: right;">1</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D</td>
 <td style="text-align: right;">2</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D#</td>
 <td style="text-align: right;">3</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">E</td>
 <td style="text-align: right;">4</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F</td>
 <td style="text-align: right;">5</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F#</td>
 <td style="text-align: right;">6</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G</td>
 <td style="text-align: right;">7</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G#</td>
 <td style="text-align: right;">8</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A</td>
 <td style="text-align: right;">9</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A#</td>
 <td style="text-align: right;">10</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">B</td>
 <td style="text-align: right;">11</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">C0</td>
 <td style="text-align: right;">12</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">C#</td>
 <td style="text-align: right;">13</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D</td>
 <td style="text-align: right;">14</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D#</td>
 <td style="text-align: right;">15</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">E</td>
 <td style="text-align: right;">16</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F</td>
 <td style="text-align: right;">17</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F#</td>
 <td style="text-align: right;">18</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G</td>
 <td style="text-align: right;">19</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G#</td>
 <td style="text-align: right;">20</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A</td>
 <td style="text-align: right;">21</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A#</td>
 <td style="text-align: right;">22</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">B</td>
 <td style="text-align: right;">23</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">C1</td>
 <td style="text-align: right;">24</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">C#</td>
 <td style="text-align: right;">25</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D</td>
 <td style="text-align: right;">26</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D#</td>
 <td style="text-align: right;">27</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">E</td>
 <td style="text-align: right;">28</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F</td>
 <td style="text-align: right;">29</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F#</td>
 <td style="text-align: right;">30</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G</td>
 <td style="text-align: right;">31</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G#</td>
 <td style="text-align: right;">32</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A</td>
 <td style="text-align: right;">33</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A#</td>
 <td style="text-align: right;">34</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">B</td>
 <td style="text-align: right;">35</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">C2</td>
 <td style="text-align: right;">36</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">C#</td>
 <td style="text-align: right;">37</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D</td>
 <td style="text-align: right;">38</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D#</td>
 <td style="text-align: right;">39</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">E</td>
 <td style="text-align: right;">40</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F</td>
 <td style="text-align: right;">41</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F#</td>
 <td style="text-align: right;">42</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G</td>
 <td style="text-align: right;">43</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G#</td>
 <td style="text-align: right;">44</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A</td>
 <td style="text-align: right;">45</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A#</td>
 <td style="text-align: right;">46</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">B</td>
 <td style="text-align: right;">47</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;"><strong>C3</strong></td>
 <td style="text-align: right;"><strong>48</strong></td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">C#</td>
 <td style="text-align: right;">49</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">D</td>
 <td style="text-align: right;">50</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">D#</td>
 <td style="text-align: right;">51</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">E</td>
 <td style="text-align: right;">52</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">F</td>
 <td style="text-align: right;">53</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">F#</td>
 <td style="text-align: right;">54</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">G</td>
 <td style="text-align: right;">55</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">G#</td>
 <td style="text-align: right;">56</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">A</td>
 <td style="text-align: right;">57</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">A#</td>
 <td style="text-align: right;">58</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">B</td>
 <td style="text-align: right;">59</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;"><strong>C4</strong></td>
 <td style="text-align: right;"><strong>60</strong></td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">C#</td>
 <td style="text-align: right;">61</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">D</td>
 <td style="text-align: right;">62</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">D#</td>
 <td style="text-align: right;">63</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">E</td>
 <td style="text-align: right;">64</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">F</td>
 <td style="text-align: right;">65</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">F#</td>
 <td style="text-align: right;">66</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">G</td>
 <td style="text-align: right;">67</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">G#</td>
 <td style="text-align: right;">68</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">A</td>
 <td style="text-align: right;">69</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">A#</td>
 <td style="text-align: right;">70</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">B</td>
 <td style="text-align: right;">71</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;"><strong>C5</strong></td>
 <td style="text-align: right;"><strong>72</strong></td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">C#</td>
 <td style="text-align: right;">73</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">D</td>
 <td style="text-align: right;">74</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">D#</td>
 <td style="text-align: right;">75</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">E</td>
 <td style="text-align: right;">76</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">F</td>
 <td style="text-align: right;">77</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">F#</td>
 <td style="text-align: right;">78</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">G</td>
 <td style="text-align: right;">79</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">G#</td>
 <td style="text-align: right;">80</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">A</td>
 <td style="text-align: right;">81</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">A#</td>
 <td style="text-align: right;">82</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">B</td>
 <td style="text-align: right;">83</td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;"><strong>C6</strong></td>
 <td style="text-align: right;"><strong>84</strong></td>
-<td>○:Set</td>
+<td style="text-align: center;">○</td>
 </tr>
 <tr>
 <td style="text-align: center;">C#</td>
 <td style="text-align: right;">85</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D</td>
 <td style="text-align: right;">86</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D#</td>
 <td style="text-align: right;">87</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">E</td>
 <td style="text-align: right;">88</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F</td>
 <td style="text-align: right;">89</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F#</td>
 <td style="text-align: right;">90</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G</td>
 <td style="text-align: right;">91</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G#</td>
 <td style="text-align: right;">92</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A</td>
 <td style="text-align: right;">93</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A#</td>
 <td style="text-align: right;">94</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">B</td>
 <td style="text-align: right;">95</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">C7</td>
 <td style="text-align: right;">96</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">C#</td>
 <td style="text-align: right;">97</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D</td>
 <td style="text-align: right;">98</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D#</td>
 <td style="text-align: right;">99</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">E</td>
 <td style="text-align: right;">100</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F</td>
 <td style="text-align: right;">101</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F#</td>
 <td style="text-align: right;">102</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G</td>
 <td style="text-align: right;">103</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G#</td>
 <td style="text-align: right;">104</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A</td>
 <td style="text-align: right;">105</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A#</td>
 <td style="text-align: right;">106</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">B</td>
 <td style="text-align: right;">107</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">C8</td>
 <td style="text-align: right;">108</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">C#</td>
 <td style="text-align: right;">109</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D</td>
 <td style="text-align: right;">110</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D#</td>
 <td style="text-align: right;">111</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">E</td>
 <td style="text-align: right;">112</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F</td>
 <td style="text-align: right;">113</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F#</td>
 <td style="text-align: right;">114</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G</td>
 <td style="text-align: right;">115</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G#</td>
 <td style="text-align: right;">116</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A</td>
 <td style="text-align: right;">117</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">A#</td>
 <td style="text-align: right;">118</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">B</td>
 <td style="text-align: right;">119</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">C9</td>
 <td style="text-align: right;">120</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">C#</td>
 <td style="text-align: right;">121</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D</td>
 <td style="text-align: right;">122</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">D#</td>
 <td style="text-align: right;">123</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">E</td>
 <td style="text-align: right;">124</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F</td>
 <td style="text-align: right;">125</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">F#</td>
 <td style="text-align: right;">126</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 <tr>
 <td style="text-align: center;">G</td>
 <td style="text-align: right;">127</td>
-<td>×:None</td>
+<td style="text-align: center;">×</td>
 </tr>
 </tbody>
 </table>
