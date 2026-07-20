@@ -11,15 +11,18 @@ unit unitMIDIIO;
 interface
 uses
   Winapi.Windows, System.SysUtils;
-  
+
+type
+  TMIDIHandle = Pointer;
+
 {----------------------------------------------------------------------------}
 // Delphi側関数 Delphi側はこの関数で呼び出す
 function procMIDIIn_GetDeviceNum(): Integer;
 function procMIDIIn_GetDeviceName(iID: Integer; var strDeviceName: String; iLen: Integer): Integer;
-function procMIDIIn_Open(strDeviceName: String): Integer;
-function procMIDIIn_Close(iMIDIDevice: Integer): Integer;
-function procMIDIIn_Reset(iMIDIDevice: Integer): Integer;
-function procMIDIIn_GetMIDIMessage(iMIDIIn: Integer; var ucMessage: Array of byte; iLen: Integer): Integer;
+function procMIDIIn_Open(const strDeviceName: String): TMIDIHandle;
+function procMIDIIn_Close(iMIDIDevice: TMIDIHandle): Integer;
+function procMIDIIn_Reset(iMIDIDevice: TMIDIHandle): Integer;
+function procMIDIIn_GetMIDIMessage(iMIDIIn: TMIDIHandle; var ucMessage: Array of byte; iLen: Integer): Integer;
 
 
 implementation
@@ -33,19 +36,19 @@ Const MIDIIO_DLL = 'MIDIIO.dll';
 function MIDIIn_GetDeviceNum(): DWORD; stdcall; external MIDIIO_DLL;
 
 // MIDI入力デバイスの名前を調べる
-function MIDIIn_GetDeviceNameW(lID: DWORD; pszDeviceName:PWChar; lLen: DWORD): DWORD; stdcall; external MIDIIO_DLL;
+function MIDIIn_GetDeviceNameW(lID: DWORD; pszDeviceName:PWideChar; lLen: DWORD): DWORD; stdcall; external MIDIIO_DLL;
 
 // MIDI入力デバイスを開く
-function MIDIIn_OpenW(const pszDeviceName: PWChar): DWORD; stdcall; external MIDIIO_DLL;
+function MIDIIn_OpenW(const pszDeviceName: PWideChar): TMIDIHandle; stdcall; external MIDIIO_DLL;
 
 // MIDI入力デバイスを閉じる
-function MIDIIn_Close(pMIDIDevice: DWORD): DWORD;   stdcall; external MIDIIO_DLL;
+function MIDIIn_Close(pMIDIDevice: TMIDIHandle): DWORD;   stdcall; external MIDIIO_DLL;
 
 // MIDI入力デバイスをリセットする
-function MIDIIn_Reset(pMIDIDevice: DWORD): DWORD;  stdcall; external MIDIIO_DLL;
+function MIDIIn_Reset(pMIDIDevice: TMIDIHandle): DWORD;  stdcall; external MIDIIO_DLL;
 
 // MIDI入力デバイスから1メッセージ入力する
-function MIDIIn_GetMIDIMessage(pMIDIIn: DWORD; pMessage: PByte; lLen: DWORD): DWORD; stdcall; external MIDIIO_DLL;
+function MIDIIn_GetMIDIMessage(pMIDIIn: TMIDIHandle; pMessage: PByte; lLen: DWORD): DWORD; stdcall; external MIDIIO_DLL;
 
 
 {----------------------------------------------------------------------------}
@@ -77,31 +80,31 @@ end;
 
 {----------------------------------------------------------------------------}
 // MIDI入力デバイスを開く
-function procMIDIIn_Open(strDeviceName: String):Integer;
+function procMIDIIn_Open( const strDeviceName: string): TMIDIHandle;
 begin
-  if Length(strDeviceName)=0 then
-    result := 0
+  if strDeviceName = '' then
+    Result := nil
   else
-    result := MIDIIn_OpenW(PWChar(strDeviceName));
+    Result := MIDIIn_OpenW(PWideChar(strDeviceName));
 end;
 
 {----------------------------------------------------------------------------}
 // MIDI入力デバイスを閉じる
-function procMIDIIn_Close(iMIDIDevice: Integer): Integer;
+function procMIDIIn_Close(iMIDIDevice: TMIDIHandle): Integer;
 begin
   result := MIDIIn_Close(iMIDIDevice);
 end;
 
 {----------------------------------------------------------------------------}
 // MIDI入力デバイスをリセットする
-function procMIDIIn_Reset(iMIDIDevice: Integer): Integer;
+function procMIDIIn_Reset(iMIDIDevice: TMIDIHandle): Integer;
 begin
   result := MIDIIn_Reset(iMIDIDevice);
 end;
 
 {----------------------------------------------------------------------------}
 // MIDI入力デバイスから1メッセージ入力する
-function procMIDIIn_GetMIDIMessage(iMIDIIn: Integer; var ucMessage: Array of byte; iLen: Integer): Integer;
+function procMIDIIn_GetMIDIMessage(iMIDIIn: TMIDIHandle; var ucMessage: Array of byte; iLen: Integer): Integer;
 var
   pMessage: PByte;
   n: Integer;

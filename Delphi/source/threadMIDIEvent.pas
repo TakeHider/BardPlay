@@ -32,6 +32,9 @@ type
   end;
   PNoteEvent = ^TNoteEvent;
 
+
+  TMIDIHandle = Pointer;
+
   // スレッド本体
   TMIDIEventThread = class(TThread)
   private
@@ -47,7 +50,7 @@ type
     procedure Sync_SetDeviceError;
     procedure setKeyCode();
     procedure ReadIniFile();
-    Function readNoteMessage(pMIDIIn:Integer; lstNoteList : TList) : Integer;
+    Function readNoteMessage(pMIDIIn:TMIDIHandle; lstNoteList : TList) : Integer;
     procedure sendKeyMessage(wmEvent: Integer; ucNote: byte);
 
   public
@@ -65,6 +68,8 @@ implementation
 
 uses 
   formMain,unitMIDIIO,System.Types,System.StrUtils;
+
+
 
 const
   // 共通定数
@@ -123,7 +128,7 @@ end;
 // スレッドの実行
 procedure TMIDIEventThread.Execute;
 var
-  pMIDIIn     : Integer;
+  pMIDIIn     : TMIDIHandle;
   iRet,i      : Integer;
   ucStatus    : byte;
   ucData1     : byte;
@@ -141,7 +146,7 @@ begin
 writeln('Open MIDI Device.');
 {$ENDIF}
 
-  if pMIDIin = 0 then
+  if PInteger(pMIDIin)^ = 0 then
   begin
     // MIDIデバイスのオープンに失敗した時は処理しない
     Synchronize(Sync_SetDeviceError);
@@ -267,7 +272,7 @@ end;
 // 引数：pMIDIIn      … MIDIIOのポインタ
 //     ：lstNoteList  … ノート情報を格納するバッファ(リストオブジェクト)
 // 返値：受信したノートイベントの個数
-function TMIDIEventThread.readNoteMessage(pMIDIIn:Integer; lstNoteList : TList): Integer;
+function TMIDIEventThread.readNoteMessage(pMIDIIn:TMIDIHandle; lstNoteList : TList): Integer;
 var
   iRet,i      : Integer;
   aucMessage  : Array[0..255] of byte;
@@ -325,10 +330,14 @@ var
   strKey  : String;
   astrKeys: TStringDynArray;
   n       : Integer;
+  iLparam : LongInt;
 begin
   // もしマッピングの範囲を超えていたら処理しない
   if (ucNote < Low(FKeyMapping)) or (ucNote > High(FKeyMapping)) then
     exit;
+
+
+  iLparam := 0;
 
   // 宛先ウインドウを取得
   // 都度拾うのも無駄なので、ノート情報が流れ始めたときだけ取得
@@ -351,7 +360,11 @@ begin
         if wmEvent = WM_KEYDOWN then
           iIndex := n                       // ノートOnのときは、指定されたキーの順番で押す
         else if wmEvent = WM_KEYUP then
-          iIndex := (length(astrKeys)-n-1)  // ノートOffのときは、逆の順番で離す
+        begin
+          iIndex := (length(astrKeys)-n-1);  // ノートOffのときは、逆の順番で離す
+          iLparam := LPARAM(DWORD(1 or (FKeyCode.GetItem(astrKeys[iIndex]) shl 16) or (1 shl 30) or (1 shl 31)));
+
+        end
         else
           iIndex := n;                      // 上記以外は、とりあえず指定された順番で流す
 
@@ -360,9 +373,9 @@ WriteLn(Format(' winHandle = 0x%x : Note = %d : Event = %d : Key = %s ', [FhwndT
 {$ENDIF}
         // メッセージを送信(通常はSendMessageで送る)
         if FUsePostMessage = 0 then
-          SendMessage(FhwndTerget, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), 0)
+          SendMessage(FhwndTerget, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), iLparam)
         else
-          PostMessage(FhwndTerget, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), 0);
+          PostMessage(FhwndTerget, wmEvent, FKeyCode.GetItem(astrKeys[iIndex]), iLparam);
 
       end;
 
