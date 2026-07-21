@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <RootNamespace>BardPlay2</RootNamespace>
+    <AssemblyName>BardPlay2</AssemblyName>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+    <LangVersion>latest</LangVersion>
+    <NeutralLanguage>ja</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ゲームプロファイル(既定キーマッピング)を実行ファイルと同じフォルダへコピー -->
+    <None Include="Profiles\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="2.3.0" />
+  </ItemGroup>
+
+</Project>

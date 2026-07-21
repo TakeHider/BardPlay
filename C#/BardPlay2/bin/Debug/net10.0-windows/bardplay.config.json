@@ -1,0 +1,12 @@
+{
+  "MidiDevice": "Digital Keyboard-1",
+  "Game": "BlueProtocol",
+  "KeyboardSender": "SendInput",
+  "Octave": 0,
+  "StartOnRun": false,
+  "VirtualChords": false,
+  "DebugMode": true,
+  "DebugSaveToFile": false,
+  "StopOnOutOfRange": false,
+  "BackgroundColor": "#F5FFFA"
+}
