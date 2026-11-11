@@ -75,16 +75,16 @@ BardPlay2/
 
 ## キーマッピングの編集
 
-`Profiles/FF14.json` と `Profiles/BlueProtocol.json` は同梱の**サンプル**です
+`Profiles/FF14.json` と `Profiles/BlueProtocol.json` は同梱の**サンプル**です  
 (FFXIVの数字キー行/QWERTY行/ASDF行を1オクターブずつ割り当てる、よく使われる
 3オクターブ・クロマチック配列を仮に設定しています)。実際の演奏には、
 ご自身のゲーム内キーバインド設定に合わせて `keyMapping` の中身
-(MIDIノート番号 → キー名/Shift/Ctrl/Alt)を編集してください。
+(MIDIノート番号 → キー名/Shift/Ctrl/Alt)を編集してください。  
 新しいゲームを追加する場合も、このJSON構造に沿ったファイルを`Profiles`フォルダに
 追加し、対応する`IGameEngine`実装(モノ/ポリフォニックいずれか、または新規)を
-`GameEngineFactory`に登録するだけで拡張できます。
+`GameEngineFactory`に登録するだけで拡張できます。  
 
-キー名の一覧は `Core/Keyboard/VirtualKeyTable.cs` を参照してください。
+キー名の一覧は `Core/Keyboard/VirtualKeyTable.cs` を参照してください。  
 
 ## 未実装・今後の拡張ポイント(仕様書14章に対応)
 
